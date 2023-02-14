@@ -28,9 +28,9 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "start": "egg-scripts start --daemon  --port=9005 --title=purchase",
-    "stop": "egg-scripts stop --title=purchase",
-    "dev": "egg-bin dev --port=9005",
+    "start": "egg-scripts start --daemon  --port=9200 --title=inventory",
+    "stop": "egg-scripts stop --title=inventory",
+    "dev": "egg-bin dev --port=9200",
     "debug": "egg-bin debug",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",
