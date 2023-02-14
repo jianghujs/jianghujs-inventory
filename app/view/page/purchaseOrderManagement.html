@@ -133,17 +133,17 @@
 {% endblock %}
 
 {% block vue_body %}
-{% include 'component/flow/processFlow.html' %}
-{% include 'component/flow/editFlow.html' %}
-{% include 'component/flow/editLine.html' %}
-{% include 'component/flow/editNode.html' %}
-{% include 'component/previewFileGroup.html' %}
-{% include 'component/rowStatus/row-status-select.html' %}
-{% include 'component/rowStatus/row-status-switch-button.html' %}
-{% include 'component/purchaseOrderDetail.html' %}
+{% include 'component/purchase/flow/processFlow.html' %}
+{% include 'component/purchase/flow/editFlow.html' %}
+{% include 'component/purchase/flow/editLine.html' %}
+{% include 'component/purchase/flow/editNode.html' %}
+{% include 'component/purchase/previewFileGroup.html' %}
+{% include 'component/basic/rowStatus/row-status-select.html' %}
+{% include 'component/basic/rowStatus/row-status-switch-button.html' %}
+{% include 'component/purchase/purchaseOrderDetail.html' %}
 
 {% include 'component/purchaseOrderManagement-supplierSelect.html' %}
-{% include 'component/purchaseOrder-status-select.html' %}
+{% include 'component/purchase/purchaseOrder-status-select.html' %}
 {% include 'component/purchaseOrderManagement-contractUpload.html' %}
 
 <script type="module">

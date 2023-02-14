@@ -1,6 +1,6 @@
 'use strict';
 const Service = require('egg').Service;
-const { tableEnum, articlePublishStatusEnum } = require("../../../purchase/app/constant/constant");
+const { tableEnum, articlePublishStatusEnum } = require("../constant/constant");
 const _ = require("lodash");
 const path = require("path");
 
