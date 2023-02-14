@@ -1,0 +1,279 @@
+<template id="purchase-order-management-supplier-select">
+  <v-container class="pa-0">
+    <v-card elevation="0" outlined>
+      <v-data-table :headers="headers" :items="value" hide-default-footer
+        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+        
+        <template v-slot:item.good-id="{ item }">
+          <v-text-field class="cus-v-input mr-2" 
+            v-model="item.goodName"
+            dense filled single-line disabled="true"></v-text-field>
+        </template>
+        <template v-slot:item.good-count="{ item }">
+          <v-text-field class="cus-v-input mr-2" dense filled single-line v-model.number="item.goodCount" type="number" disabled="true"></v-text-field>
+        </template>
+
+        <template v-slot:item.supplier-id="{ item }">
+          <v-autocomplete 
+            :loading="loadingSupplierListMapOfGoodId" 
+            class="cus-v-input mr-2" 
+            style="display: inline-block; width: 230px;"
+            dense filled single-line 
+            clearable label="选择供应商" 
+            v-model="item.supplierId" 
+            :items="supplierListMapOfGoodId[item.goodId]" 
+            item-text="supplierName" item-value="supplierId" 
+            @change="(supplierId) => {
+              const supplier = supplierListMapOfGoodId[item.goodId].find(s => s.supplierId === supplierId);
+              item.supplierId = supplier.supplierId;
+              item.supplierName = supplier.supplierName;
+            }">
+          </v-autocomplete>
+          <v-btn v-if="item.supplierId" 
+            color="success" 
+            text small
+            @click="doUiAction('getGoodHistoryPriceList', { item })">
+            报价历史
+          </v-btn>
+        </template>
+        <template v-slot:item.good-price="{ item }">
+          <v-text-field class="cus-v-input mr-2" dense filled single-line v-model.number="item.goodPrice" type="number"></v-text-field>
+        </template>
+        <template v-slot:item.good-category="{ item }">
+          {{ item.goodCategory }}
+        </template>
+        <template v-slot:item.supplier-count="{ item }">
+          <font color="red" v-if="!item.supplierCount">0</font>
+          <font v-if="item.supplierCount">{{ item.supplierCount }}</font>
+        </template>
+        <template v-slot:item.action="{ item, index }">
+          <v-btn small class="success" @click="doUiAction('updateItem', {item})">保存</v-btn>
+        </template>
+      </v-data-table>
+
+    </v-card>
+
+    <v-row justify="center">
+      <v-dialog v-model="goodHistoryPriceListShow" scrollable max-width="400px" >
+        <v-card>
+          <v-card-title>
+            <span class="title">报价历史</span>
+            <v-spacer></v-spacer>
+            <v-btn fab x-small 
+              @click="goodHistoryPriceListShow = false;">
+              <v-icon dark>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text style="height: 300px;">
+            <div>商品: {{ priceHistoryItem.goodName }}</div>
+            <div>供应商: {{ priceHistoryItem.supplierName }}</div>
+            <div style="height: 20px;"></div>
+            <div v-if="loadingHistoryPrice">报价历史查询中</div>
+            <div v-if="!loadingHistoryPrice && (!priceHistoryList || priceHistoryList.length === 0)">暂无报价历史</div>
+            <div v-for="priceItem in priceHistoryList">报价: {{priceItem.goodPrice}}  时间: {{ priceItem.operationAt && dayjs(priceItem.operationAt).format('YYYY-MM-DD HH:mm:ss') }}</div>
+          </v-card-text>
+          <v-divider></v-divider>
+        </v-card>
+      </v-dialog>
+    </v-row>
+   
+  </v-container>
+</template>
+
+<script type="module">
+  Vue.component("purchase-order-management-supplier-select", {
+    template: '#purchase-order-management-supplier-select',
+    props: {  
+      value: {
+        type: Array,
+        default: () => [],
+      },
+      goodList: {
+        type: Array,
+        default: () => [],
+      },
+      supplierList: {
+        type: Array,
+        default: () => [],
+      }
+    },
+    data: () => ({
+      loadingHistoryPrice: true,
+      goodHistoryPriceListShow: false,
+      loadingHistoryPriceText: '历史报价加载中...',
+      priceHistoryList: [],
+      priceHistoryItem: {},
+
+      loadingGoodList: false,
+      loadingSupplierListMapOfGoodId: false,
+      supplierListMapOfGoodId: {},
+      headers: [
+        { text: "商品", value: "good-id", width: 170, class: 'fixed', cellClass: 'fixed' },
+        { text: "供应商数", value: "supplier-count", width: 80 },
+        { text: "采购数量", value: "good-count", width: 80, class: 'fixed', cellClass: 'fixed'},
+        { text: "商品分类", value: "good-category", width: 80 },
+        { text: "单位", value: "goodUnit", width: 80 },
+        { text: "库存", value: "storeCount", width: 80 },
+        { text: "商品指导价", value: "goodSuggestPrice", width: 120 },
+        { text: "供应商", value: "supplier-id", width: 260 },
+        { text: "供应商本次报价(单价)", value: "good-price", width: 120 },
+        // { text: "备注", value: "remarks", width: 120 },
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 100, class: 'fixed', cellClass: 'fixed' },
+      ],
+    }),
+    computed: {
+      isMobile() {
+        return window.innerWidth < 600;
+      }
+    },
+    watch: {
+      value() {
+        this.updateSupplierListToValue();
+      }
+    },
+    async created() {
+      
+    },
+    mounted() { },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'updateItem':
+            await this.doUpdateItem(uiActionData);
+            break;
+          // case 'handleSupplierSelect':
+          //   await this.handleSupplierSelect();
+          //   break;
+          case 'getGoodHistoryPriceList':
+            await this.getGoodHistoryPriceList(uiActionData);
+            break;
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
+        }
+      },
+
+      async prepareValidate() {
+        const isWriteDone = this.value.every(item=> item.goodPrice || item.supplierId)
+
+        if (!isWriteDone) {
+          window.vtoast.fail({ message: "请填写完整报价信息!" });
+          throw new Error("[prepareValidate] false");
+        }
+      },
+    
+      async updateSupplierListToValue() {
+        for (let i = 0; i < this.value.length; i++) {
+          const purchaseOrderGood = this.value[i];
+          this.supplierListMapOfGoodId[purchaseOrderGood.goodId] = this.supplierList.filter(item=> item.goodId == purchaseOrderGood.goodId);
+        }
+      },
+      async doUpdateItem({ item }) {
+        const { purchaseOrderId, goodId, supplierId, goodPrice } = item;
+        if (!goodPrice || !supplierId) {
+          window.vtoast.fail({ message: "请填写完整报价信息!" });
+          throw new Error("[doUpdateItem] false");
+        }
+
+        await window.vtoast.loading("保存");
+        
+        // 计算采购单价格
+        const purchaseOrderPrice = this.value.reduce((prev, next)=> prev + (next.goodPrice*next.goodCount), 0)
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement',
+              actionId: 'supplierSelect-updateItem',
+              actionData: { 
+                purchaseOrderId, 
+                goodId,
+                supplierId, 
+                goodPrice,
+                purchaseOrderPrice
+              }
+            }
+          }
+        })
+        await window.vtoast.success("保存成功");
+      },
+      async checkGoodExist(goodId, item) {
+        return new Promise((resolve, reject) => {
+          if(this.value.filter(x => x.goodId == goodId).length > 1) {
+            window.vtoast.fail("商品已存在");
+            item.goodId = null;
+            return
+          }
+          resolve();
+        });
+      },
+      async doSavePurchaseOrderApproval() {
+        await window.vtoast.loading("保存报价");
+
+        const purchaseOrderId = this.value[0].purchaseOrderId
+        const savePricePromise = []
+
+        this.value.map(item=> {
+          savePricePromise.push(this.doUpdateItem( { item }))
+        })
+
+        await Promise.all(savePricePromise)
+        
+        await window.vtoast.success("提交报价成功");
+      },
+      async doPurchaseOrderApproval() {
+        await window.vtoast.loading("提交审批");
+        const purchaseOrderId = this.value[0].purchaseOrderId
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement',
+              actionId: 'createWorkflowTask',
+              actionData: {
+                purchaseOrderId
+              }
+            }
+          }
+        });
+        await window.vtoast.success("提交审批成功");
+      },
+      async getGoodHistoryPriceList({ item }) {
+        this.priceHistoryList = [];
+        this.priceHistoryItem = item;
+        this.goodHistoryPriceListShow = true;
+        this.loadingHistoryPrice = true
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement',
+              actionId: 'selectGoodHistoryPriceList',
+              where: {
+                supplierId: item.supplierId,
+                goodId: item.goodId
+              },
+              limit: 10,
+              orderBy: [{column: 'operationAt', order: 'desc'}],
+              actionData: {}
+            }
+          }
+        });
+        this.loadingHistoryPrice = false
+        const { rows } = result.data.appData.resultData;
+        this.priceHistoryList = rows.splice(0, 100);
+      },
+      // async handleSupplierSelect() {
+      //   // 选择供应商后,强制刷新,显示历史报价的icon
+      //   setTimeout(()=> {
+      //     this.$forceUpdate()
+      //   }, 2000)
+      // }
+    }
+  })
+</script>
+<style>
+.add-btn {
+  width: 100%;
+  margin-top: 5px;
+  padding: 5px;
+}
+</style>

@@ -1,0 +1,155 @@
+
+<template id="task-icreate-management-task-history">
+  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+    <v-card>
+      <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+  
+        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+          <span class="text-h6">审批历史</span>
+          <span class="body-2">（共{{ tableData.length }}条记录）</span>
+        </v-col>
+  
+        <v-spacer></v-spacer>
+  
+        <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
+          <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
+        </v-col>
+        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')" >
+          <v-icon left dark > mdi-cached </v-icon>
+          <span>刷新</span>  
+        </v-btn>
+      </v-row>
+      <v-data-table fixed-header
+        :headers="headers"
+        :items="tableData"
+        height="350"
+        :search="searchInput"
+        :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+        :items-per-page="100"
+        mobile-breakpoint="0"
+        :loading="isTableLoading"
+        checkbox-color="success"
+        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+        <template v-slot:item.operation-at="{ item }">
+          {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
+        </template>
+      
+      </v-data-table>
+    </v-card>
+  </v-container>
+</template>
+
+<script type="module">
+Vue.component('task-icreate-management-task-history', {
+  el: '#app',
+  template: '#task-icreate-management-task-history',
+  vuetify: new Vuetify(),
+  data: () => ({
+    // 表格相关数据
+    isFormValid: true,
+    requireRules: [
+      v => !!v || '必填',
+    ],
+    constantCollection: {
+    },
+
+    serverSearchInput: {
+      
+    },
+    searchInput: null,
+    isTableLoading: true,
+    tableDataFromBackend: [],
+    headers: [
+       
+      {text: "名称", value: "taskTitle", width: 230, class: 'fixed', cellClass: 'fixed'},
+      // {text: "任务ID", value: "taskId", width: 120}, 
+      // {text: "节点ID", value: "taskConfigId", width: 200}, 
+      {text: "节点说明", value: "taskExplain", width: 200}, 
+      {text: "操作人", value: "operationByUser", width: 80}, 
+      {text: "操作描述", value: "taskHandleDesc", width: 120}, 
+      {text: "操作时间", value: "operation-at", width: 250},
+     
+    ],
+    isEditDrawerShow: false,
+    editItem: {},
+    isAddDrawerShow: false,
+    addItem: {}
+  }),
+  computed: {
+    isMobile() {
+      return window.innerWidth < 600;
+    },
+    tableData() {
+      return this.tableDataFromBackend;
+    }
+  },
+  watch: {},
+  async created() {
+    await this.doUiAction('refreshTableData');
+  },
+  mounted() {},
+  methods: {
+    async doUiAction(uiActionId, uiActionData) {
+      switch (uiActionId) {
+        case 'refreshTableData':
+          await this.refreshTableData();
+          break;
+        default:
+          console.error("[doUiAction] uiActionId not find", { uiActionId });
+          break;
+      }
+    },
+    // =================================uiAction 公共方法 start ======================================
+    /**
+     * uiActionId:  prepareValidate
+     * description: ✅表单校验
+    */
+    async prepareValidate() {
+      if (this.$refs.form.validate() === false) {
+        window.vtoast.fail({ message: "输入有误, 请检查!" });
+        throw new Error("[prepareValidate] false");
+      }
+    },
+
+    /**
+     * uiActionId:  refreshTableData
+     * description: ✅获取表格数据
+    */
+    async refreshTableData() {
+      this.isTableLoading = true;
+      const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
+      const result = await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'taskICreateManagement',
+            actionId: 'selectTaskHistoryList',
+            actionData: {},
+            where: {},
+            whereLike: {},
+            whereIn: serverSearchInput,
+            orderBy: [{column: 'operationAt', order: 'desc'}]
+          }
+        }
+      });
+      const { rows } = result.data.appData.resultData;
+
+      this.tableDataFromBackend = rows;
+      this.isTableLoading = false;
+    },
+    // =================================uiAction 公共方法 end ======================================
+  }
+})
+</script>
+
+<style>
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}
+
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
+  cursor: pointer;
+}
+</style>

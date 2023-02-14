@@ -1,0 +1,392 @@
+<template id="purchaseOrderManagement-contractUpload"> 
+  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+  <!-- 页面主要内容 -->
+    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
+      <v-col cols="12" sm="10" xs="8" md="5" xl="2" class="pb-3" :class="{'pt-0': isMobile}">
+        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
+      </v-col>
+      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+        <v-btn
+          class="elevation-0"
+          color="success"
+          dark
+          @click="doUiAction('refreshTableData')"
+        >
+          查询
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-card :class="{'px-2': isMobile}">
+      <v-row class="ma-0 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+
+        <v-col cols="12" xs="12" sm="4" md="4" xl="4" class="pl-0">
+          <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem', null)">新增凭据
+          </v-btn>
+          <span class="body-2">共{{ tableDataFromBackend.length }}条记录</span>
+        </v-col>
+
+        <v-spacer></v-spacer>
+
+        <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="px-0" >
+          <v-text-field v-model="searchInput" color="success" prefix="表格过滤：" class="cus-v-input" dense filled single-line></v-text-field>
+        </v-col>
+
+      </v-row>
+      <v-data-table fixed-header
+                    :headers="headers"
+                    :items="tableDataFromBackend"
+                    :search="searchInput"
+                    :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+                    :items-per-page="100"
+                    :loading="isTableLoading"
+                    checkbox-color="success"
+                    mobile-breakpoint="0"
+                    :class="{'mx-2': isMobile}"
+                    class="elevation-0 mt-0 flex-fill d-flex flex-column">
+        <template v-slot:item.download-path="{ item }">
+          <preview-file-group :file-list="item.contractFileList" />
+        </template>
+        <template v-slot:item.action="{ item }">
+          <row-status-switch-button :value="item.rowStatus" @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })"/>
+        </template>
+      </v-data-table>
+    </v-card>
+
+<v-overlay app :value="isEditDrawerShow"></v-overlay>
+  <!-- 编辑抽屉 -->
+  <v-navigation-drawer v-model="isEditDrawerShow" :permanent="isEditDrawerShow" fixed temporary right width="80%" hide-overlay class="elevation-24">
+    <v-form v-model="isFormValid" ref="form" lazy-validation>
+      <v-row class="pt-8">
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">{{ currentClickButton.title }}文件</span>
+        <v-spacer></v-spacer>
+        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isEditDrawerShow = false">
+          <v-icon dark>mdi-close</v-icon>
+        </v-btn>
+      </v-row>
+      <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}" v-if="isEditDrawerShow">
+        <v-col v-if="currentClickButton.action === 'add'" cols="12" sm="12" md="6" xl="6" :class="{'pa-0': isMobile, 'px-3': isMobile, 'pt-6': isMobile}">
+          <span class="inputLabel">文件</span>
+          <v-file-input v-model="inputFile" class="cus-v-input mr-2" dense filled single-line chips label="请选择文件" ></v-file-input>
+        </v-col>
+        <v-col cols="12"></v-col>
+        <v-col cols="12" sm="12" md="6" xl="6" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <span class="inputLabel">文件类型</span>
+          <v-select class="cus-v-input mr-2" v-model="editItem['contractFileType']"
+            :items="constantCollection.contractFileType" dense item-text="text" item-value="value" dense filled single-line></v-select>
+        </v-col>
+        <v-col cols="12"></v-col>
+        <v-col cols="12" sm="12" md="6" xl="6" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <span class="inputLabel">备注</span>
+          <v-text-field class="cus-v-input " dense filled single-line v-model="editItem['remarks']"></v-text-field>
+        </v-col> 
+      </v-row>
+      <v-row class="justify-end mx-0 mt-8" :class="{'px-10': !isMobile, 'px-3': isMobile, 'mb-8': isMobile}">
+        <v-btn color="success" @click="doUiAction(dialogSaveInfoAction)">保存</v-btn>
+        <v-btn class="elevation-0 mr-2 ml-2" @click="isEditDrawerShow = false">取消</v-btn>
+      </v-row>
+    </v-form>
+  </v-navigation-drawer>
+
+  <v-overlay :value="overlay" @click="overlay = false" :opacity="0.85"  style="z-index: 9999;">
+    <v-icon style="position: fixed; right: 30px; top: 30px;" large color="white"
+      @click="overlay = false" :color="fileType === 'pdf' ? '#ccc' : ''">
+      mdi-close-circle
+    </v-icon>
+    <v-icon style="position: fixed; right: 80px; top: 30px;" large color="white"
+      @click="doUiAction('downloadFileByStream', {item: editItem})" :color="fileType === 'pdf' ? '#ccc' : ''">
+      mdi-download
+    </v-icon>
+    <iframe v-if="fileType === 'pdf'" id="pdfPlayer" :src="fileSrc" frameborder="0"
+     style="width: 100vw; height: 100vh; padding: 50px 0 0 0;"></iframe>
+    <v-img v-else max-height="800" max-width="800" :src="fileSrc"></v-img>
+  </v-overlay>
+</v-container>
+</template>
+
+
+<script type="module">
+  Vue.component("purchaseOrderManagement-contractUpload", {
+    template: '#purchaseOrderManagement-contractUpload',
+    props: ['purchaseOrderId'],
+    vuetify: new Vuetify(),
+    data: () => ({
+      isMobile: window.innerWidth < 600,
+
+      serverSearchInput: {
+        rowStatus: ['正常']
+      },
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [ v => !!v || '必填' ],
+      constantCollection: {
+        contractFileType: [
+          {"value": "凭据", "text": "凭据"}, 
+          {"value": "合同", "text": "合同"}, 
+          {"value": "附件", "text": "附件"}
+        ],
+      },
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        {text: "文件名", value: "filename", width: 200, class: 'fixed', cellClass: 'fixed'}, 
+        {text: "凭据编号", value: "contractId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
+        {text: "文件类型", value: "contractFileType", width: 120}, 
+        {text: "文件大小(KB)", value: "binarySize", width: 120}, 
+        {text: "文件下载(注意: 在线预览只支持 图片和pdf)", value: "download-path", width: 220}, 
+        {text: "备注", value: "remarks", width: 120}, 
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 150, class: 'fixed', cellClass: 'fixed'}
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      inputFile: null,
+      downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
+      dialogSaveInfoAction: '',
+      overlay: false,
+      fileType: '',
+      fileSrc: '',
+      previewPrefix: `/<$ ctx.app.config.appId $>/upload`,
+    }),
+    computed: {
+      isMobile() {
+        return window.innerWidth < 600;
+      },
+      tableData() {
+        return this.tableDataFromBackend;
+      }
+    },
+    watch: {},
+    async created() {
+    },
+    mounted() {
+      this.doUiAction('refreshTableData');
+    },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'refreshTableData':
+            await this.refreshTableData(uiActionData);
+            break;
+          case 'startCreateItem':
+            await this.clearItemData(uiActionData);
+            await this.openCreateItemDialog(uiActionData);
+            break;
+          case 'createItem':
+            await this.prepareValidate(uiActionData);
+            await this.confirmCreateItemDialog(uiActionData);
+            await this.doCreateItem(uiActionData);
+            await this.refreshTableData(uiActionData);
+            await this.closeDrawerShow(uiActionData);
+            break;
+          case 'startUpdateItem':
+            await this.prepareItemData(uiActionData);
+            await this.openUpdateItemDialog(uiActionData);
+            break;
+          case 'updateItem':
+            await this.prepareValidate(uiActionData);
+            await this.confirmUpdateItemDialog(uiActionData);
+            await this.doUpdateItem(uiActionData);
+            await this.refreshTableData(uiActionData);
+            await this.closeDrawerShow(uiActionData);
+            break;
+          case 'deleteItem':
+            await this.confirmDeleteItemDialog(uiActionData);
+            await this.prepareItemData(uiActionData);
+            await this.doDeleteItem(uiActionData);
+            await this.refreshTableData(uiActionData);
+            break;
+          case 'downloadFileByStream':
+            await this.downloadFileByStream(uiActionData);
+            break;
+          case 'rowStatusChange':
+            await this.rowStatusChange(uiActionData);
+            await this.refreshTableData();
+            break;    
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
+        }
+      },
+      /**
+       * 获取表格数据
+       */
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement', 
+              actionId: 'contractUpload-selectItemList',
+              orderBy: [{column: 'operationAt', order: 'desc'}],
+              where: {
+                purchaseOrderId: this.purchaseOrderId,
+              },
+              whereIn: {
+                rowStatus: this.serverSearchInput.rowStatus
+              },
+            }
+          }
+        });
+        this.tableDataFromBackend = result.data.appData.resultData.rows.map(item => ({ ...item,
+          // 临时适配单凭据文件数据格式
+          contractFileList: [item]
+        }));
+        this.isTableLoading = false;
+      },
+
+      // startCreateItem
+      async clearItemData() {
+        this.editItem = {};
+        this.inputFile = null;
+      },
+
+      async openCreateItemDialog() {
+        this.currentClickButton = {action: 'add', title: '新增'};
+        this.isEditDrawerShow = true;
+        this.dialogSaveInfoAction = 'createItem';
+      },
+
+      // 表单验证
+      async prepareValidate() {
+        if (await this.$refs.form.validate() === false) {
+          throw new Error("[prepareValidate] false");
+        }
+      },
+
+      // createItem
+      async confirmCreateItemDialog() {
+        if (await window.confirmDialog({title: "新增", content: "确定新增吗？"}) === false) {
+          throw new Error("[confirmCreateFormDialog] 否");
+        }
+      },
+
+      /**
+       * 新增数据
+       */
+      async doCreateItem() {
+        const { contractFileType, remarks } = this.editItem;
+        const purchaseOrderId = this.purchaseOrderId;
+        await window.vtoast.loading("保存中");
+        const file = this.inputFile
+        window.vtoast.loading(`${file.name} 上传进度: 0.00%`);
+        const result = await window.jianghuAxios.httpUploadByStream({
+            file,
+            fileDirectory: `purchaseOrderContract/${this.purchaseOrderId}`,
+            onProgress: (total, loaded) => {
+              const progress = Number((loaded * 100 / total).toFixed(2));
+              window.vtoast.loading(`${file.name} 上传进度: ${progress}%`);
+              if (loaded === total) {
+                window.vtoast.success(`${file.name} 上传进度: 100%`);
+              }
+            }
+          })
+        const { status } = result.data;
+        const { filename, downloadPath, binarySize } = result.data.appData.resultData;
+        if (status === 'success') {
+          await window.jianghuAxios({
+            data: {
+              appData: {
+                pageId: 'purchaseOrderManagement',
+                actionId: 'contractUpload-insertItem',
+                actionData: { purchaseOrderId, contractFileType, remarks, filename, downloadPath, binarySize }
+              }
+            }
+          })
+          await window.vtoast.success("新增数据成功");
+        } else {
+          await window.vtoast.fail("文件上传失败");
+        }
+      },
+
+      // startUpdateItem
+      async prepareItemData({item}) {
+        this.editItem = {...item};
+      },
+
+      async openUpdateItemDialog() {
+        this.currentClickButton = {action: 'edit', title: '修改'};
+        this.isEditDrawerShow = true;
+        this.dialogSaveInfoAction = 'updateItem';
+      },
+
+      // updateItem
+      async confirmUpdateItemDialog() {
+        if (await window.confirmDialog({title: "修改", content: "确定修改吗？"}) === false) {
+          throw new Error("[confirmUpdateItemDialog] 否");
+        }
+      },
+
+      /**
+       * 保存学生
+       */
+      async doUpdateItem() {
+        await window.vtoast.loading("保存中");
+        const { id, ...data } = this.editItem;
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement',
+              actionId: 'contractUpload-updateItem',
+              actionData: data,
+              where: {id}
+            }
+          }
+        })
+        await window.vtoast.success("修改成功");
+      },
+
+      // 关闭抽屉
+      async closeDrawerShow() {
+        this.isEditDrawerShow = false;
+      },
+
+      // deleteItem
+      async confirmDeleteItemDialog() {
+        if (await window.confirmDialog({title: "删除", content: "确定删除吗？"}) === false) {
+          throw new Error("[confirmDeleteItemDialog] 否");
+        }
+      },
+
+      /**
+       * 删除数据
+       */
+      // TODO::只是删除了 _file表中的数据，并没有删除文件
+      async doDeleteItem() {
+        const { id } = this.editItem;
+        window.vtoast.loading('正在删除')
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement',
+              actionId: 'contractUpload-deleteItem',
+              where: {id}
+            }
+          }
+        });
+        window.vtoast.success('删除成功')
+      },
+      async rowStatusChange({ item, rowStatus }) {
+        if (await window.confirmDialog({title: "数据状态", content: `确定将数据修改为【${rowStatus}】吗？`}) === false) {
+          throw new Error("rowStatus 取消");
+        }
+        await window.vtoast.loading("修改数据状态");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderManagement',
+              actionId: 'contractUpload-updateItem',
+              actionData: { rowStatus },
+              where: { id: item.id }
+            }
+          }
+        });
+        item.rowStatus = rowStatus;
+        await window.vtoast.success("修改数据状态成功");
+      }
+    }
+  })
+</script>

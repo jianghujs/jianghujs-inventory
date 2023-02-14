@@ -1,0 +1,47 @@
+<template id="purchase-order-status-select">
+  <v-select
+    class="cus-v-input mr-2"
+    v-model="value"
+    :items="items"
+    prefix="数据状态"
+    hide-details dense filled
+    multiple
+    persistent-hint
+    @change="$emit('update-value', $event)"
+  ></v-select>
+
+</template>
+
+<script>
+  Vue.component('purchase-order-status-select', {
+    template: '#purchase-order-status-select',
+    props: {
+      value: {
+        type: Array,
+        default: () => {
+          return ['草稿', '采购询价', '审核中', '采购中', '采购完成', '审核失败']
+        }
+      },
+    
+    },
+    vuetify: new Vuetify(),
+    data: () => ({
+      items: [
+        { text: "草稿", value: "草稿" },
+        { text: "采购询价", value: "采购询价" },
+        { text: "审核中", value: "审核中" },
+        { text: "采购中", value: "采购中" },
+        { text: "采购完成", value: "采购完成" },
+        { text: "审核失败", value: "审核失败" },
+      ],
+    }),
+    computed: {
+    },
+    watch: {
+    },
+    created() {
+    },
+    methods: {
+    }
+  })
+</script>
