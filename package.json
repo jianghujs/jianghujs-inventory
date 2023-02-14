@@ -8,16 +8,12 @@
     "framework": "@jianghujs/jianghu"
   },
   "dependencies": {
-    "@jianghujs/jianghu": "3.0.80",
-    "dayjs": "1.11.0",
+    "@jianghujs/jianghu": "4.0.14",
+    "dayjs": "^1.11.4",
     "egg": "^2.15.1",
-    "egg-scripts": "^2.11.0",
-    "lodash": "4.17.21",
-    "md5-node": "^1.0.1"
+    "egg-scripts": "^2.11.0"
   },
   "devDependencies": {
-    "autod": "^3.0.1",
-    "autod-egg": "^1.1.0",
     "egg-bin": "^4.11.0",
     "egg-mock": "^3.21.0",
     "eslint": "^7.32.0",
