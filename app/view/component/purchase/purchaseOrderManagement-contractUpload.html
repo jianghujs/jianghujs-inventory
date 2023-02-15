@@ -1,36 +1,32 @@
 <template id="purchaseOrderManagement-contractUpload"> 
   <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
   <!-- 页面主要内容 -->
-    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
-      <v-col cols="12" sm="10" xs="8" md="5" xl="2" class="pb-3" :class="{'pt-0': isMobile}">
-        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
-      </v-col>
-      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
-        <v-btn
-          class="elevation-0"
-          color="success"
-          dark
-          @click="doUiAction('refreshTableData')"
-        >
-          查询
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-card :class="{'px-2': isMobile}">
-      <v-row class="ma-0 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-
-        <v-col cols="12" xs="12" sm="4" md="4" xl="4" class="pl-0">
-          <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem', null)">新增凭据
+    <v-row>
+      <!--pc端的搜索条件表单 >>>>>>>> -->
+      <v-col cols="12" xs="12" sm="12" md="8" xl="9">
+        <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
+          <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
+            <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
+          </v-col>
+          <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('refreshTableData')">
+            查询
           </v-btn>
-          <span class="body-2">共{{ tableDataFromBackend.length }}条记录</span>
+        </v-row>
+      </v-col>
+      <!-- <<<<<<<< pc端的搜索条件表单 -->
+    </v-row>
+    <v-card class="rounded-lg">
+      <v-row class="ma-0 pa-4">
+        <!--新增按钮-->
+        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
+          <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新增凭据</v-btn>
+          <span class="body-2">共{{ tableData.length }}条记录</span>
         </v-col>
-
         <v-spacer></v-spacer>
-
-        <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="px-0" >
-          <v-text-field v-model="searchInput" color="success" prefix="表格过滤：" class="cus-v-input" dense filled single-line></v-text-field>
+        <!--搜索-->
+        <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+          <v-text-field v-model="searchInput" color="success" prefix="搜索：" class="jh-v-input" dense filled single-line hide-details></v-text-field>
         </v-col>
-
       </v-row>
       <v-data-table fixed-header
                     :headers="headers"
@@ -130,6 +126,7 @@
       isTableLoading: true,
       tableDataFromBackend: [],
       headers: [
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 150, class: 'fixed', cellClass: 'fixed'},
         {text: "文件名", value: "filename", width: 200, class: 'fixed', cellClass: 'fixed'}, 
         {text: "凭据编号", value: "contractId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
         {text: "文件类型", value: "contractFileType", width: 120}, 
@@ -138,7 +135,6 @@
         {text: "备注", value: "remarks", width: 120}, 
         {text: "操作人", value: "operationByUser", width: 120},
         {text: "操作时间", value: "operationAt", width: 250},
-        {text: '操作', value: 'action', align: 'center', sortable: false, width: 150, class: 'fixed', cellClass: 'fixed'}
       ],
 
       currentClickButton: {title: '新增', action: 'add'},

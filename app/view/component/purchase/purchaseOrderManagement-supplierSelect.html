@@ -7,10 +7,10 @@
         <template v-slot:item.good-id="{ item }">
           <v-text-field class="cus-v-input mr-2" 
             v-model="item.goodName"
-            dense filled single-line disabled="true"></v-text-field>
+            dense filled single-line hide-details disabled="true"></v-text-field>
         </template>
         <template v-slot:item.good-count="{ item }">
-          <v-text-field class="cus-v-input mr-2" dense filled single-line v-model.number="item.goodCount" type="number" disabled="true"></v-text-field>
+          <v-text-field class="cus-v-input mr-2" dense filled single-line hide-details v-model.number="item.goodCount" type="number" disabled="true"></v-text-field>
         </template>
 
         <template v-slot:item.supplier-id="{ item }">
@@ -18,7 +18,7 @@
             :loading="loadingSupplierListMapOfGoodId" 
             class="cus-v-input mr-2" 
             style="display: inline-block; width: 230px;"
-            dense filled single-line 
+            dense filled single-line hide-details
             clearable label="选择供应商" 
             v-model="item.supplierId" 
             :items="supplierListMapOfGoodId[item.goodId]" 
@@ -37,7 +37,7 @@
           </v-btn>
         </template>
         <template v-slot:item.good-price="{ item }">
-          <v-text-field class="cus-v-input mr-2" dense filled single-line v-model.number="item.goodPrice" type="number"></v-text-field>
+          <v-text-field class="cus-v-input mr-2" dense filled single-line hide-details v-model.number="item.goodPrice" type="number"></v-text-field>
         </template>
         <template v-slot:item.good-category="{ item }">
           {{ item.goodCategory }}

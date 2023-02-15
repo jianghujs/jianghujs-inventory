@@ -1,138 +1,211 @@
-{% extends 'template/jhTemplateV3.html'%}
+{% extends 'template/jhTemplateV4.html'%}
 
-{% block vue_template %}
+{% block vueTemplate %}
 
-<jh-layout-v3>
-<template slot="serverSearch">
-  <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
-    <v-col cols="12" sm="10" xs="8" md="5" xl="3" :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}">
-      <purchase-order-status-select :value="serverSearchInput.purchaseStatus" @update-value="serverSearchInput.purchaseStatus=$event" />
-    </v-col>
-
-    <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
-      <v-btn
-        class="elevation-0"
-        color="success"
-        dark
-        @click="doUiAction('refreshTableData')"
-      >
-        查询
-      </v-btn>
-    </v-col>
-  </v-row>
-</template>
-<v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
-  <v-card>
-  <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-
-      <!-- <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新建采购单</v-btn>
-        <span class="body-2">共{{ tableData.length }}条记录</span>
-      </v-col> -->
-
-      <v-spacer></v-spacer>
-
-      <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
-        <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
-      </v-col>
-      <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')" >
-        <v-icon left dark > mdi-cached </v-icon>
-        <span>刷新</span>  
-      </v-btn>
-    </v-row>
-    <v-data-table fixed-header
-                  :headers="headers"
-                  :items="tableData"
-                  :search="searchInput"
-                  :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-                  height="600"
-                  :items-per-page="100"
-                  mobile-breakpoint="0"
-                  :loading="isTableLoading"
-                  checkbox-color="success"
-                  class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">
-          More info about {{ item.name }}
-        </td>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <v-btn small v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('doRecallItem', {item})">撤回</v-btn>
-        <v-btn small v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('startInputGoodPrice', {item})">填写报价&提交审批</v-btn>
-        <v-btn small @click="doUiAction('startUploadPurchaseContract', {item})">凭据管理</v-btn>
-        <v-btn small class="success" v-if="item.purchaseStatus == '采购中'" @click="doUiAction('doFinishItem', {item})">完成采购</v-btn>
-        <!-- <v-btn small class="success" v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('doCreateWorkflowTask', {item})">提交审批</v-btn> -->
-        <v-btn small class="success" @click="doUiAction('doViewDetail', {item})">查看详情</v-btn>
-      </template>
-      <template v-slot:item.applyAt="{ item }">
-        {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
-      </template>
-    </v-data-table>
-  </v-card>
-</v-container>
-
-<!-- 填写报价 -->
-<v-navigation-drawer v-model="isInputGoodPriceDrawerShow" hide-overlay :permanent="isInputGoodPriceDrawerShow" fixed temporary right width="80%" class="elevation-24">
-  <v-form v-model="isFormValid" v-if="isInputGoodPriceDrawerShow" ref="form" lazy-validation>
-    <v-row class="pt-8">
-      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ inputGoodPriceItem.purchaseOrderId }}】填写报价</span>
-      <v-spacer></v-spacer>
-      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isInputGoodPriceDrawerShow = false">
-        <v-icon dark>mdi-close</v-icon>
-      </v-btn>
-    </v-row>
-
-    <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-      <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-     
-        <v-progress-linear
-          indeterminate
-          v-if="isInputGoodPriceDrawerLoading"
-        ></v-progress-linear>
-        <purchase-order-management-supplier-select ref="purchaseOrderSupplier" :supplier-list="supplierList" :good-list="goodList" :value="inputGoodPriceItem.goodList"/>
-
-        <v-row v-if="!isInputGoodPriceDrawerLoading" class="justify-end mx-0 mt-8" :class="{'px-4': isMobile, 'mb-8': isMobile}">
-          <v-btn class="ml-2" @click="doUiAction('doSavePurchaseOrderApproval')">保存全部报价</v-btn>
-          <v-btn color="success" @click="doUiAction('doPurchaseOrderApproval')">保存&提交审批</v-btn>
+<script type="text/html" id="app-template">
+<div>
+  <v-app mobile-breakpoint="sm">
+    <jh-menu />
+    <v-main class="mt-15">
+      <!-- 头部内容 >>>>>>>>>>>>> -->
+      <div class="jh-page-second-bar px-8">
+        <v-row>
+          <v-col cols="12" xs="12" sm="12" md="4" xl="3">
+            <div class="pt-3 text-h7 font-weight-bold">采购单管理
+              <!-- 帮助页按钮 -->
+              <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline
+              </v-icon>
+            </div>
+            <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
+          </v-col>
+          <!--pc端的搜索条件表单 >>>>>>>> -->
+          <v-col cols="12" xs="12" sm="12" md="8" xl="9">
+            <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
+              <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
+                <v-select v-model="serverSearchInput.purchaseStatus" color="success" class="jh-v-input bg-white" :items="constantCollection.purchaseStatus" multiple dense filled single-line></v-select>
+              </v-col>
+              <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('refreshTableData')">
+                查询
+              </v-btn>
+            </v-row>
+          </v-col>
+          <!-- <<<<<<<< pc端的搜索条件表单 -->
         </v-row>
-      </v-col> 
-    </v-row>  
-  </v-form>  
-</v-navigation-drawer>
+      </div>
+      <!-- <<<<<<<<<<<<< 头部内容 -->
+      <div class="jh-page-body-container px-8">
+        <!-- 页面内容 >>>>>>>>>>>>> -->
+        <v-card class="rounded-lg">
+          <v-row class="ma-0 pa-4">
+            <!--新增按钮-->
+            <v-spacer></v-spacer>
+            <!--搜索-->
+            <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+              <v-text-field v-model="searchInput" color="success" prefix="搜索：" class="jh-v-input" dense filled single-line hide-details></v-text-field>
+            </v-col>
+          </v-row>
+          <!--表格-->
+          <v-data-table
+            :headers="headers"
+            :items="tableData"
+            :search="searchInput"
+            :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
+            :items-per-page="-1"
+            mobile-breakpoint="0"
+            :loading="isTableLoading"
+            :class="{'zebraLine': isTableZebraLineShown }"
+            checkbox-color="success"
+            fixed-header
+            class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
+            <!--表格行操作按钮-->
+            <template v-slot:expanded-item="{ headers, item }">
+              <td :colspan="headers.length">
+                More info about {{ item.name }}
+              </td>
+            </template>
+            <template v-slot:item.action="{ item }">
+              <span v-if="item.purchaseStatus == '采购询价'" role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('doRecallItem', {item})">
+                <v-icon size="14" class="success--text">mdi-arrow-u-left-top</v-icon>撤回
+              </span>
+              <span v-if="item.purchaseStatus == '采购询价'" role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('startInputGoodPrice', {item})">
+                <v-icon size="14" class="success--text">mdi-text-box-outline</v-icon>填写报价&提交审批
+              </span>
+              <span role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('startUploadPurchaseContract', {item})">
+                <v-icon size="14" class="success--text">mdi-note-edit-outline</v-icon>凭据管理
+              </span>
+              <span v-if="item.purchaseStatus == '采购中'" role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('deleteItem', {item})">
+                <v-icon size="14" class="success--text">mdi-trash-can-outline</v-icon>完成采购
+              </span>
+              <span role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('doViewDetail', {item})">
+                <v-icon size="14" class="success--text">mdi-text-box-outline</v-icon>查看详情
+              </span>
+            </template>
+            <template v-slot:item.applyAt="{ item }">
+              {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
+            </template>
 
-<v-navigation-drawer v-model="isDetailDrawerShow" :permanent="isDetailDrawerShow" fixed temporary right width="80%" class="elevation-24">
-  <v-row class="pt-8">
-    <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">采购单详情</span>
-    <v-spacer></v-spacer>
-    <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isDetailDrawerShow = false">
-      <v-icon dark>mdi-close</v-icon>
-    </v-btn>
-  </v-row>
-  <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
-</v-navigation-drawer>
+            <!--表格底部右侧功能按钮-->
+            <template v-slot:footer.prepend>
+              <v-menu top offset-y :close-on-content-click="false">
+                <template v-slot:activator="{on, attrs}">
+                  <v-btn icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-menu</v-icon>
+                  </v-btn>
+                </template>
+                <v-switch v-model="isTableZebraLineShown" hide-details class="mx-3 my-2" label="显示斑马纹" dense flat></v-switch>
+              </v-menu>
+            </template>
+            <!--没有数据-->
+            <template v-slot:loading>
+              <div class="jh-no-data">数据加载中</div>
+            </template>
+            <template v-slot:no-data>
+              <div class="jh-no-data">暂无数据</div>
+            </template>
+            <template v-slot:no-results>
+              <div class="jh-no-data">暂无数据</div>
+            </template>
+            <!--表格底部右侧分页-->
+            <template v-slot:footer.page-text="pagination">
+              <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
+              <span class="ml-1">共{{pagination.itemsLength}}条</span>
+            </template>
+          </v-data-table>
+        </v-card>
+        <!-- 填写报价 -->
+        <v-navigation-drawer v-model="isInputGoodPriceDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+          <v-form ref="inputForm" lazy-validation>
+            <!--抽屉标题-->
+            <v-row>
+              <span class="title pa-6 pl-8">【{{ inputGoodPriceItem.purchaseOrderId }}】填写报价</span>
+            </v-row>
+            <v-row class="mt-0 px-6">
+              <v-col cols="12" sm="12">
+                <v-progress-linear
+                  indeterminate
+                  v-if="isInputGoodPriceDrawerLoading"
+                ></v-progress-linear>
+                <purchase-order-management-supplier-select ref="purchaseOrderSupplier" :supplier-list="supplierList" :good-list="goodList" :value="inputGoodPriceItem.goodList"/>
+        
+                <v-row class="justify-end mx-0 mt-8 px-6">
+                  <v-btn class="mr-2" @click="doUiAction('doSavePurchaseOrderApproval')">保存全部报价</v-btn>
+                  <v-btn color="success" @click="doUiAction('doPurchaseOrderApproval')">保存&提交审批</v-btn>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-form>
+          <!--抽屉关闭按钮-->
+          <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isInputGoodPriceDrawerShow = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-navigation-drawer>
 
-<!-- 凭据管理 -->
-<v-navigation-drawer v-model="isUploadPurchaseContractDrawerShow" hide-overlay :permanent="isUploadPurchaseContractDrawerShow" fixed temporary right width="80%" class="elevation-24">
-  <v-form v-model="isFormValid" v-if="isUploadPurchaseContractDrawerShow" ref="form" lazy-validation>
-    <v-row class="pt-8">
-      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ uploadPurchaseContractItem.purchaseTitle }}-{{ uploadPurchaseContractItem.purchaseOrderId }} 凭据管理</span>
-      <v-spacer></v-spacer>
-      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isUploadPurchaseContractDrawerShow = false">
-        <v-icon dark>mdi-close</v-icon>
-      </v-btn>
-    </v-row>
-    <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-      <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-        <purchaseOrderManagement-contractUpload :purchase-order-id="uploadPurchaseContractItem['purchaseOrderId']"></purchaseOrderManagement-contractUpload>
-      </v-col>
-    </v-row>
-  </v-form>  
-</v-navigation-drawer>
-</jh-layout-v3>
+        <!-- 凭据管理 -->
+        <v-navigation-drawer v-model="isUploadPurchaseContractDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+          <!--抽屉标题-->
+          <v-row>
+            <span class="title pa-6 pl-8">{{ uploadPurchaseContractItem.purchaseTitle }}-{{ uploadPurchaseContractItem.purchaseOrderId }} 凭据管理</span>
+          </v-row>
+          <!--抽屉表单-->
+          <v-row class="mt-0 px-6">
+            <v-col cols="12">
+              <purchaseOrderManagement-contractUpload :purchase-order-id="uploadPurchaseContractItem['purchaseOrderId']"></purchaseOrderManagement-contractUpload>
+            </v-col>
+          </v-row>
+          <!--抽屉关闭按钮-->
+          <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isUploadPurchaseContractDrawerShow = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-navigation-drawer>
+
+        <!-- 详情抽屉 -->
+        <v-navigation-drawer v-model="isDetailDrawerShown" :permanent="isDetailDrawerShown" fixed temporary right width="80%" class="elevation-24">
+          <v-row>
+            <span class="title pa-6 pl-8">采购单详情</span>
+          </v-row>
+          <purchase-order-detail 
+          :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          <!--抽屉关闭按钮-->
+          <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isDetailDrawerShown = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-navigation-drawer>
+        <!-- <<<<<<<<<<<<< 页面内容 -->
+      </div>
+
+      <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
+      <v-navigation-drawer v-model="isHelpPageDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+        <iframe style="border: 0" :src="`/${appInfo.appId}/pageDoc#workflowManagement.md`" width="100%" height="100%"></iframe>
+        <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+               @click="isHelpPageDrawerShown = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-navigation-drawer>
+      <!-- <<<<<<<<<<<<< 帮助页抽屉 -->
+
+    </v-main>
+  </v-app>
+
+  <jh-toast />
+  <jh-mask />
+  <jh-confirm-dialog />
+
+</div>
+</script>
+
+<div id="app">
+</div>
 
 {% endblock %}
 
-{% block vue_body %}
+{% block vueScript %}
+
+<!-- 加载页面组件 >>>>>>>>>>>>> -->
 {% include 'component/purchase/flow/processFlow.html' %}
 {% include 'component/purchase/flow/editFlow.html' %}
 {% include 'component/purchase/flow/editLine.html' %}
@@ -145,19 +218,36 @@
 {% include 'component/purchase/purchaseOrderManagement-supplierSelect.html' %}
 {% include 'component/purchase/purchaseOrder-status-select.html' %}
 {% include 'component/purchase/purchaseOrderManagement-contractUpload.html' %}
+<!-- <<<<<<<<<<<<< 加载页面组件 -->
 
 <script type="module">
 new Vue({
   el: '#app',
   template: '#app-template',
+  vueComponent: 'page',
   vuetify: new Vuetify(),
-  data: () => ({
-    // 表格相关数据
-    isFormValid: true,
-    requireRules: [
-      v => !!v || '必填',
+  data: {
+    // 面包屑
+    breadcrumbs: [
+      {text: '首页', disabled: true,},
+      {text: '采购流程curd', disabled: true,}
     ],
+    validationRules: {
+      requireRules: [
+        v => !!v || 'This is required',
+      ],
+    },
+    isTableLoading: true,
+    tableDataFromBackend: [],
+    tableData: [],
+    searchInput: '',
+    isHelpPageDrawerShown: false,
+    isTableZebraLineShown: true,
+
+    
+    isFormValid: true,
     constantCollection: {
+      purchaseStatus: ['采购询价', '审核中', '采购中', '审核失败'],
     },
 
     serverSearchInput: {
@@ -165,11 +255,9 @@ new Vue({
       classId: null,
       purchaseStatus: ['采购询价', '审核中', '采购中', '审核失败'],
     },
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
     headers: [
       // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
+      {text: '操作', value: 'action', align: 'left', sortable: false, width: 360, class: 'fixed', cellClass: 'fixed'},
        
       {text: "采购订单ID", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
       {text: "采购标题", value: "purchaseTitle", width: 120, class: 'fixed', cellClass: 'fixed'}, 
@@ -182,7 +270,6 @@ new Vue({
       // {text: "操作者", value: "operationByUser", width: 120},
       {text: "申请采购时间", value: "applyAt", width: 250},
       {text: "完成采购时间", value: "finishAt", width: 250},
-      {text: '操作', value: 'action', align: 'left', sortable: false, width: 360, class: 'fixed', cellClass: 'fixed'},
     ],
 
     inputGoodPriceItem: { goodList: []},
@@ -191,31 +278,19 @@ new Vue({
     editItem: {},
     goodList: [],
     supplierList: [],
-    isDetailDrawerShow: false,
+    isDetailDrawerShown: false,
 
     uploadPurchaseContractItem: {},
     isUploadPurchaseContractDrawerShow: false,
-  }),
+  },
   computed: {
-    isMobile() {
-      return window.innerWidth < 600;
-    },
-    tableData() {
-      return this.tableDataFromBackend;
-    }
   },
   watch: {},
-  async created() {
-   
-    await Promise.all([
-      this.doUiAction('refreshTableData'),
-      this.doUiAction('getGoodList'),
-      this.doUiAction('getSupplierList'),
-    ])
-
-    // await this.doUiAction('startUploadPurchaseContract', { item: this.tableDataFromBackend[0] });
+  created() {
+    this.doUiAction('refreshTableData');
+    this.doUiAction('getGoodList');
+    this.doUiAction('getSupplierList');
   },
-  mounted() {},
   methods: {
     async doUiAction(uiActionId, uiActionData) {
       switch (uiActionId) {
@@ -310,6 +385,7 @@ new Vue({
       });
       const { rows } = result.data.appData.resultData;
       this.tableDataFromBackend = rows;
+      this.tableData = rows.map(item => item);
       this.isTableLoading = false;
     },
     // =================================uiAction 公共方法 end ======================================
@@ -430,10 +506,10 @@ new Vue({
     },
     async doViewDetail({ item }) {
       this.editItem = { ...item, time: new Date() }
-      this.isDetailDrawerShow = true
+      this.isDetailDrawerShown = true
     },
     async closeDetailDrawer() {
-      this.isDetailDrawerShow = false
+      this.isDetailDrawerShown = false
       await this.refreshTableData()
     },
     async confirmFinishItemDialog() {
@@ -463,16 +539,17 @@ new Vue({
 })
 </script>
 
-<style>
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 500px;
-}
 
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
-  cursor: pointer;
-}
-</style>
+<style>
+  .theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 500px;
+  }
+  
+  .theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
+    cursor: pointer;
+  }
+  </style>
 {% endblock %}

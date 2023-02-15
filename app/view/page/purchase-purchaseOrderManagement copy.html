@@ -1,0 +1,478 @@
+{% extends 'template/jhTemplateV3.html'%}
+
+{% block vue_template %}
+
+<jh-layout-v3>
+<template slot="serverSearch">
+  <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
+    <v-col cols="12" sm="10" xs="8" md="5" xl="3" :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}">
+      <purchase-order-status-select :value="serverSearchInput.purchaseStatus" @update-value="serverSearchInput.purchaseStatus=$event" />
+    </v-col>
+
+    <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+      <v-btn
+        class="elevation-0"
+        color="success"
+        dark
+        @click="doUiAction('refreshTableData')"
+      >
+        查询
+      </v-btn>
+    </v-col>
+  </v-row>
+</template>
+<v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+  <v-card>
+  <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+
+      <!-- <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+        <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新建采购单</v-btn>
+        <span class="body-2">共{{ tableData.length }}条记录</span>
+      </v-col> -->
+
+      <v-spacer></v-spacer>
+
+      <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
+        <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
+      </v-col>
+      <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')" >
+        <v-icon left dark > mdi-cached </v-icon>
+        <span>刷新</span>  
+      </v-btn>
+    </v-row>
+    <v-data-table fixed-header
+                  :headers="headers"
+                  :items="tableData"
+                  :search="searchInput"
+                  :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+                  height="600"
+                  :items-per-page="100"
+                  mobile-breakpoint="0"
+                  :loading="isTableLoading"
+                  checkbox-color="success"
+                  class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length">
+          More info about {{ item.name }}
+        </td>
+      </template>
+      <template v-slot:item.action="{ item }">
+        <v-btn small v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('doRecallItem', {item})">撤回</v-btn>
+        <v-btn small v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('startInputGoodPrice', {item})">填写报价&提交审批</v-btn>
+        <v-btn small @click="doUiAction('startUploadPurchaseContract', {item})">凭据管理</v-btn>
+        <v-btn small class="success" v-if="item.purchaseStatus == '采购中'" @click="doUiAction('doFinishItem', {item})">完成采购</v-btn>
+        <!-- <v-btn small class="success" v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('doCreateWorkflowTask', {item})">提交审批</v-btn> -->
+        <v-btn small class="success" @click="doUiAction('doViewDetail', {item})">查看详情</v-btn>
+      </template>
+      <template v-slot:item.applyAt="{ item }">
+        {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+    </v-data-table>
+  </v-card>
+</v-container>
+
+<!-- 填写报价 -->
+<v-navigation-drawer v-model="isInputGoodPriceDrawerShow" hide-overlay :permanent="isInputGoodPriceDrawerShow" fixed temporary right width="80%" class="elevation-24">
+  <v-form v-model="isFormValid" v-if="isInputGoodPriceDrawerShow" ref="form" lazy-validation>
+    <v-row class="pt-8">
+      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ inputGoodPriceItem.purchaseOrderId }}】填写报价</span>
+      <v-spacer></v-spacer>
+      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isInputGoodPriceDrawerShow = false">
+        <v-icon dark>mdi-close</v-icon>
+      </v-btn>
+    </v-row>
+
+    <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
+      <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+     
+        <v-progress-linear
+          indeterminate
+          v-if="isInputGoodPriceDrawerLoading"
+        ></v-progress-linear>
+        <purchase-order-management-supplier-select ref="purchaseOrderSupplier" :supplier-list="supplierList" :good-list="goodList" :value="inputGoodPriceItem.goodList"/>
+
+        <v-row v-if="!isInputGoodPriceDrawerLoading" class="justify-end mx-0 mt-8" :class="{'px-4': isMobile, 'mb-8': isMobile}">
+          <v-btn class="ml-2" @click="doUiAction('doSavePurchaseOrderApproval')">保存全部报价</v-btn>
+          <v-btn color="success" @click="doUiAction('doPurchaseOrderApproval')">保存&提交审批</v-btn>
+        </v-row>
+      </v-col> 
+    </v-row>  
+  </v-form>  
+</v-navigation-drawer>
+
+<v-navigation-drawer v-model="isDetailDrawerShow" :permanent="isDetailDrawerShow" fixed temporary right width="80%" class="elevation-24">
+  <v-row class="pt-8">
+    <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">采购单详情</span>
+    <v-spacer></v-spacer>
+    <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isDetailDrawerShow = false">
+      <v-icon dark>mdi-close</v-icon>
+    </v-btn>
+  </v-row>
+  <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+</v-navigation-drawer>
+
+<!-- 凭据管理 -->
+<v-navigation-drawer v-model="isUploadPurchaseContractDrawerShow" hide-overlay :permanent="isUploadPurchaseContractDrawerShow" fixed temporary right width="80%" class="elevation-24">
+  <v-form v-model="isFormValid" v-if="isUploadPurchaseContractDrawerShow" ref="form" lazy-validation>
+    <v-row class="pt-8">
+      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ uploadPurchaseContractItem.purchaseTitle }}-{{ uploadPurchaseContractItem.purchaseOrderId }} 凭据管理</span>
+      <v-spacer></v-spacer>
+      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isUploadPurchaseContractDrawerShow = false">
+        <v-icon dark>mdi-close</v-icon>
+      </v-btn>
+    </v-row>
+    <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
+      <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <purchaseOrderManagement-contractUpload :purchase-order-id="uploadPurchaseContractItem['purchaseOrderId']"></purchaseOrderManagement-contractUpload>
+      </v-col>
+    </v-row>
+  </v-form>  
+</v-navigation-drawer>
+</jh-layout-v3>
+
+{% endblock %}
+
+{% block vue_body %}
+{% include 'component/purchase/flow/processFlow.html' %}
+{% include 'component/purchase/flow/editFlow.html' %}
+{% include 'component/purchase/flow/editLine.html' %}
+{% include 'component/purchase/flow/editNode.html' %}
+{% include 'component/purchase/previewFileGroup.html' %}
+{% include 'component/basic/rowStatus/row-status-select.html' %}
+{% include 'component/basic/rowStatus/row-status-switch-button.html' %}
+{% include 'component/purchase/purchaseOrderDetail.html' %}
+
+{% include 'component/purchase/purchaseOrderManagement-supplierSelect.html' %}
+{% include 'component/purchase/purchaseOrder-status-select.html' %}
+{% include 'component/purchase/purchaseOrderManagement-contractUpload.html' %}
+
+<script type="module">
+new Vue({
+  el: '#app',
+  template: '#app-template',
+  vuetify: new Vuetify(),
+  data: () => ({
+    // 表格相关数据
+    isFormValid: true,
+    requireRules: [
+      v => !!v || '必填',
+    ],
+    constantCollection: {
+    },
+
+    serverSearchInput: {
+      studentId: null,
+      classId: null,
+      purchaseStatus: ['采购询价', '审核中', '采购中', '审核失败'],
+    },
+    searchInput: null,
+    isTableLoading: true,
+    tableDataFromBackend: [],
+    headers: [
+      // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
+       
+      {text: "采购订单ID", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
+      {text: "采购标题", value: "purchaseTitle", width: 120, class: 'fixed', cellClass: 'fixed'}, 
+      {text: "审批流", value: "workflowName", width: 130}, 
+      {text: "申购部门", value: "purchaseDeptName", width: 120}, 
+      {text: "申购人", value: "purchaseRequirerName", width: 120}, 
+      {text: "采购人", value: "purchasePurchaserName", width: 120}, 
+      {text: "状态", value: "purchaseStatus", width: 120}, 
+      {text: "备注", value: "remark", width: 120}, 
+      // {text: "操作者", value: "operationByUser", width: 120},
+      {text: "申请采购时间", value: "applyAt", width: 250},
+      {text: "完成采购时间", value: "finishAt", width: 250},
+      {text: '操作', value: 'action', align: 'left', sortable: false, width: 360, class: 'fixed', cellClass: 'fixed'},
+    ],
+
+    inputGoodPriceItem: { goodList: []},
+    isInputGoodPriceDrawerShow: false,
+    isInputGoodPriceDrawerLoading: false,
+    editItem: {},
+    goodList: [],
+    supplierList: [],
+    isDetailDrawerShow: false,
+
+    uploadPurchaseContractItem: {},
+    isUploadPurchaseContractDrawerShow: false,
+  }),
+  computed: {
+    isMobile() {
+      return window.innerWidth < 600;
+    },
+    tableData() {
+      return this.tableDataFromBackend;
+    }
+  },
+  watch: {},
+  async created() {
+   
+    await Promise.all([
+      this.doUiAction('refreshTableData'),
+      this.doUiAction('getGoodList'),
+      this.doUiAction('getSupplierList'),
+    ])
+
+    // await this.doUiAction('startUploadPurchaseContract', { item: this.tableDataFromBackend[0] });
+  },
+  mounted() {},
+  methods: {
+    async doUiAction(uiActionId, uiActionData) {
+      switch (uiActionId) {
+        case 'refreshTableData':
+          await this.refreshTableData();
+          break;
+        case 'doViewDetail':
+          await this.doViewDetail(uiActionData);
+          break;
+        case 'getGoodList':
+          await this.getGoodList();
+          break;
+        case 'getSupplierList':
+          await this.getSupplierList();
+          break;
+        case 'doRecallItem':
+          await this.confirmRecallItemDialog();
+          await this.doRecallItem(uiActionData);
+          await this.refreshTableData();
+          break;
+        case 'startInputGoodPrice':
+          await this.openInputGoodPriceDialog();
+          await this.prepareInputGoodPriceItemData(uiActionData);
+          break;
+        case 'doCreateWorkflowTask':
+          await this.doCreateWorkflowTask(uiActionData);
+          await this.refreshTableData();
+          break;
+   
+        case 'doSavePurchaseOrderApproval':
+          await this.doSavePurchaseOrderApproval();
+          await this.closeInputGoodPriceDialog();
+          await this.refreshTableData();
+          break;
+        case 'doPurchaseOrderApproval':
+          await this.doPurchaseOrderApproval();
+          await this.closeInputGoodPriceDialog();
+          await this.refreshTableData();
+          break;
+        case 'doToDetailPage':
+          await this.toDetailPage(uiActionData);
+          break;
+        case 'startUploadPurchaseContract':
+          await this.prepareUploadPurchaseContractItemData(uiActionData);
+          await this.openUploadPurchaseContractDialog();
+          break;
+        case 'closeDetailDrawer':
+          await this.closeDetailDrawer();
+          break;
+        case 'doFinishItem':
+          await this.confirmFinishItemDialog();
+          await this.doFinishItem(uiActionData);
+          await this.refreshTableData();
+          break;
+        default:
+          console.error("[doUiAction] uiActionId not find", { uiActionId });
+          break;
+      }
+    },
+    // =================================uiAction 公共方法 start ======================================
+    /**
+     * uiActionId:  prepareValidate
+     * description: ✅表单校验
+    */
+    async prepareValidate() {
+      if (this.$refs.form.validate() === false) {
+        window.vtoast.fail({ message: "输入有误, 请检查!" });
+        throw new Error("[prepareValidate] false");
+      }
+    },
+
+    /**
+     * uiActionId:  refreshTableData
+     * description: ✅获取表格数据
+    */
+    async refreshTableData() {
+      this.isTableLoading = true;
+      const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
+      const { purchaseStatus, ...serverSearchInputData } = serverSearchInput
+      const result = await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'selectItemList',
+            actionData: {},
+            where: {},
+            whereIn: {purchaseStatus},
+            whereLike: serverSearchInputData,
+            orderBy: [{column: 'purchaseOrderId', order: 'desc'}]
+          }
+        }
+      });
+      const { rows } = result.data.appData.resultData;
+      this.tableDataFromBackend = rows;
+      this.isTableLoading = false;
+    },
+    // =================================uiAction 公共方法 end ======================================
+
+    async prepareUploadPurchaseContractItemData({item}) {
+      this.uploadPurchaseContractItem = item;
+    },
+    async openUploadPurchaseContractDialog() {
+      this.isUploadPurchaseContractDrawerShow = true;
+    },
+
+    /**
+     * uiActionId:  startCreateItem
+     * description: ✅获取表格数据
+    */
+    async clearItemData() {
+      this.addItem = {};
+    },
+    async confirmRecallItemDialog() {
+      if (await window.confirmDialog({title: "撤回", content: "确定要撤回采购单吗？"}) === false) {
+        throw new Error("取消");
+      }
+    },
+    async doRecallItem({item}) {
+      const { id, purchaseOrderId } = item;
+      await window.vtoast.loading("撤回采购单");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'updatePurchaseOrderStatus',
+            actionData: {
+              purchaseOrderId,
+              purchaseStatus: '草稿'
+            },
+            where: { id, purchaseOrderId }
+          }
+        }
+      });
+      await window.vtoast.success("撤回成功");
+    },
+
+
+    async prepareInputGoodPriceItemData({item}) {
+      this.inputGoodPriceItem = item;
+      this.isInputGoodPriceDrawerLoading = true
+      await this.getSupplierList();
+      await this.getGoodList();
+      const { rows } = (await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'selectPurchaseOrderGoodList',
+            actionData: {},
+            where: {purchaseOrderId: item.purchaseOrderId}
+          }
+        }
+      })).data.appData.resultData;
+      this.inputGoodPriceItem = {...item, goodList: rows};
+      this.isInputGoodPriceDrawerLoading = false
+    },
+    async openInputGoodPriceDialog() {
+      this.isInputGoodPriceDrawerShow = true;
+    },
+    async closeInputGoodPriceDialog() {
+      this.isInputGoodPriceDrawerShow = false;
+    },
+    
+    async doCreateWorkflowTask({item}) {
+      const { purchaseOrderId } = item;
+      await window.vtoast.loading("提交审批");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'createWorkflowTask',
+            actionData: {
+              purchaseOrderId
+            }
+          }
+        }
+      });
+      await window.vtoast.success("提交审批成功");
+    },
+    async toDetailPage({item}) {
+      location.href = `/${window.appInfo.appId}/page/purchaseOrderDetail?purchaseOrderId=${item.purchaseOrderId}`;
+    },
+    async getGoodList() {
+      const { rows } = (await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'supplierSelect-selectGoodPriceStockList',
+            actionData: {},
+          }
+        }
+      })).data.appData.resultData;
+      this.goodList = rows
+    },
+    async getSupplierList() {
+      const { rows } = (await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'selectSupplierGoodList',
+            actionData: {}
+          }
+        }
+      })).data.appData.resultData;
+      this.supplierList = rows
+    },
+    async doSavePurchaseOrderApproval() {
+      await this.$refs.purchaseOrderSupplier.doSavePurchaseOrderApproval()
+    },
+    async doPurchaseOrderApproval() {
+      await this.$refs.purchaseOrderSupplier.doSavePurchaseOrderApproval()
+      await this.$refs.purchaseOrderSupplier.doPurchaseOrderApproval()
+    },
+    async doViewDetail({ item }) {
+      this.editItem = { ...item, time: new Date() }
+      this.isDetailDrawerShow = true
+    },
+    async closeDetailDrawer() {
+      this.isDetailDrawerShow = false
+      await this.refreshTableData()
+    },
+    async confirmFinishItemDialog() {
+      if (await window.confirmDialog({title: "完成", content: "确定要完成采购单吗？"}) === false) {
+        throw new Error("取消");
+      }
+    },
+    async doFinishItem({item}) {
+      const { id, purchaseOrderId } = item;
+      await window.vtoast.loading("完成采购单");
+      await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'purchaseOrderManagement',
+            actionId: 'updatePurchaseOrderStatus',
+            actionData: {
+              purchaseOrderId,
+              purchaseStatus: '采购完成',
+            },
+            where: { id, purchaseOrderId }
+          }
+        }
+      });
+      await window.vtoast.success("操作成功");
+    },
+  }
+})
+</script>
+
+<style>
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}
+
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
+  cursor: pointer;
+}
+</style>
+{% endblock %}
