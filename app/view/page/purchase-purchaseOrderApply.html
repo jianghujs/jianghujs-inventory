@@ -11,7 +11,7 @@
       <div class="jh-page-second-bar px-8">
         <v-row>
           <v-col cols="12" xs="12" sm="12" md="4" xl="3">
-            <div class="pt-3 text-h7 font-weight-bold">服务端搜索
+            <div class="pt-3 text-h7 font-weight-bold">采购申请
               <!-- 帮助页按钮 -->
               <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline
               </v-icon>
@@ -39,7 +39,7 @@
         <v-card class="rounded-lg">
           <v-row class="ma-0 pa-4">
             <!--新增按钮-->
-            <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+            <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
               <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新建采购单</v-btn>
               <span class="body-2">共{{ tableData.length }}条记录</span>
             </v-col>
@@ -69,10 +69,23 @@
               </td>
             </template>
             <template v-slot:item.action="{ item }">
-              <v-btn small class="success" v-if="item.purchaseStatus == '草稿'" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
-              <v-btn small v-if="item.purchaseStatus == '草稿'" class="error" @click="doUiAction('deleteItem', {item})">删除</v-btn>
-              <v-btn small v-if="item.purchaseStatus == '采购询价'" @click="doUiAction('doRecallItem', {item})">撤回</v-btn>
-              <v-btn small class="success" @click="doUiAction('doViewDetail', {item})">查看详情</v-btn>
+
+              <span v-if="item.purchaseStatus == '草稿'" role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('startUpdateItem', {item})">
+                <v-icon size="14" class="success--text">mdi-note-edit-outline</v-icon>修改
+              </span>
+              <span v-if="item.purchaseStatus == '草稿'" role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('deleteItem', {item})">
+                <v-icon size="14" class="success--text">mdi-trash-can-outline</v-icon>删除
+              </span>
+              <span v-if="item.purchaseStatus == '采购询价'" role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('doRecallItem', {item})">
+                <v-icon size="14" class="success--text">mdi-arrow-u-left-top</v-icon>撤回
+              </span>
+              <span role="button" class="success--text jh-font-size-3 pr-2"
+                    @click="doUiAction('doViewDetail', {item})">
+                <v-icon size="14" class="success--text">mdi-text-box-outline</v-icon>查看详情
+              </span>
             </template>
             <template v-slot:item.applyAt="{ item }">
               {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
