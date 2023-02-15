@@ -21,8 +21,8 @@
           <!--pc端的搜索条件表单 >>>>>>>> -->
           <v-col cols="12" xs="12" sm="12" md="8" xl="9">
             <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
-              <v-col cols="12" xs="6" sm="6" md="4" xl="3" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
-                <purchase-order-status-select @update-value="serverSearchInput.purchaseStatus=$event" />
+              <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
+                <v-select v-model="serverSearchInput.purchaseStatus" color="success" prefix="年级：" class="jh-v-input bg-white" :items="constantCollection.purchaseStatus" multiple dense filled single-line></v-select>
               </v-col>
               <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('refreshTableData')">
                 查询
@@ -39,8 +39,10 @@
         <v-card class="rounded-lg">
           <v-row class="ma-0 pa-4">
             <!--新增按钮-->
-            <v-btn color="success" small class="elevation-0 mr-2" @click="doUiAction('jumpToCreateWorkflow')">新增
-            </v-btn>
+            <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+              <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新建采购单</v-btn>
+              <span class="body-2">共{{ tableData.length }}条记录</span>
+            </v-col>
             <v-spacer></v-spacer>
             <!--搜索-->
             <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
@@ -79,16 +81,6 @@
               {{ item.finishAt && dayjs(item.finishAt).format('YYYY-MM-DD HH:mm:ss') }}
             </template>
 
-            <template v-slot:item.action="{ item }">
-              <span role="button" class="success--text jh-font-size-3 pr-2"
-                    @click="doUiAction('jumpUpdateWorkflow', item)">
-                <v-icon size="14" class="success--text">mdi-note-edit-outline</v-icon>编辑
-              </span>
-              <span role="button" class="success--text jh-font-size-3 pr-2"
-                    @click="doUiAction('deleteItem', item)">
-                <v-icon size="14" class="success--text">mdi-trash-can-outline</v-icon>删除
-              </span>
-            </template>
             <!--表格底部右侧功能按钮-->
             <template v-slot:footer.prepend>
               <v-menu top offset-y :close-on-content-click="false">
@@ -127,11 +119,11 @@
             </v-row>
             <!--抽屉表单-->
             <v-row class="mt-0 px-6">
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">标题</span>
                 <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['purchaseTitle']" :rules="requireRules"></v-text-field>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">申购部门</span>
                 <v-autocomplete 
                     class="cus-v-input mr-2" 
@@ -148,11 +140,11 @@
                     }">
                 </v-autocomplete>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">申购商品</span>
                 <purchase-order-apply-good-select :good-list="goodList" v-model="addItem['goodList']" :rules="goodListRules"/>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
                 <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable label="选择审批流程" 
                     v-model="addItem['workflowId']" 
@@ -163,7 +155,7 @@
                     @change="doUiAction('handleWorkflowProcessChange', $event)">
                   </v-autocomplete>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">审批人修改</span>
                 <v-row v-for="item in workflowPersonList">
                   <v-col cols="2">
@@ -186,7 +178,7 @@
                   </v-col>
                 </v-row>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">备注</span>
                 <v-textarea dense filled single-line v-model="addItem['remark']" hint="填写备注（如功能需求、是否要回单或反馈等）" ></v-textarea>
               </v-col>
@@ -278,6 +270,19 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-navigation-drawer>
+
+        <!-- 详情抽屉 -->
+        <v-navigation-drawer v-model="isDetailDrawerShown" :permanent="isDetailDrawerShown" fixed temporary right width="80%" class="elevation-24">
+          <v-row>
+            <span class="title pa-6 pl-8">采购单详情</span>
+          </v-row>
+          <purchase-order-detail 
+          :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          <!--抽屉关闭按钮-->
+          <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isDetailDrawerShown = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-navigation-drawer>
         <!-- <<<<<<<<<<<<< 页面内容 -->
       </div>
 
@@ -352,14 +357,23 @@ new Vue({
       v => v.length > 0 || 'Name must be less than 10 characters',
     ],
     constantCollection: {
+      purchaseStatus: [
+        { text: "草稿", value: "草稿" },
+        { text: "采购询价", value: "采购询价" },
+        { text: "审核中", value: "审核中" },
+        { text: "采购中", value: "采购中" },
+        { text: "采购完成", value: "采购完成" },
+        { text: "审核失败", value: "审核失败" },
+      ]
     },
 
     serverSearchInput: {
-      purchaseStatus: null,
+      purchaseStatus: ['草稿', '采购询价', '审核中', '采购中', '采购完成', '审核失败'],
     },
     headers: [
       // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
        
+      {text: '操作', value: 'action', align: 'left', sortable: false, width: 250, class: 'fixed', cellClass: 'fixed'},
       {text: "采购订单ID", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
       {text: "采购标题", value: "purchaseTitle", width: 130}, 
       {text: "审批流", value: "workflowName", width: 130}, 
@@ -370,7 +384,6 @@ new Vue({
       {text: "备注", value: "remark", width: 120}, 
       {text: "申请采购时间", value: "applyAt", width: 250},
       {text: "完成采购时间", value: "finishAt", width: 250},
-      {text: '操作', value: 'action', align: 'left', sortable: false, width: 250, class: 'fixed', cellClass: 'fixed'},
     ],
     isCreateDrawerShown: false,
     addItem: {},
@@ -383,7 +396,7 @@ new Vue({
     userList: [],
     purchaseOrderGoodTableLoading: false,
     workflowPersonList: [],
-    isDetailDrawerShow: false,
+    isDetailDrawerShown: false,
     selectedPurchaseOrderId: null,
     selectedWorkflowTaskId: null,
   },
@@ -517,7 +530,13 @@ new Vue({
       const { rows } = result.data.appData.resultData;
 
       this.tableDataFromBackend = rows;
+      this.tableData = this.buildTableData(rows);
       this.isTableLoading = false;
+    },
+    buildTableData(rows) {
+      return rows.map(item => {
+        return item
+      });
     },
     async getUserDept() {
       const userDeptInfo = (await window.jianghuAxios({
@@ -789,10 +808,10 @@ new Vue({
     },
     async doViewDetail({ item }) {
       this.editItem = { ...item, time: new Date() }
-      this.isDetailDrawerShow = true
+      this.isDetailDrawerShown = true
     },
     async closeDetailDrawer() {
-      this.isDetailDrawerShow = false
+      this.isDetailDrawerShown = false
       await this.refreshTableData()
     },
     

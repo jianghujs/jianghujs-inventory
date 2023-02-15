@@ -10,7 +10,7 @@
       <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}">
         <v-col cols="12" class="base-info">
           <v-subheader>采购单信息</v-subheader>
-          <v-card >
+          <v-card outlined>
             <v-row class="pa-4">
               <v-col cols="6" v-for="(item, index) in baseInfo">
                 <span class="label">{{item.label}}：</span>
@@ -284,6 +284,7 @@ Vue.component('purchase-order-detail',{
   watch: {
     purchaseOrder: {
       handler(newValue, oldValue) {
+        if (!newValue.id) return;
         const { purchaseOrderId, workflowTaskId, workflowTaskRecordId } = newValue
         this.purchaseOrderId = purchaseOrderId
         this.workflowTaskId = workflowTaskId
