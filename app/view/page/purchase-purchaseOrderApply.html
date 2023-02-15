@@ -119,15 +119,15 @@
             </v-row>
             <!--抽屉表单-->
             <v-row class="mt-0 px-6">
-              <v-col cols="12">
+              <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">标题</span>
-                <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['purchaseTitle']" :rules="requireRules"></v-text-field>
+                <v-text-field class="cus-v-input " dense filled single-line hide-details v-model="addItem['purchaseTitle']" :rules="requireRules"></v-text-field>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">申购部门</span>
                 <v-autocomplete 
                     class="cus-v-input mr-2" 
-                    dense filled single-line clearable
+                    dense filled single-line clearable hide-details
                     v-model="addItem.purchaseDeptId" 
                     :items="deptList" 
                     item-text="deptName" 
@@ -146,7 +146,7 @@
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
-                <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable label="选择审批流程" 
+                <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable hide-details label="选择审批流程" 
                     v-model="addItem['workflowId']" 
                     :items="workflowList" 
                     item-text="workflowName" item-value="workflowId" 
@@ -159,12 +159,12 @@
                 <span class="jh-input-label">审批人修改</span>
                 <v-row v-for="item in workflowPersonList">
                   <v-col cols="2">
-                    <v-text-field class="cus-v-input " dense filled single-line v-model="item.label" disabled></v-text-field>
+                    <v-text-field class="cus-v-input " dense filled single-line v-model="item.label" disabled hide-details></v-text-field>
                   </v-col>
                   <v-col cols="4">
                     <v-autocomplete 
                       class="cus-v-input mr-2" 
-                      dense filled single-line clearable
+                      dense filled single-line clearable hide-details
                       :items="userList" 
                       item-text="username" 
                       item-value="userId"
@@ -185,8 +185,8 @@
             </v-row>
             <!--抽屉操作按钮-->
             <v-row class="justify-end mx-0 mt-8 px-6">
-              <v-btn color="" @click="doUiAction('createItemSaveDraft')" small>保存草稿</v-btn>
-              <v-btn color="success" @click="doUiAction('createItem')" small>保存</v-btn>
+              <v-btn color="orange" dark @click="doUiAction('createItemSaveDraft')" small>保存草稿</v-btn>
+              <v-btn class="ml-2" color="success" @click="doUiAction('createItem')" small>保存</v-btn>
               <v-btn class="elevation-0 ml-2" @click="isCreateDrawerShown = false" small>取消</v-btn>
             </v-row>
           </v-form>
@@ -205,11 +205,11 @@
             </v-row>
             <!--抽屉表单-->
             <v-row class="mt-0 px-6">
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">标题</span>
-                <v-text-field class="cus-v-input " dense filled single-line v-model="editItem['purchaseTitle']" :rules="requireRules"></v-text-field>
+                <v-text-field class="cus-v-input " dense filled single-line v-model="editItem['purchaseTitle']" :rules="requireRules" hide-details></v-text-field>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">申购部门</span>
                 <v-select v-model="editItem.purchaseDeptId"
                   :items="deptList" class="mr-2" hide-details dense filled single-line hide-no-data
@@ -222,24 +222,24 @@
                   }"
                   /> 
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">申购商品</span>
                 <purchase-order-apply-good-select :loading="purchaseOrderGoodTableLoading" :good-list="goodList" v-model="editItem['goodList']"/>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
-                <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable label="选择审批流程" v-model="editItem['workflowId']" :items="workflowList" item-text="workflowName" item-value="workflowId" :rules="requireRules"></v-autocomplete>
+                <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable label="选择审批流程" v-model="editItem['workflowId']" :items="workflowList" item-text="workflowName" item-value="workflowId" :rules="requireRules" hide-details></v-autocomplete>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">审批人修改</span>
                 <v-row v-for="item in workflowPersonList">
                   <v-col cols="2">
-                    <v-text-field class="cus-v-input " dense filled single-line v-model="item.label" disabled></v-text-field>
+                    <v-text-field class="cus-v-input " dense filled single-line v-model="item.label" disabled hide-details></v-text-field>
                   </v-col>
                   <v-col cols="4">
                     <v-autocomplete 
                       class="cus-v-input mr-2" 
-                      dense filled single-line clearable
+                      dense filled single-line clearable hide-details
                       :items="userList" 
                       item-text="username" 
                       item-value="userId"
@@ -253,15 +253,15 @@
                   </v-col>
                 </v-row>
               </v-col>
-              <v-col cols="12" sm="12" md="4">
+              <v-col cols="12">
                 <span class="jh-input-label">备注</span>
                 <v-textarea dense filled single-line v-model="editItem['remark']" hint="填写备注（如功能需求、是否要回单或反馈等）" ></v-textarea>  
               </v-col>
             </v-row>
             <!--抽屉操作按钮-->
             <v-row class="justify-end mx-0 mt-8 px-6">
-              <v-btn color="" @click="doUiAction('updateItemSaveDraft')" small>保存草稿</v-btn>
-              <v-btn color="success" @click="doUiAction('updateItem')" small>保存</v-btn>
+              <v-btn color="orange" dark @click="doUiAction('updateItemSaveDraft')" small>保存草稿</v-btn>
+              <v-btn class="ml-2" color="success" @click="doUiAction('updateItem')" small>保存</v-btn>
               <v-btn class="elevation-0 ml-2" @click="isUpdateDrawerShown = false" small>取消</v-btn>
             </v-row>
           </v-form>

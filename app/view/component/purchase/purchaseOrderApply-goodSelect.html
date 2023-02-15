@@ -12,6 +12,7 @@
             label="选择商品" v-model="item.goodId" 
             :items="goodList" item-text="goodName" item-value="goodId"
             :rules="requireRules"
+            hide-details
             @change="onGoodIdChange($event, item)"></v-autocomplete>
         </template>
         <template v-slot:item.good-count="{ item }">
@@ -19,6 +20,7 @@
             class="cus-v-input mr-2" dense filled single-line 
             v-model.number="item.goodCount" 
             type="number"
+            hide-details
             :rules="[
               () => (item.goodCount % 1 === 0 ) || '请填写整数',
               () => !(0 >= item.goodCount) || '请填写数量',
