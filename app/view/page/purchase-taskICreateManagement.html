@@ -115,9 +115,7 @@
             <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">采购单详情</span>
           </v-row>
           <!-- 抽屉表单 -->
-          <v-row class="mt-0 px-4">
-            <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
-          </v-row>
+          <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
         </v-form>
 
         <!-- 抽屉关闭按钮 -->
