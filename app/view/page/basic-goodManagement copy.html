@@ -16,56 +16,19 @@ SQL END! -->
 
 <jh-layout-v3>
   <template slot="serverSearch">
-    <v-row
-      class="ma-0 align-center flex-none pa-0"
-      :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
-      style="justify-content: end"
-    >
-      <v-col
-        cols="12"
-        sm="7"
-        xs="5"
-        md="5"
-        xl="5"
-        :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}"
-      >
-        <v-select
-          class="cus-v-input mr-2"
-          v-model="serverSearchInput.goodCategory"
-          :items="constantCollection.goodCategory"
-          prefix="商品分类："
-          item-text="text"
-          item-value="value"
-          dense
-          filled
-          single-line
-          multiple
-        >
+    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
+      style="justify-content: end">
+      <v-col cols="12" sm="7" xs="5" md="5" xl="5" :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}">
+        <v-select class="cus-v-input mr-2" v-model="serverSearchInput.goodCategory"
+          :items="constantCollection.goodCategory" prefix="商品分类：" item-text="text" item-value="value" dense filled
+          single-line multiple>
         </v-select>
       </v-col>
-      <v-col
-        cols="12"
-        sm="5"
-        xs="3"
-        md="3"
-        xl="2"
-        :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}"
-      >
-        <row-status-select
-          :value="serverSearchInput.rowStatus"
-          @update-value="serverSearchInput.rowStatus=$event"
-        />
+      <v-col cols="12" sm="5" xs="3" md="3" xl="2" :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}">
+        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
       </v-col>
-      <v-col
-        :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}"
-        style="max-width: 77px"
-      >
-        <v-btn
-          class="elevation-0"
-          color="success"
-          dark
-          @click="doUiAction('refreshTableData')"
-        >
+      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')">
           查询
         </v-btn>
       </v-col>
@@ -75,72 +38,42 @@ SQL END! -->
   <!-- 页面主要内容 -->
   <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
     <v-card>
-      <v-row
-        class="ma-0 pa-xs-4 align-center flex-none pt-0"
-        :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}"
-      >
+      <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0"
+        :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
         <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-          <v-btn
-            color="success"
-            dark
-            class="elevation-0 mr-2"
-            @click="doUiAction('startCreateItem')"
-            >新增商品</v-btn
-          >
+          <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新增商品</v-btn>
 
           <span class="body-2">共{{ tableData.length }}条记录</span>
         </v-col>
 
         <v-spacer></v-spacer>
 
-        <v-col
-          cols="12"
-          xs="3"
-          sm="3"
-          md="2"
-          xl="2"
-          class="pa-xs-0 pa-xs-2 col-sm-8-flex"
-        >
-          <v-text-field
-            v-model="searchInput"
-            label="表格过滤"
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-          ></v-text-field>
+        <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
+          <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
         </v-col>
       </v-row>
-      <v-data-table
-        fixed-header
-        height="350"
-        :headers="headers"
-        :items="tableData"
+      <v-data-table 
+        fixed-header 
+        height="350" 
+        :headers="headers" 
+        :items="tableData" 
         :search="searchInput"
-        :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-        :items-per-page="100"
+        :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }" 
+        :items-per-page="100" 
         mobile-breakpoint="0"
-        :loading="isTableLoading"
-        checkbox-color="success"
-        v-model="selectedRows"
-        show-select
-        single-select
+        :loading="isTableLoading" 
+        checkbox-color="success" 
+        v-model="selectedRows" 
+        show-select 
+        single-select 
         @click:row="(item, row) => {
-                    row.select(true);
-                  }"
-        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column"
-      >
+                      row.select(true);
+                    }" 
+        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
         <template v-slot:item.action="{ item }">
-          <v-btn
-            small
-            class="success"
-            @click="doUiAction('startUpdateItem', {item})"
-            >修改</v-btn
-          >
-          <row-status-switch-button
-            :value="item.rowStatus"
-            @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })"
-          />
+          <v-btn small class="success" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
+          <row-status-switch-button :value="item.rowStatus"
+            @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })" />
         </template>
         <template v-slot:item.operationAt="{ item }">
           {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
@@ -150,330 +83,115 @@ SQL END! -->
 
 
     <div style="height: 20px"></div>
-    <goodManagement-supplierGood ref="supplierGood" v-if="selectedRows.length" :good-id="selectGoodId" :good-name="selectGoodName"></goodManagement-supplierGood>
+    <goodManagement-supplierGood ref="supplierGood" v-if="selectedRows.length" :good-id="selectGoodId"
+      :good-name="selectGoodName"></goodManagement-supplierGood>
   </v-container>
 
   <!-- 新增 -->
-  <v-navigation-drawer
-    v-model="isAddDrawerShow"
-    :permanent="isAddDrawerShow"
-    fixed
-    temporary
-    right
-    width="80%"
-    class="elevation-24"
-  >
-    <v-form
-      v-model="isFormValid"
-      v-if="isAddDrawerShow"
-      ref="form"
-      lazy-validation
-    >
+  <v-navigation-drawer v-model="isAddDrawerShow" :permanent="isAddDrawerShow" fixed temporary right width="80%"
+    class="elevation-24">
+    <v-form v-model="isFormValid" v-if="isAddDrawerShow" ref="form" lazy-validation>
       <v-row class="pt-8">
-        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}"
-          >新增信息</span
-        >
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">新增信息</span>
         <v-spacer></v-spacer>
-        <v-btn
-          class="mt-6 elevation-0"
-          :class="{'mr-16': !isMobile, 'mr-8': isMobile}"
-          fab
-          x-small
-          @click="isAddDrawerShow = false"
-        >
+        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+          @click="isAddDrawerShow = false">
           <v-icon dark>mdi-close</v-icon>
         </v-btn>
       </v-row>
-      <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品名称</span>
-          <v-text-field
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-            v-model="addItem['goodName']"
-          ></v-text-field>
+      <v-row class="mt-0 px-4">
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品名称</span>
+          <v-text-field class="cus-v-input" dense filled single-line v-model="addItem['goodName']"></v-text-field>
         </v-col>
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品建议价格</span>
-          <v-text-field
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-            v-model="addItem['goodSuggestPrice']"
-            type="number"
-          ></v-text-field>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品建议价格</span>
+          <v-text-field class="cus-v-input" dense filled single-line v-model="addItem['goodSuggestPrice']"
+            type="number"></v-text-field>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品描述</span>
-          <v-text-field
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-            v-model="addItem['goodDesc']"
-          ></v-text-field>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品描述</span>
+          <v-text-field class="cus-v-input" dense filled single-line v-model="addItem['goodDesc']"></v-text-field>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品类型</span>
-          <v-select
-            class="cus-v-input mr-2"
-            v-model="addItem['goodType']"
-            :items="constantCollection.goodTypeList"
-            dense
-            item-text="text"
-            item-value="value"
-            dense
-            filled
-            single-line
-          ></v-select>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品类型</span>
+          <v-select class="cus-v-input mr-2" v-model="addItem['goodType']" :items="constantCollection.goodTypeList"
+            dense item-text="text" item-value="value" dense filled single-line></v-select>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">单位</span>
-          <v-select
-            class="cus-v-input mr-2"
-            v-model="addItem['goodUnit']"
-            :items="constantCollection.goodUnitList"
-            dense
-            item-text="text"
-            item-value="value"
-            :rules="requireRules"
-            dense
-            filled
-            single-line
-          ></v-select>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">单位</span>
+          <v-select class="cus-v-input mr-2" v-model="addItem['goodUnit']" :items="constantCollection.goodUnitList"
+            dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line></v-select>
           <!-- <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['goodUnit']"></v-text-field> -->
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品分类</span>
-          <v-select
-            class="cus-v-input mr-2"
-            v-model="addItem['goodCategory']"
-            :items="constantCollection.goodCategory"
-            dense
-            item-text="text"
-            item-value="value"
-            :rules="requireRules"
-            dense
-            filled
-            single-line
-          ></v-select>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品分类</span>
+          <v-select class="cus-v-input mr-2" v-model="addItem['goodCategory']" :items="constantCollection.goodCategory"
+            dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line></v-select>
         </v-col>
       </v-row>
       <v-row class="justify-end pr-6">
-        <v-btn
-          color="success"
-          @click="doUiAction('createItem', {})"
+        <v-btn color="success" @click="doUiAction('createItem', {})"
           :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
-          :class="{'mb-2': isMobile, 'mr-4': isMobile}"
-          >新增</v-btn
-        >
-        <v-btn
-          class="ml-2"
-          @click="isAddDrawerShow = false"
-          :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
-          :class="{'mr-4': isMobile}"
-          >取消</v-btn
-        >
+          :class="{'mb-2': isMobile, 'mr-4': isMobile}">新增</v-btn>
+        <v-btn class="ml-2" @click="isAddDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
+          :class="{'mr-4': isMobile}">取消</v-btn>
       </v-row>
     </v-form>
   </v-navigation-drawer>
 
   <!-- 编辑抽屉 -->
-  <v-navigation-drawer
-    v-model="isEditDrawerShow"
-    :permanent="isEditDrawerShow"
-    fixed
-    temporary
-    right
-    width="80%"
-    class="elevation-24"
-  >
-    <v-form
-      v-model="isFormValid"
-      v-if="isEditDrawerShow"
-      ref="form"
-      lazy-validation
-    >
+  <v-navigation-drawer v-model="isEditDrawerShow" :permanent="isEditDrawerShow" fixed temporary right width="80%"
+    class="elevation-24">
+    <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
       <v-row class="pt-8">
-        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}"
-          >编辑信息</span
-        >
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">编辑信息</span>
         <v-spacer></v-spacer>
-        <v-btn
-          class="mt-6 elevation-0"
-          :class="{'mr-16': !isMobile, 'mr-8': isMobile}"
-          fab
-          x-small
-          @click="isEditDrawerShow = false"
-        >
+        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+          @click="isEditDrawerShow = false">
           <v-icon dark>mdi-close</v-icon>
         </v-btn>
       </v-row>
-      <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品名称</span>
-          <v-text-field
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-            v-model="editItem['goodName']"
-          ></v-text-field>
+      <v-row class="mt-0 px-4">
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品名称</span>
+          <v-text-field class="cus-v-input" dense filled single-line v-model="editItem['goodName']"></v-text-field>
         </v-col>
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品建议价格</span>
-          <v-text-field
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-            v-model="editItem['goodSuggestPrice']"
-            type="number"
-          ></v-text-field>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品建议价格</span>
+          <v-text-field class="cus-v-input" dense filled single-line v-model="editItem['goodSuggestPrice']"
+            type="number"></v-text-field>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品描述</span>
-          <v-text-field
-            class="cus-v-input"
-            dense
-            filled
-            single-line
-            v-model="editItem['goodDesc']"
-          ></v-text-field>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品描述</span>
+          <v-text-field class="cus-v-input" dense filled single-line v-model="editItem['goodDesc']"></v-text-field>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品类型</span>
-          <v-select
-            class="cus-v-input mr-2"
-            v-model="editItem['goodType']"
-            :items="constantCollection.goodTypeList"
-            dense
-            item-text="text"
-            item-value="value"
-            dense
-            filled
-            single-line
-          ></v-select>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品类型</span>
+          <v-select class="cus-v-input mr-2" v-model="editItem['goodType']" :items="constantCollection.goodTypeList"
+            dense item-text="text" item-value="value" dense filled single-line></v-select>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">单位</span>
-          <v-select
-            class="cus-v-input mr-2"
-            v-model="editItem['goodUnit']"
-            :items="constantCollection.goodUnitList"
-            dense
-            item-text="text"
-            item-value="value"
-            :rules="requireRules"
-            dense
-            filled
-            single-line
-          ></v-select>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">单位</span>
+          <v-select class="cus-v-input mr-2" v-model="editItem['goodUnit']" :items="constantCollection.goodUnitList"
+            dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line></v-select>
         </v-col>
 
-        <v-col
-          cols="12"
-          sm="12"
-          md="4"
-          xl="3"
-          :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"
-        >
-          <span class="inputLabel">商品分类</span>
-          <v-select
-            class="cus-v-input mr-2"
-            v-model="editItem['goodCategory']"
-            :items="constantCollection.goodCategory"
-            dense
-            item-text="text"
-            disabled
-            item-value="value"
-            :rules="requireRules"
-            dense
-            filled
-            single-line
-          ></v-select>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">商品分类</span>
+          <v-select class="cus-v-input mr-2" v-model="editItem['goodCategory']" :items="constantCollection.goodCategory"
+            dense item-text="text" disabled item-value="value" :rules="requireRules" dense filled
+            single-line></v-select>
         </v-col>
       </v-row>
-      <v-row
-        class="justify-end mx-0 mt-8"
-        :class="{'px-10': !isMobile, 'px-4': isMobile, 'mb-8': isMobile}"
-      >
+      <v-row class="justify-end mx-0 mt-8" :class="{'px-10': !isMobile, 'px-4': isMobile, 'mb-8': isMobile}">
         <v-btn color="success" @click="doUiAction('updateItem')">保存</v-btn>
         <v-btn class="ml-2" @click="isEditDrawerShow = false">取消</v-btn>
       </v-row>
@@ -484,8 +202,8 @@ SQL END! -->
 {% endblock %} {% block vue_body %} {% include
 'component/basic/rowStatus/row-status-select.html' %} {% include
 'component/basic/rowStatus/row-status-switch-button.html' %} {% include
-'component/goodManagement-supplierGood.html' %} {% include
-'component/goodManagement-supplierGoodPriceHistory.html' %}
+'component/basic/goodManagement-supplierGood.html' %} {% include
+'component/basic/goodManagement-supplierGoodPriceHistory.html' %}
 
 <!-- <script src="../constant/good.js"></script> -->
 <script type="module">
@@ -585,7 +303,7 @@ SQL END! -->
     async created() {
       await this.doUiAction("refreshTableData");
     },
-    mounted() {},
+    mounted() { },
     methods: {
       async doUiAction(uiActionId, uiActionData) {
         switch (uiActionId) {
@@ -742,7 +460,7 @@ SQL END! -->
       async openUpdateDialog() {
         this.isEditDrawerShow = true;
       },
-      async supplierGoodComponentOpenDailog (uiActionData) {
+      async supplierGoodComponentOpenDailog(uiActionData) {
         const selectedRowId = uiActionData.selectedRowId;
         const selectedRow = this.tableDataFromBackend.find(v => v.id === selectedRowId);
         if (selectedRow) {
@@ -846,19 +564,14 @@ SQL END! -->
 </script>
 
 <style>
-  .theme--light.v-data-table
-    > .v-data-table__wrapper
-    > table
-    > tbody
-    > tr
-    > td:not(.v-data-table__mobile-row) {
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr>td:not(.v-data-table__mobile-row) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 500px;
   }
 
-  .theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr {
     cursor: pointer;
   }
 </style>
