@@ -18,7 +18,7 @@
             </div>
             <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
           </v-col>
-          <!--pc端的搜索条件表单 >>>>>>>> -->
+          <!-- pc端的搜索条件表单 >>>>>>>> -->
           <v-col cols="12" xs="12" sm="12" md="8" xl="9">
             <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
               <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
@@ -38,18 +38,18 @@
         <!-- 页面内容 >>>>>>>>>>>>> -->
         <v-card class="rounded-lg">
           <v-row class="ma-0 pa-4">
-            <!--新增按钮-->
+            <!-- 新增按钮 -->
             <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
               <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新建采购单</v-btn>
               <span class="body-2">共{{ tableData.length }}条记录</span>
             </v-col>
             <v-spacer></v-spacer>
-            <!--搜索-->
+            <!-- 搜索 -->
             <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
               <v-text-field v-model="searchInput" color="success" prefix="搜索：" class="jh-v-input" dense filled single-line hide-details></v-text-field>
             </v-col>
           </v-row>
-          <!--表格-->
+          <!-- 表格 -->
           <v-data-table
             :headers="headers"
             :items="tableData"
@@ -62,7 +62,7 @@
             checkbox-color="success"
             fixed-header
             class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
-            <!--表格行操作按钮-->
+            <!-- 表格行操作按钮 -->
             <template v-slot:expanded-item="{ headers, item }">
               <td :colspan="headers.length">
                 More info about {{ item.name }}
@@ -94,7 +94,7 @@
               {{ item.finishAt && dayjs(item.finishAt).format('YYYY-MM-DD HH:mm:ss') }}
             </template>
 
-            <!--表格底部右侧功能按钮-->
+            <!-- 表格底部右侧功能按钮 -->
             <template v-slot:footer.prepend>
               <v-menu top offset-y :close-on-content-click="false">
                 <template v-slot:activator="{on, attrs}">
@@ -105,7 +105,7 @@
                 <v-switch v-model="isTableZebraLineShown" hide-details class="mx-3 my-2" label="显示斑马纹" dense flat></v-switch>
               </v-menu>
             </template>
-            <!--没有数据-->
+            <!-- 没有数据 -->
             <template v-slot:loading>
               <div class="jh-no-data">数据加载中</div>
             </template>
@@ -115,7 +115,7 @@
             <template v-slot:no-results>
               <div class="jh-no-data">暂无数据</div>
             </template>
-            <!--表格底部右侧分页-->
+            <!-- 表格底部右侧分页 -->
             <template v-slot:footer.page-text="pagination">
               <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
               <span class="ml-1">共{{pagination.itemsLength}}条</span>
@@ -126,11 +126,11 @@
         <!-- 新增抽屉 -->
         <v-navigation-drawer v-model="isCreateDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
           <v-form ref="createForm" lazy-validation>
-            <!--抽屉标题-->
+            <!-- 抽屉标题 -->
             <v-row>
               <span class="title pa-6 pl-8">修改采购单</span>
             </v-row>
-            <!--抽屉表单-->
+            <!-- 抽屉表单 -->
             <v-row class="mt-0 px-6">
               <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">标题</span>
@@ -196,14 +196,14 @@
                 <v-textarea dense filled single-line v-model="addItem['remark']" hint="填写备注（如功能需求、是否要回单或反馈等）" ></v-textarea>
               </v-col>
             </v-row>
-            <!--抽屉操作按钮-->
+            <!-- 抽屉操作按钮 -->
             <v-row class="justify-end mx-0 mt-8 px-6">
               <v-btn color="orange" dark @click="doUiAction('createItemSaveDraft')" small>保存草稿</v-btn>
               <v-btn class="ml-2" color="success" @click="doUiAction('createItem')" small>保存</v-btn>
               <v-btn class="elevation-0 ml-2" @click="isCreateDrawerShown = false" small>取消</v-btn>
             </v-row>
           </v-form>
-          <!--抽屉关闭按钮-->
+          <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isCreateDrawerShown = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -212,11 +212,11 @@
         <!-- 编辑抽屉 -->
         <v-navigation-drawer v-model="isUpdateDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
           <v-form ref="updateForm" lazy-validation>
-            <!--抽屉标题-->
+            <!-- 抽屉标题 -->
             <v-row>
               <span class="title pa-6 pl-8">修改采购单</span>
             </v-row>
-            <!--抽屉表单-->
+            <!-- 抽屉表单 -->
             <v-row class="mt-0 px-6">
               <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">标题</span>
@@ -271,14 +271,14 @@
                 <v-textarea dense filled single-line v-model="editItem['remark']" hint="填写备注（如功能需求、是否要回单或反馈等）" ></v-textarea>  
               </v-col>
             </v-row>
-            <!--抽屉操作按钮-->
+            <!-- 抽屉操作按钮 -->
             <v-row class="justify-end mx-0 mt-8 px-6">
               <v-btn color="orange" dark @click="doUiAction('updateItemSaveDraft')" small>保存草稿</v-btn>
               <v-btn class="ml-2" color="success" @click="doUiAction('updateItem')" small>保存</v-btn>
               <v-btn class="elevation-0 ml-2" @click="isUpdateDrawerShown = false" small>取消</v-btn>
             </v-row>
           </v-form>
-          <!--抽屉关闭按钮-->
+          <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isUpdateDrawerShown = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -291,7 +291,7 @@
           </v-row>
           <purchase-order-detail 
           :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
-          <!--抽屉关闭按钮-->
+          <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isDetailDrawerShown = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>

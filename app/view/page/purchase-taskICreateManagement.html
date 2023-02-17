@@ -1,111 +1,166 @@
-{% extends 'template/jhTemplateV3.html'%}
+{% extends 'template/jhTemplateV4.html'%}
 
-{% block vue_template %}
+{% block vueTemplate %}
 
-<jh-layout-v3>
-  <!-- <template slot="serverSearch">
-    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
-      <v-col cols="12" sm="5" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-select v-model="serverSearchInput.taskStatus"
-          :items="constantCollection.taskStatus" :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data
-          multiple
-          prefix="状态"
-          clearable /> 
-      </v-col>
-      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+<script type="text/html" id="app-template">
+<div>
+<v-app mobile-breakpoint="sm">
+  <jh-menu />
+  <v-main class="mt-15">
+    <!-- 头部内容 >>>>>>>>>>>>> -->
+    <div class="jh-page-second-bar px-8">
+      <div class="pt-3 text-h7 font-weight-bold">采购申请
+        <!-- 帮助页按钮 -->
+        <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline</v-icon>
+      </div>
+      <v-breadcrumbs class="pb-3 pt-0 px-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
+    </div>
+    <!-- <<<<<<<<<<<<< 头部内容 -->
+
+    <div class="jh-page-body-container px-8">
+      <!-- 页面内容 >>>>>>>>>>>>> -->
+      <v-card class="rounded-lg">
+        <v-row class="ma-0 pa-4">
+          <!-- 类型 -->
+          <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+            <span class="text-h7">待审批</span>
+          </v-col>
+          <v-spacer></v-spacer>
+          <!-- 搜索过滤 -->
+          <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+            <v-text-field color="success" v-model="searchInput" prefix="搜索：" class="jh-v-input" dense filled single-line></v-text-field>
+          </v-col>
+          <v-btn
+            class="elevation-0 ml-2"
+            fab
+            dark
+            x-small
+            color="primary"
+            @click="doUiAction('refreshTableData')"
+          >
+            <v-icon dark>
+              mdi-cached
+            </v-icon>
+          </v-btn>
+        </v-row>
+        <!-- 表格 -->
+        <v-data-table
+          :headers="headers"
+          height="350"
+          :items="tableDataFromBackend"
+          :search="searchInput"
+          :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
+          :items-per-page="-1"
+          mobile-breakpoint="0"
+          :loading="isTableLoading"
+          :class="{'zebraLine': isTableZebraLineShown }"
+          checkbox-color="success"
+          fixed-header
+          class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
+          <!-- 表格行操作按钮 -->
+          <template v-slot:item.taskInitUser="{ item }">
+            {{ item.taskInitUsername || item.taskInitUser }}
+          </template>
+          <template v-slot:item.taskEditUserList="{ item }">
+            {{ item.taskEditUsernameList || item.taskEditUserList }} 
+          </template>
+          <template v-slot:item.taskViewUserList="{ item }">
+            {{ item.taskViewUsernameList || item.taskViewUserList }}
+          </template>
+          <template v-slot:item.createByUser="{ item }">
+            {{ item.createByUsername || item.createByUser }}
+          </template>
+          <template v-slot:item.action="{ item }">
+            <v-btn v-if="(item.taskEditedUserList || '').indexOf(userId) > -1" small color="" class="mr-2" @click="doUiAction('doViewDetail', {item})">
+              已审批
+            </v-btn>
+            <v-btn v-if="(item.taskEditedUserList || '').indexOf(userId) === -1" small color="success" class="mr-2" @click="doUiAction('doViewDetail', {item})">
+              审批
+            </v-btn>
+          </template>
+          <template v-slot:item.applyAt="{ item }">
+            {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
+          </template>
+          <template v-slot:item.finishAt="{ item }">
+            {{ item.finishAt && dayjs(item.finishAt).format('YYYY-MM-DD HH:mm:ss') }}
+          </template>
+
+          <!-- 没有数据 -->
+          <template v-slot:loading>
+            <div class="jh-no-data">数据加载中</div>
+          </template>
+          <template v-slot:no-data>
+            <div class="jh-no-data">暂无数据</div>
+          </template>
+          <template v-slot:no-results>
+            <div class="jh-no-data">暂无数据</div>
+          </template>
+          <!-- 表格分页 -->
+          <template v-slot:footer.page-text="pagination">
+            <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
+            <span class="ml-1">共{{pagination.itemsLength}}条</span>
+          </template>
+        </v-data-table>
+      </v-card>
+
+      <div class="mt-5">
+        <task-icreate-management-task-history ref="taskHistory" />
+      </div>
+      <!-- <<<<<<<<<<<<< 页面内容 -->
+      <!-- 编辑抽屉 -->
+      <v-navigation-drawer v-model="isDetailDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+        <v-form ref="updateForm" lazy-validation>
+          <!-- 抽屉标题 -->
+          <v-row>
+            <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">采购单详情</span>
+          </v-row>
+          <!-- 抽屉表单 -->
+          <v-row class="mt-0 px-4">
+            <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          </v-row>
+        </v-form>
+
+        <!-- 抽屉关闭按钮 -->
         <v-btn
-          class="elevation-0"
-          color="success"
-          dark
-          @click="doUiAction('refreshTableData')"
-        >
-          查询
+          elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+          @click="isDetailDrawerShow = false">
+          <v-icon>mdi-close</v-icon>
         </v-btn>
-      </v-col>
-    </v-row>
-  </template> -->
-  <!-- 页面主要内容 -->
-  <v-card :class="{'px-2': isMobile}">
-    <v-row class="ma-0 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-      <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <span class="text-h6">待审批</span>
-        <span class="body-2">共{{ tableDataFromBackend.length }}条记录</span>
-      </v-col>
-      <v-spacer></v-spacer>
-      <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="px-0">
-        <v-text-field v-model="searchInput" prefix="表格过滤:" color="success" class="cus-v-input" dense filled
-                      single-line></v-text-field>
-      </v-col>
-      <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')" >
-        <v-icon left dark > mdi-cached </v-icon>
-        <span>刷新</span>  
+      </v-navigation-drawer>
+    </div>
+
+    <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
+    <v-navigation-drawer v-model="isHelpPageDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+      <iframe
+        style="border: 0" :src="`/${appInfo.appId}/pageDoc#3.doUiAction.md`" width="100%"
+        height="100%"></iframe>
+
+      <v-btn
+        elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+        @click="isHelpPageDrawerShown = false">
+        <v-icon>mdi-close</v-icon>
       </v-btn>
-    </v-row>
-    
-    <v-data-table 
-        :headers="headers"
-        height="350"
-        :items="tableDataFromBackend"
-        :search="searchInput"
-        :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-        :items-per-page="100"
-        mobile-breakpoint="0"
-        :loading="isTableLoading"
-        checkbox-color="success"
-        :class="{'mx-2': isMobile}"
-        color="success"
-        class="elevation-0 mt-0 flex-fill d-flex flex-column">
-      <template v-slot:item.taskInitUser="{ item }">
-        {{ item.taskInitUsername || item.taskInitUser }}
-      </template>
-      <template v-slot:item.taskEditUserList="{ item }">
-        {{ item.taskEditUsernameList || item.taskEditUserList }} 
-      </template>
-      <template v-slot:item.taskViewUserList="{ item }">
-        {{ item.taskViewUsernameList || item.taskViewUserList }}
-      </template>
-      <template v-slot:item.createByUser="{ item }">
-        {{ item.createByUsername || item.createByUser }}
-      </template>
-      
+    </v-navigation-drawer>
+    <!-- <<<<<<<<<<<<< 帮助页抽屉 -->
 
-      
-      <template v-slot:item.action="{ item }">
-        <v-btn v-if="(item.taskEditedUserList || '').indexOf(userId) > -1" small color="" class="mr-2" @click="doUiAction('doViewDetail', {item})">
-          已审批
-        </v-btn>
-        <v-btn v-if="(item.taskEditedUserList || '').indexOf(userId) === -1" small color="success" class="mr-2" @click="doUiAction('doViewDetail', {item})">
-          审批
-        </v-btn>
-      </template>
+  </v-main>
+</v-app>
 
-      <template v-slot:item.applyAt="{ item }">
-        {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
-      </template>
-      <template v-slot:item.finishAt="{ item }">
-        {{ item.finishAt && dayjs(item.finishAt).format('YYYY-MM-DD HH:mm:ss') }}
-      </template>
-    </v-data-table>
-  </v-card>
-  <div class="mt-5">
-    <task-icreate-management-task-history ref="taskHistory" />
-  </div>
+<jh-toast />
+<jh-mask />
+<jh-confirm-dialog />
 
-  <v-navigation-drawer v-model="isDetailDrawerShow" :permanent="isDetailDrawerShow" fixed temporary right width="80%" class="elevation-24">
-    <v-row class="pt-8">
-      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">采购单详情</span>
-      <v-spacer></v-spacer>
-      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isDetailDrawerShow = false;">
-        <v-icon dark>mdi-close</v-icon>
-      </v-btn>
-    </v-row>
-    <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
-  </v-navigation-drawer>
-</jh-layout-v3>
+</div>
+</script>
+
+<div id="app">
+</div>
 
 {% endblock %}
 
-{% block vue_body %}
+{% block vueScript %}
+
+<!-- 加载页面组件 >>>>>>>>>>>>> -->
 {% include 'component/purchase/flow/processFlow.html' %}
 {% include 'component/purchase/flow/editFlow.html' %}
 {% include 'component/purchase/flow/editLine.html' %}
@@ -113,63 +168,77 @@
 {% include 'component/purchase/previewFileGroup.html' %}
 {% include 'component/purchase/taskICreateManagement-taskHistory.html' %}
 {% include 'component/purchase/purchaseOrderDetail.html' %}
+<!-- <<<<<<<<<<<<< 加载页面组件 -->
+
 <script type="module">
-new Vue({
-  el: '#app',
-  template: '#app-template',
-  vuetify: new Vuetify(),
-  data: () => ({
-    isMobile: window.innerWidth < 600,
-    // 表格相关数据
-    requireRules: [
-      v => !!v || '必填',
-    ],
-    constantCollection: {
-      taskStatus: [
-        { value: "running", text: "running"},
-        { value: "end", text: "end"},
+  new Vue({
+    el: '#app',
+    template: '#app-template',
+    vueComponent: 'page',
+    vuetify: new Vuetify(),
+    data: {
+      // 面包屑
+      breadcrumbs: [
+        {
+          text: '首页',
+          disabled: true,
+        },
+        {
+          text: '采购申请',
+          disabled: true,
+        }
       ],
+      isHelpPageDrawerShown: false,
+      // 表格相关数据
+      isTableZebraLineShown: true,
+      // 表格相关数据
+      requireRules: [
+        v => !!v || '必填',
+      ],
+      constantCollection: {
+        taskStatus: [
+          { value: "running", text: "running" },
+          { value: "end", text: "end" },
+        ],
+      },
+      serverSearchInput: {
+        taskStatus: ['running']
+      },
+      currentTableGenderType: 'all',
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        // {text: "名称", value: "taskTitle", width: 230, class: 'fixed', cellClass: 'fixed'},
+        { text: "采购订单ID", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed' },
+        { text: "采购标题", value: "purchaseTitle", width: 130, class: 'fixed', cellClass: 'fixed' },
+        // {text: "任务ID", value: "taskId", width: 120},
+        // {text: "状态", value: "taskStatus", width: 120},
+        // {text: "当前节点ID", value: "taskConfigId", width: 200},
+        { text: "申购部门", value: "purchaseDeptName", width: 120 },
+        { text: "申购人", value: "purchaseRequirerName", width: 120 },
+        { text: "采购人", value: "purchasePurchaserName", width: 120 },
+        { text: "采购单的总金额", value: "purchaseOrderPrice", width: 120 },
+        { text: "审批人员", value: "taskEditUserList", width: 120 },
+        { text: "所有相关人员，用逗号分隔", value: "taskViewUserList", width: 120 },
+        { text: "申请采购时间", value: "applyAt", width: 250 },
+        { text: "完成采购时间", value: "finishAt", width: 250 },
+        // {text: "操作者", value: "operationByUser", width: 120},
+        // {text: "操作时间", value: "operationAt", width: 250},
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 120, class: 'fixed', cellClass: 'fixed' },
+      ],
+      userId: localStorage.getItem(`${window.appInfo.appId}_userId`),
+      isDetailDrawerShow: false,
+      editItem: {},
+      userList: [],
     },
-    serverSearchInput: {
-      taskStatus: ['running']
+    watch: {},
+    async created() {
+      await this.doUiAction('getUserList');
+      await this.doUiAction('refreshTableData');
     },
-    currentTableGenderType: 'all',
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      // {text: "名称", value: "taskTitle", width: 230, class: 'fixed', cellClass: 'fixed'},
-      {text: "采购订单ID", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
-      {text: "采购标题", value: "purchaseTitle", width: 130, class: 'fixed', cellClass: 'fixed'}, 
-      // {text: "任务ID", value: "taskId", width: 120},
-      // {text: "状态", value: "taskStatus", width: 120},
-      // {text: "当前节点ID", value: "taskConfigId", width: 200},
-      {text: "申购部门", value: "purchaseDeptName", width: 120}, 
-      {text: "申购人", value: "purchaseRequirerName", width: 120}, 
-      {text: "采购人", value: "purchasePurchaserName", width: 120}, 
-      {text: "采购单的总金额", value: "purchaseOrderPrice", width: 120},
-      {text: "审批人员", value: "taskEditUserList", width: 120},
-      {text: "所有相关人员，用逗号分隔", value: "taskViewUserList", width: 120},
-      {text: "申请采购时间", value: "applyAt", width: 250},
-      {text: "完成采购时间", value: "finishAt", width: 250},
-      // {text: "操作者", value: "operationByUser", width: 120},
-      // {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 120, class: 'fixed', cellClass: 'fixed'},
-    ],
-    userId: localStorage.getItem(`${window.appInfo.appId}_userId`),
-    isDetailDrawerShow: false,
-    editItem: {},
-    userList: [],
-  }),
-  watch: {},
-  async created() {
-    await this.doUiAction('getUserList');
-    await this.doUiAction('refreshTableData');
-  },
-  mounted() {
-  },
-  methods: {
-    async doUiAction(uiActionId, uiActionData) {
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
         switch (uiActionId) {
           case 'refreshTableData':
             await this.refreshTableData(uiActionData);
@@ -182,7 +251,7 @@ new Vue({
             break;
           case 'getUserList':
             await this.getUserList();
-            break;  
+            break;
           case 'closeDetailDrawer':
             await this.closeDetailDrawer();
             break;
@@ -190,112 +259,99 @@ new Vue({
             console.error("[doAction] uiActionId not find", { uiActionId });
             break;
         }
-    },
-    /**
-     * 获取表格数据
-     */
-    async refreshTableData() {
-      this.isTableLoading = true;
-      const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
-      const {rows} = (await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'taskICreateManagement',
-            actionId: 'selectItemList',
-            actionData: {},
-            where: {},
-            whereLike: {
-              taskEditUserList: `%${this.userId}%`
-            },
-            whereIn: serverSearchInput,
-            orderBy: [{column: 'operationAt', order: 'desc'}]
+      },
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const serverSearchInput = _.pickBy(this.serverSearchInput, value => !!value);
+        const { rows } = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'taskICreateManagement',
+              actionId: 'selectItemList',
+              actionData: {},
+              where: {},
+              whereLike: {
+                taskEditUserList: `%${this.userId}%`
+              },
+              whereIn: serverSearchInput,
+              orderBy: [{ column: 'operationAt', order: 'desc' }]
+            }
           }
-        }
-      })).data.appData.resultData;
+        })).data.appData.resultData;
 
-      rows.forEach(row => {
-        row.operationAt = dayjs(row.operationAt).format();
-        const createByUser = this.userList.find(user => user.userId === row.createByUser);
-        if (createByUser) {
-          row.createByUsername = createByUser.username;
-        }
-
-        const taskInitUser = this.userList.find(user => user.userId === row.taskInitUser);
-        if (taskInitUser) {
-          row.taskInitUsername = taskInitUser.username;
-        }
-
-        const taskEditUsernameListTemp = row.taskEditUserList.split(",").map(taskEditUserId => {
-          const taskEditUser = this.userList.find(user => user.userId === taskEditUserId);
-          if (taskEditUser) {
-            return taskEditUser.username;
+        rows.forEach(row => {
+          row.operationAt = dayjs(row.operationAt).format();
+          const createByUser = this.userList.find(user => user.userId === row.createByUser);
+          if (createByUser) {
+            row.createByUsername = createByUser.username;
           }
-          return taskEditUserId;
+
+          const taskInitUser = this.userList.find(user => user.userId === row.taskInitUser);
+          if (taskInitUser) {
+            row.taskInitUsername = taskInitUser.username;
+          }
+
+          const taskEditUsernameListTemp = row.taskEditUserList.split(",").map(taskEditUserId => {
+            const taskEditUser = this.userList.find(user => user.userId === taskEditUserId);
+            if (taskEditUser) {
+              return taskEditUser.username;
+            }
+            return taskEditUserId;
+          })
+          row.taskEditUsernameList = taskEditUsernameListTemp.join(',');
+
+
+          const taskViewUsernameListTemp = row.taskViewUserList.split(",").map(taskViewUserId => {
+            const taskViewUser = this.userList.find(user => user.userId === taskViewUserId);
+            if (taskViewUser) {
+              return taskViewUser.username;
+            }
+            return taskViewUserId;
+          })
+          row.taskViewUsernameList = taskViewUsernameListTemp.join(',');
+
+
+
         })
-        row.taskEditUsernameList = taskEditUsernameListTemp.join(',');
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
+      },
 
-
-        const taskViewUsernameListTemp = row.taskViewUserList.split(",").map(taskViewUserId => {
-          const taskViewUser = this.userList.find(user => user.userId === taskViewUserId);
-          if (taskViewUser) {
-            return taskViewUser.username;
-          }
-          return taskViewUserId;
-        })
-        row.taskViewUsernameList = taskViewUsernameListTemp.join(',');
-
-
-        
-      })
-      this.tableDataFromBackend = rows;
-      this.isTableLoading = false;
-    },
-
-    toTaskHistory({item}) {
-      // location.href = `/${window.appInfo.appId}/page/taskHistoryManagement?id=${item.id}&taskId=${item.taskId}`;
-      location.href = `/${window.appInfo.appId}/page/purchaseOrderDetail?workflowTaskId=${item.taskId}`;
-    },
-    async doViewDetail({ item }) {
-      this.editItem = {
-        ...item, time: new Date(), 
-        // purchase-order-detail 读取 workflowTaskId
-        workflowTaskId: item.taskId,
-        workflowTaskRecordId: item.id
-      }
-      this.isDetailDrawerShow = true
-    },
-    async closeDetailDrawer() {
-      this.isDetailDrawerShow = false
-      this.refreshTableData()
-      this.$refs.taskHistory.refreshTableData()
-    },
-    async getUserList() {
-      const {rows} = (await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'workflowManagement',
-            actionId: 'selectUserList',
-            actionData: {},
-            where: {},
-          }
+      toTaskHistory({ item }) {
+        // location.href = `/${window.appInfo.appId}/page/taskHistoryManagement?id=${item.id}&taskId=${item.taskId}`;
+        location.href = `/${window.appInfo.appId}/page/purchaseOrderDetail?workflowTaskId=${item.taskId}`;
+      },
+      async doViewDetail({ item }) {
+        this.editItem = {
+          ...item, time: new Date(),
+          // purchase-order-detail 读取 workflowTaskId
+          workflowTaskId: item.taskId,
+          workflowTaskRecordId: item.id
         }
-      })).data.appData.resultData;
-      this.userList = rows;
-    },
-  }
-})
+        this.isDetailDrawerShow = true
+      },
+      async closeDetailDrawer() {
+        this.isDetailDrawerShow = false
+        this.refreshTableData()
+        this.$refs.taskHistory.refreshTableData()
+      },
+      async getUserList() {
+        const { rows } = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'workflowManagement',
+              actionId: 'selectUserList',
+              actionData: {},
+              where: {},
+            }
+          }
+        })).data.appData.resultData;
+        this.userList = rows;
+      },
+    }
+  })
 </script>
 
-<style>
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 500px;
-}
-
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
-  cursor: pointer;
-}
+<style scoped>
 </style>
 {% endblock %}

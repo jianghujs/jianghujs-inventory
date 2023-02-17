@@ -18,7 +18,7 @@
             </div>
             <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
           </v-col>
-          <!--pc端的搜索条件表单 >>>>>>>> -->
+          <!-- pc端的搜索条件表单 >>>>>>>> -->
           <v-col cols="12" xs="12" sm="12" md="8" xl="9" class="d-flex align-center">
             <v-row class="jh-backend-form-container justify-end ma-0 pb-xs-2">
               <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
@@ -37,14 +37,14 @@
         <!-- 页面内容 >>>>>>>>>>>>> -->
         <v-card class="rounded-lg">
           <v-row class="ma-0 pa-4">
-            <!--新增按钮-->
+            <!-- 新增按钮 -->
             <v-spacer></v-spacer>
-            <!--搜索-->
+            <!-- 搜索 -->
             <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
               <v-text-field v-model="searchInput" color="success" prefix="搜索：" class="jh-v-input" dense filled single-line hide-details></v-text-field>
             </v-col>
           </v-row>
-          <!--表格-->
+          <!-- 表格 -->
           <v-data-table
             :headers="headers"
             :items="tableData"
@@ -57,7 +57,7 @@
             checkbox-color="success"
             fixed-header
             class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
-            <!--表格行操作按钮-->
+            <!-- 表格行操作按钮 -->
             <template v-slot:expanded-item="{ headers, item }">
               <td :colspan="headers.length">
                 More info about {{ item.name }}
@@ -89,7 +89,7 @@
               {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
             </template>
 
-            <!--表格底部右侧功能按钮-->
+            <!-- 表格底部右侧功能按钮 -->
             <template v-slot:footer.prepend>
               <v-menu top offset-y :close-on-content-click="false">
                 <template v-slot:activator="{on, attrs}">
@@ -100,7 +100,7 @@
                 <v-switch v-model="isTableZebraLineShown" hide-details class="mx-3 my-2" label="显示斑马纹" dense flat></v-switch>
               </v-menu>
             </template>
-            <!--没有数据-->
+            <!-- 没有数据 -->
             <template v-slot:loading>
               <div class="jh-no-data">数据加载中</div>
             </template>
@@ -110,7 +110,7 @@
             <template v-slot:no-results>
               <div class="jh-no-data">暂无数据</div>
             </template>
-            <!--表格底部右侧分页-->
+            <!-- 表格底部右侧分页 -->
             <template v-slot:footer.page-text="pagination">
               <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
               <span class="ml-1">共{{pagination.itemsLength}}条</span>
@@ -120,7 +120,7 @@
         <!-- 填写报价 -->
         <v-navigation-drawer v-model="isInputGoodPriceDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
           <v-form ref="inputForm" lazy-validation>
-            <!--抽屉标题-->
+            <!-- 抽屉标题 -->
             <v-row>
               <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">【{{ inputGoodPriceItem.purchaseOrderId }}】填写报价</span>
             </v-row>
@@ -139,7 +139,7 @@
               </v-col>
             </v-row>
           </v-form>
-          <!--抽屉关闭按钮-->
+          <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isInputGoodPriceDrawerShow = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -147,17 +147,17 @@
 
         <!-- 凭据管理 -->
         <v-navigation-drawer v-model="isUploadPurchaseContractDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
-          <!--抽屉标题-->
+          <!-- 抽屉标题 -->
           <v-row>
             <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">{{ uploadPurchaseContractItem.purchaseTitle }}-{{ uploadPurchaseContractItem.purchaseOrderId }} 凭据管理</span>
           </v-row>
-          <!--抽屉表单-->
+          <!-- 抽屉表单 -->
           <v-row class="mt-0 px-6">
             <v-col cols="12">
               <purchaseOrderManagement-contractUpload :purchase-order-id="uploadPurchaseContractItem['purchaseOrderId']"></purchaseOrderManagement-contractUpload>
             </v-col>
           </v-row>
-          <!--抽屉关闭按钮-->
+          <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isUploadPurchaseContractDrawerShow = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -170,7 +170,7 @@
           </v-row>
           <purchase-order-detail 
           :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
-          <!--抽屉关闭按钮-->
+          <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isDetailDrawerShown = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>

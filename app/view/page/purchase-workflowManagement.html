@@ -21,16 +21,16 @@
         <!-- 页面内容 >>>>>>>>>>>>> -->
         <v-card class="rounded-lg">
           <v-row class="ma-0 pa-4">
-            <!--新增按钮-->
+            <!-- 新增按钮 -->
             <v-btn color="success" small class="elevation-0 mr-2" @click="doUiAction('jumpToCreateWorkflow')">新增
             </v-btn>
             <v-spacer></v-spacer>
-            <!--搜索-->
+            <!-- 搜索 -->
             <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
               <v-text-field v-model="searchInput" color="success" prefix="搜索：" class="jh-v-input" dense filled single-line hide-details></v-text-field>
             </v-col>
           </v-row>
-          <!--表格-->
+          <!-- 表格 -->
           <v-data-table
             :headers="headers"
             :items="tableData"
@@ -43,7 +43,7 @@
             checkbox-color="success"
             fixed-header
             class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
-            <!--表格行操作按钮-->
+            <!-- 表格行操作按钮 -->
             <template v-slot:item.action="{ item }">
               <span role="button" class="success--text jh-font-size-3 pr-2"
                     @click="doUiAction('jumpUpdateWorkflow', item)">
@@ -54,7 +54,7 @@
                 <v-icon size="14" class="success--text">mdi-trash-can-outline</v-icon>删除
               </span>
             </template>
-            <!--表格底部右侧功能按钮-->
+            <!-- 表格底部右侧功能按钮 -->
             <template v-slot:footer.prepend>
               <v-menu top offset-y :close-on-content-click="false">
                 <template v-slot:activator="{on, attrs}">
@@ -65,7 +65,7 @@
                 <v-switch v-model="isTableZebraLineShown" hide-details class="mx-3 my-2" label="显示斑马纹" dense flat></v-switch>
               </v-menu>
             </template>
-            <!--没有数据-->
+            <!-- 没有数据 -->
             <template v-slot:loading>
               <div class="jh-no-data">数据加载中</div>
             </template>
@@ -75,7 +75,7 @@
             <template v-slot:no-results>
               <div class="jh-no-data">暂无数据</div>
             </template>
-            <!--表格底部右侧分页-->
+            <!-- 表格底部右侧分页 -->
             <template v-slot:footer.page-text="pagination">
               <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
               <span class="ml-1">共{{pagination.itemsLength}}条</span>

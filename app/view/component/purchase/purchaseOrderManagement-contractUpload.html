@@ -2,7 +2,7 @@
   <div class="">
     <!-- 页面主要内容 -->
     <v-row>
-      <!--pc端的搜索条件表单 >>>>>>>> -->
+      <!-- pc端的搜索条件表单 >>>>>>>> -->
       <v-col cols="12">
         <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
           <v-col cols="12" xs="6" sm="6" md="4" xl="3" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
@@ -19,13 +19,13 @@
     </v-row>
     <v-card class="rounded-lg" outlined>
       <v-row class="ma-0 pa-4">
-        <!--新增按钮-->
+        <!-- 新增按钮 -->
         <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
           <v-btn small color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新增凭据</v-btn>
           <span class="body-2">共{{ tableData.length }}条记录</span>
         </v-col>
         <v-spacer></v-spacer>
-        <!--搜索-->
+        <!-- 搜索 -->
         <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
           <v-text-field v-model="searchInput" color="success" prefix="搜索：" class="jh-v-input" dense filled single-line
             hide-details></v-text-field>
@@ -43,7 +43,7 @@
             @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })" />
         </template>
 
-        <!--表格底部右侧功能按钮-->
+        <!-- 表格底部右侧功能按钮 -->
         <template v-slot:footer.prepend>
           <v-menu top offset-y :close-on-content-click="false">
             <template v-slot:activator="{on, attrs}">
@@ -55,7 +55,7 @@
               flat></v-switch>
           </v-menu>
         </template>
-        <!--没有数据-->
+        <!-- 没有数据 -->
         <template v-slot:loading>
           <div class="jh-no-data">数据加载中</div>
         </template>
@@ -65,7 +65,7 @@
         <template v-slot:no-results>
           <div class="jh-no-data">暂无数据</div>
         </template>
-        <!--表格底部右侧分页-->
+        <!-- 表格底部右侧分页 -->
         <template v-slot:footer.page-text="pagination">
           <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
           <span class="ml-1">共{{pagination.itemsLength}}条</span>
@@ -102,7 +102,7 @@
           <v-btn class="elevation-0 mr-2 ml-2" @click="isEditDrawerShow = false">取消</v-btn>
         </v-row>
       </v-form>
-      <!--抽屉关闭按钮-->
+      <!-- 抽屉关闭按钮 -->
       <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
         @click="isEditDrawerShow = false">
         <v-icon>mdi-close</v-icon>

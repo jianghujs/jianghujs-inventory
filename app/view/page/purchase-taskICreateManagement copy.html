@@ -1,0 +1,300 @@
+{% extends 'template/jhTemplateV3.html'%}
+
+{% block vue_template %}
+
+<jh-layout-v3>
+  <!-- <template slot="serverSearch">
+    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
+      <v-col cols="12" sm="5" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
+        <v-select v-model="serverSearchInput.taskStatus"
+          :items="constantCollection.taskStatus" :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data
+          multiple
+          prefix="状态"
+          clearable /> 
+      </v-col>
+      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+        <v-btn
+          class="elevation-0"
+          color="success"
+          dark
+          @click="doUiAction('refreshTableData')"
+        >
+          查询
+        </v-btn>
+      </v-col>
+    </v-row>
+  </template> -->
+  <!-- 页面主要内容 -->
+  <v-card :class="{'px-2': isMobile}">
+    <v-row class="ma-0 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+      <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+        <span class="body-2">共{{ tableDataFromBackend.length }}条记录</span>
+      </v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="12" xs="8" sm="4" md="3" xl="3" class="px-0">
+        <v-text-field v-model="searchInput" prefix="表格过滤:" color="success" class="cus-v-input" dense filled
+                      single-line></v-text-field>
+      </v-col>
+      <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')" >
+        <v-icon left dark > mdi-cached </v-icon>
+        <span>刷新</span>  
+      </v-btn>
+    </v-row>
+    
+    <v-data-table 
+        :headers="headers"
+        height="350"
+        :items="tableDataFromBackend"
+        :search="searchInput"
+        :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+        :items-per-page="100"
+        mobile-breakpoint="0"
+        :loading="isTableLoading"
+        checkbox-color="success"
+        :class="{'mx-2': isMobile}"
+        color="success"
+        class="elevation-0 mt-0 flex-fill d-flex flex-column">
+      <template v-slot:item.taskInitUser="{ item }">
+        {{ item.taskInitUsername || item.taskInitUser }}
+      </template>
+      <template v-slot:item.taskEditUserList="{ item }">
+        {{ item.taskEditUsernameList || item.taskEditUserList }} 
+      </template>
+      <template v-slot:item.taskViewUserList="{ item }">
+        {{ item.taskViewUsernameList || item.taskViewUserList }}
+      </template>
+      <template v-slot:item.createByUser="{ item }">
+        {{ item.createByUsername || item.createByUser }}
+      </template>
+      
+
+      
+      <template v-slot:item.action="{ item }">
+        <v-btn v-if="(item.taskEditedUserList || '').indexOf(userId) > -1" small color="" class="mr-2" @click="doUiAction('doViewDetail', {item})">
+          已审批
+        </v-btn>
+        <v-btn v-if="(item.taskEditedUserList || '').indexOf(userId) === -1" small color="success" class="mr-2" @click="doUiAction('doViewDetail', {item})">
+          审批
+        </v-btn>
+      </template>
+
+      <template v-slot:item.applyAt="{ item }">
+        {{ item.applyAt && dayjs(item.applyAt).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+      <template v-slot:item.finishAt="{ item }">
+        {{ item.finishAt && dayjs(item.finishAt).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+    </v-data-table>
+  </v-card>
+  <div class="mt-5">
+    <task-icreate-management-task-history ref="taskHistory" />
+  </div>
+
+  <v-navigation-drawer v-model="isDetailDrawerShow" :permanent="isDetailDrawerShow" fixed temporary right width="80%" class="elevation-24">
+    <v-row class="pt-8">
+      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">采购单详情</span>
+      <v-spacer></v-spacer>
+      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isDetailDrawerShow = false;">
+        <v-icon dark>mdi-close</v-icon>
+      </v-btn>
+    </v-row>
+    <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+  </v-navigation-drawer>
+</jh-layout-v3>
+
+{% endblock %}
+
+{% block vue_body %}
+{% include 'component/purchase/flow/processFlow.html' %}
+{% include 'component/purchase/flow/editFlow.html' %}
+{% include 'component/purchase/flow/editLine.html' %}
+{% include 'component/purchase/flow/editNode.html' %}
+{% include 'component/purchase/previewFileGroup.html' %}
+{% include 'component/purchase/taskICreateManagement-taskHistory.html' %}
+{% include 'component/purchase/purchaseOrderDetail.html' %}
+<script type="module">
+new Vue({
+  el: '#app',
+  template: '#app-template',
+  vuetify: new Vuetify(),
+  data: () => ({
+    isMobile: window.innerWidth < 600,
+    // 表格相关数据
+    requireRules: [
+      v => !!v || '必填',
+    ],
+    constantCollection: {
+      taskStatus: [
+        { value: "running", text: "running"},
+        { value: "end", text: "end"},
+      ],
+    },
+    serverSearchInput: {
+      taskStatus: ['running']
+    },
+    currentTableGenderType: 'all',
+    searchInput: null,
+    isTableLoading: true,
+    tableDataFromBackend: [],
+    headers: [
+      // {text: "名称", value: "taskTitle", width: 230, class: 'fixed', cellClass: 'fixed'},
+      {text: "采购订单ID", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
+      {text: "采购标题", value: "purchaseTitle", width: 130, class: 'fixed', cellClass: 'fixed'}, 
+      // {text: "任务ID", value: "taskId", width: 120},
+      // {text: "状态", value: "taskStatus", width: 120},
+      // {text: "当前节点ID", value: "taskConfigId", width: 200},
+      {text: "申购部门", value: "purchaseDeptName", width: 120}, 
+      {text: "申购人", value: "purchaseRequirerName", width: 120}, 
+      {text: "采购人", value: "purchasePurchaserName", width: 120}, 
+      {text: "采购单的总金额", value: "purchaseOrderPrice", width: 120},
+      {text: "审批人员", value: "taskEditUserList", width: 120},
+      {text: "所有相关人员，用逗号分隔", value: "taskViewUserList", width: 120},
+      {text: "申请采购时间", value: "applyAt", width: 250},
+      {text: "完成采购时间", value: "finishAt", width: 250},
+      // {text: "操作者", value: "operationByUser", width: 120},
+      // {text: "操作时间", value: "operationAt", width: 250},
+      {text: '操作', value: 'action', align: 'center', sortable: false, width: 120, class: 'fixed', cellClass: 'fixed'},
+    ],
+    userId: localStorage.getItem(`${window.appInfo.appId}_userId`),
+    isDetailDrawerShow: false,
+    editItem: {},
+    userList: [],
+  }),
+  watch: {},
+  async created() {
+    await this.doUiAction('getUserList');
+    await this.doUiAction('refreshTableData');
+  },
+  mounted() {
+  },
+  methods: {
+    async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'refreshTableData':
+            await this.refreshTableData(uiActionData);
+            break;
+          case 'toTaskHistory':
+            await this.toTaskHistory(uiActionData);
+            break;
+          case 'doViewDetail':
+            await this.doViewDetail(uiActionData);
+            break;
+          case 'getUserList':
+            await this.getUserList();
+            break;  
+          case 'closeDetailDrawer':
+            await this.closeDetailDrawer();
+            break;
+          default:
+            console.error("[doAction] uiActionId not find", { uiActionId });
+            break;
+        }
+    },
+    /**
+     * 获取表格数据
+     */
+    async refreshTableData() {
+      this.isTableLoading = true;
+      const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
+      const {rows} = (await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'taskICreateManagement',
+            actionId: 'selectItemList',
+            actionData: {},
+            where: {},
+            whereLike: {
+              taskEditUserList: `%${this.userId}%`
+            },
+            whereIn: serverSearchInput,
+            orderBy: [{column: 'operationAt', order: 'desc'}]
+          }
+        }
+      })).data.appData.resultData;
+
+      rows.forEach(row => {
+        row.operationAt = dayjs(row.operationAt).format();
+        const createByUser = this.userList.find(user => user.userId === row.createByUser);
+        if (createByUser) {
+          row.createByUsername = createByUser.username;
+        }
+
+        const taskInitUser = this.userList.find(user => user.userId === row.taskInitUser);
+        if (taskInitUser) {
+          row.taskInitUsername = taskInitUser.username;
+        }
+
+        const taskEditUsernameListTemp = row.taskEditUserList.split(",").map(taskEditUserId => {
+          const taskEditUser = this.userList.find(user => user.userId === taskEditUserId);
+          if (taskEditUser) {
+            return taskEditUser.username;
+          }
+          return taskEditUserId;
+        })
+        row.taskEditUsernameList = taskEditUsernameListTemp.join(',');
+
+
+        const taskViewUsernameListTemp = row.taskViewUserList.split(",").map(taskViewUserId => {
+          const taskViewUser = this.userList.find(user => user.userId === taskViewUserId);
+          if (taskViewUser) {
+            return taskViewUser.username;
+          }
+          return taskViewUserId;
+        })
+        row.taskViewUsernameList = taskViewUsernameListTemp.join(',');
+
+
+        
+      })
+      this.tableDataFromBackend = rows;
+      this.isTableLoading = false;
+    },
+
+    toTaskHistory({item}) {
+      // location.href = `/${window.appInfo.appId}/page/taskHistoryManagement?id=${item.id}&taskId=${item.taskId}`;
+      location.href = `/${window.appInfo.appId}/page/purchaseOrderDetail?workflowTaskId=${item.taskId}`;
+    },
+    async doViewDetail({ item }) {
+      this.editItem = {
+        ...item, time: new Date(), 
+        // purchase-order-detail 读取 workflowTaskId
+        workflowTaskId: item.taskId,
+        workflowTaskRecordId: item.id
+      }
+      this.isDetailDrawerShow = true
+    },
+    async closeDetailDrawer() {
+      this.isDetailDrawerShow = false
+      this.refreshTableData()
+      this.$refs.taskHistory.refreshTableData()
+    },
+    async getUserList() {
+      const {rows} = (await window.jianghuAxios({
+        data: {
+          appData: {
+            pageId: 'workflowManagement',
+            actionId: 'selectUserList',
+            actionData: {},
+            where: {},
+          }
+        }
+      })).data.appData.resultData;
+      this.userList = rows;
+    },
+  }
+})
+</script>
+
+<style>
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}
+
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
+  cursor: pointer;
+}
+</style>
+{% endblock %}
