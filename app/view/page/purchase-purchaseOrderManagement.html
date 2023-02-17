@@ -19,8 +19,8 @@
             <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
           </v-col>
           <!--pc端的搜索条件表单 >>>>>>>> -->
-          <v-col cols="12" xs="12" sm="12" md="8" xl="9">
-            <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
+          <v-col cols="12" xs="12" sm="12" md="8" xl="9" class="d-flex align-center">
+            <v-row class="jh-backend-form-container justify-end ma-0 pb-xs-2">
               <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
                 <v-select v-model="serverSearchInput.purchaseStatus" color="success" class="jh-v-input bg-white" :items="constantCollection.purchaseStatus" multiple dense filled single-line></v-select>
               </v-col>
@@ -122,7 +122,7 @@
           <v-form ref="inputForm" lazy-validation>
             <!--抽屉标题-->
             <v-row>
-              <span class="title pa-6 pl-8">【{{ inputGoodPriceItem.purchaseOrderId }}】填写报价</span>
+              <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">【{{ inputGoodPriceItem.purchaseOrderId }}】填写报价</span>
             </v-row>
             <v-row class="mt-0 px-6">
               <v-col cols="12" sm="12">
@@ -149,7 +149,7 @@
         <v-navigation-drawer v-model="isUploadPurchaseContractDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
           <!--抽屉标题-->
           <v-row>
-            <span class="title pa-6 pl-8">{{ uploadPurchaseContractItem.purchaseTitle }}-{{ uploadPurchaseContractItem.purchaseOrderId }} 凭据管理</span>
+            <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">{{ uploadPurchaseContractItem.purchaseTitle }}-{{ uploadPurchaseContractItem.purchaseOrderId }} 凭据管理</span>
           </v-row>
           <!--抽屉表单-->
           <v-row class="mt-0 px-6">
@@ -166,7 +166,7 @@
         <!-- 详情抽屉 -->
         <v-navigation-drawer v-model="isDetailDrawerShown" :permanent="isDetailDrawerShown" fixed temporary right width="80%" class="elevation-24">
           <v-row>
-            <span class="title pa-6 pl-8">采购单详情</span>
+            <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">采购单详情</span>
           </v-row>
           <purchase-order-detail 
           :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />

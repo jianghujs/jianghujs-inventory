@@ -11,7 +11,7 @@
     </div>
 
     <!-- 文件预览 -->
-    <v-overlay :value="previewOverlay" @click="previewOverlay = false" :opacity="0.85">
+    <v-overlay :value="previewOverlay" @click="previewOverlay = false" :opacity="0.85" style="z-index: 11">
       <v-icon style="position: fixed; right: 10px; top: 5px; z-index: 50000" large color="white"
         @click="previewOverlay = false">
         mdi-close-circle
