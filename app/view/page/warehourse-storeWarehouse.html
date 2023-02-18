@@ -51,12 +51,12 @@
         <v-data-table
           :headers="headers"
           :items="tableData"
+          group-by="purchaseOrderId"
           :search="searchInput"
           :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
           :items-per-page="-1"
           mobile-breakpoint="0"
           :loading="isTableLoading"
-          :class="{'zebraLine': isTableZebraLineShown }"
           checkbox-color="success"
           fixed-header
           class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">

@@ -10,7 +10,7 @@
       style="justify-content: end">
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
         <v-select v-model="tableGroupBy" :items="constantObj.tableGroupBy" prefix="展示类型"
-          :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data />
+           hide-details dense filled single-line hide-no-data />
       </v-col>
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
         <v-autocomplete prefix="商品" class="jh-v-input mr-2" dense filled single-line clearable
@@ -204,7 +204,7 @@
         </v-col>
         <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">货架</span>
-          <v-select v-model="returnItem.stockId" :items="stockList" :class="{'mr-2': !isMobile}" hide-details dense
+          <v-select v-model="returnItem.stockId" :items="stockList"  hide-details dense
             filled single-line hide-no-data item-text="stockName" item-value="stockId" :no-data-text="'没有数据'" />
         </v-col>
         <v-col cols="12"></v-col>
