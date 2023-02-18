@@ -9,31 +9,35 @@
   <v-main class="mt-15">
     <!-- 头部内容 >>>>>>>>>>>>> -->
     <div class="jh-page-second-bar px-8">
-      <v-col cols="12" xs="12" sm="12" md="4" xl="3">
-        <div class="pt-3 text-h7 font-weight-bold">服务端搜索
-          <!-- 帮助页按钮 -->
-          <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline
-          </v-icon>
-        </div>
-        <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
-      </v-col>
-      <!-- pc端的搜索条件表单 >>>>>>>> -->
-      <v-col cols="12" xs="12" sm="12" md="8" xl="9">
-        <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
-          <v-col cols="12" xs="6" sm="6" md="4" xl="3" class="pa-xs-0 pb-2 pr-1 pr-xs-1">
-            <v-select class="jh-v-input bg-white" v-model="serverSearchInput.goodCategory"
-              :items="constantCollection.goodCategory" prefix="商品分类：" item-text="text" item-value="value" dense filled
-              single-line multiple>
-            </v-select>
-          </v-col>
-          <v-col cols="12" xs="6" sm="6" md="4" xl="3" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
-            <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
-          </v-col>
-          <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('getTableData')">
-            查询
-          </v-btn>
-        </v-row>
-      </v-col>
+      <v-row>
+        <v-col cols="12" xs="12" sm="12" md="4" xl="3">
+          <div class="pt-3 text-h7 font-weight-bold">商品管理
+            <!-- 帮助页按钮 -->
+            <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline
+            </v-icon>
+          </div>
+          <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
+        </v-col>
+        <!-- pc端的搜索条件表单 >>>>>>>> -->
+        <v-col cols="12" xs="12" sm="12" md="8" xl="9">
+          <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
+            <v-col cols="12" xs="6" sm="6" md="6" xl="4" class="pa-xs-0 pb-2 pr-1 pr-xs-1">
+              <v-select class="jh-v-input bg-white" v-model="serverSearchInput.goodCategory"
+                :items="constantCollection.goodCategory" prefix="商品分类：" item-text="text" item-value="value" dense
+                filled single-line multiple>
+              </v-select>
+            </v-col>
+            <v-col cols="12" xs="6" sm="4" md="4" xl="3" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
+              <row-status-select :value="serverSearchInput.rowStatus"
+                @update-value="serverSearchInput.rowStatus=$event" />
+            </v-col>
+            <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small
+              @click="doUiAction('getTableData')">
+              查询
+            </v-btn>
+          </v-row>
+        </v-col>
+      <v-row>
       <!-- <<<<<<<< pc端的搜索条件表单 -->
     </div>
     <!-- <<<<<<<<<<<<< 头部内容 -->
@@ -55,8 +59,8 @@
           :headers="headers"
           :items="tableData"
           :search="searchInput"
-          :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
-          :items-per-page="-1"
+          :footer-props="{ itemsPerPageOptions: [20, 50], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
+          :items-per-page="50"
           mobile-breakpoint="0"
           :loading="isTableLoading"
           :class="{'zebraLine': isTableZebraLineShown }"
@@ -72,7 +76,9 @@
           class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
           <!-- 自定义列 -->
           <template v-slot:item.action="{ item }">
-            <v-btn small class="success" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
+            <span role="button" class="success--text font-weight-medium font-size-2 mr-2" @click="doUiAction('startUpdateItem', item)">
+              <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
+            </span>
             <row-status-switch-button :value="item.rowStatus"
               @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })" />
           </template>
@@ -113,36 +119,35 @@
           <v-row class="mt-0 px-4">
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品名称</span>
-              <v-text-field class="cus-v-input" dense filled single-line v-model="addItem['goodName']"></v-text-field>
+              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="addItem['goodName']"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品建议价格</span>
-              <v-text-field class="cus-v-input" dense filled single-line v-model="addItem['goodSuggestPrice']"
+              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="addItem['goodSuggestPrice']"
                 type="number"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品描述</span>
-              <v-text-field class="cus-v-input" dense filled single-line v-model="addItem['goodDesc']"></v-text-field>
+              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="addItem['goodDesc']"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品类型</span>
               <v-select class="cus-v-input mr-2" v-model="addItem['goodType']" :items="constantCollection.goodTypeList"
-                dense item-text="text" item-value="value" dense filled single-line></v-select>
+                dense item-text="text" item-value="value" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">单位</span>
               <v-select class="cus-v-input mr-2" v-model="addItem['goodUnit']" :items="constantCollection.goodUnitList"
-                dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line></v-select>
-              <!-- <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['goodUnit']"></v-text-field> -->
+                dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品分类</span>
               <v-select class="cus-v-input mr-2" v-model="addItem['goodCategory']" :items="constantCollection.goodCategory"
-                dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line></v-select>
+                dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
           </v-row>
           <!-- 抽屉操作按钮 -->
@@ -169,36 +174,35 @@
           <v-row class="mt-0 px-4">
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品名称</span>
-              <v-text-field class="cus-v-input" dense filled single-line v-model="editItem['goodName']"></v-text-field>
+              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="editItem['goodName']"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品建议价格</span>
-              <v-text-field class="cus-v-input" dense filled single-line v-model="editItem['goodSuggestPrice']"
+              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="editItem['goodSuggestPrice']"
                 type="number"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品描述</span>
-              <v-text-field class="cus-v-input" dense filled single-line v-model="editItem['goodDesc']"></v-text-field>
+              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="editItem['goodDesc']"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品类型</span>
               <v-select class="cus-v-input mr-2" v-model="editItem['goodType']" :items="constantCollection.goodTypeList"
-                dense item-text="text" item-value="value" dense filled single-line></v-select>
+                dense item-text="text" item-value="value" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">单位</span>
               <v-select class="cus-v-input mr-2" v-model="editItem['goodUnit']" :items="constantCollection.goodUnitList"
-                dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line></v-select>
+                dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品分类</span>
               <v-select class="cus-v-input mr-2" v-model="editItem['goodCategory']" :items="constantCollection.goodCategory"
-                dense item-text="text" disabled item-value="value" :rules="requireRules" dense filled
-                single-line></v-select>
+                dense item-text="text" disabled item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
           </v-row>
           <!-- 抽屉操作按钮 -->
@@ -324,6 +328,7 @@
       headers: [
         // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
 
+        { text: "操作", value: "action", align: "center", sortable: false, width: 120, class: "fixed", cellClass: "fixed" },
         { text: "商品编号", value: "goodId", width: 120 },
         { text: "商品名称", value: "goodName", width: 150 },
         { text: "商品建议价格", value: "goodSuggestPrice", width: 150 },
@@ -333,15 +338,6 @@
         { text: "商品分类", value: "goodCategory", width: 150 },
         { text: "操作者", value: "operationByUser", width: 170 },
         { text: "操作时间", value: "operationAt", width: 250 },
-        {
-          text: "操作",
-          value: "action",
-          align: "center",
-          sortable: false,
-          width: 200,
-          class: "fixed",
-          cellClass: "fixed",
-        },
       ],
       isUpdateDrawerShown: false,
       editItem: {},
