@@ -89,7 +89,7 @@
           <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">文件类型</span>
             <v-select class="jh-v-input mr-2" v-model="updateItem['contractFileType']"
-              :items="constantCollection.contractFileType" dense item-text="text" item-value="value" dense filled
+              :items="constantObj.contractFileType" dense item-text="text" item-value="value" dense filled
               single-line></v-select>
           </v-col>
           <v-col cols="12" sm="12" md="4">
@@ -126,7 +126,7 @@
       // 表格相关数据
       isFormValid: true,
       requireRules: [v => !!v || '必填'],
-      constantCollection: {
+      constantObj: {
         contractFileType: [
           { "value": "凭据", "text": "凭据" },
           { "value": "合同", "text": "合同" },

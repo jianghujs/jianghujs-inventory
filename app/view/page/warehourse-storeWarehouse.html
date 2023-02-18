@@ -110,20 +110,20 @@ SQL END! -->
       </v-row>
       <v-row class="mt-0 px-4">
 
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">入库分类</span>
           <v-text-field class="jh-v-input" :rules="requireRules" dense filled single-line
             v-model="storeItem['goodCategory']" disabled="true"></v-text-field>
         </v-col>
 
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">入库操作人</span>
           <v-text-field class="jh-v-input" :rules="requireRules" dense filled single-line
             v-model="storeItem['operationUser']" :rules="requireRules"></v-text-field>
         </v-col>
 
         <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">仓库</span>
           <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="storeItem.warehouseId"
             :items="warehouseList" item-text="warehouseName" item-value="warehouseId" :rules="requireRules"
@@ -131,14 +131,14 @@ SQL END! -->
           </v-autocomplete>
         </v-col>
 
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">货架</span>
           <v-select v-model="storeItem.stockId" :items="stockList" :class="{'mr-2': !isMobile}" hide-details dense
             filled single-line hide-no-data item-text="stockName" item-value="stockId" :no-data-text="'没有数据'" />
         </v-col>
 
         <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">入库数量/{{ storeItem.goodUnit }}; 待入库: {{storeItem.waittingStoreCount}}</span>
           <v-text-field type="number" class="jh-v-input" dense filled single-line v-model="storeItem.prepareStoreCount"
             :max="storeItem.waittingStoreCount" type="number" :rules="[
@@ -147,7 +147,7 @@ SQL END! -->
             () => !(storeItem.prepareStoreCount > storeItem.waittingStoreCount) || '入库数量超过最大值',
           ]"></v-text-field>
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">商品保质期</span>
           <v-menu v-model="isEndTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
             transition="scale-transition" offset-y min-width="auto">
@@ -191,7 +191,7 @@ SQL END! -->
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
         itemType: [
           { value: "低质易耗", text: "低质易耗" },
           { value: "食材", text: "食材" },

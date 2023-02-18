@@ -22,7 +22,7 @@
           <v-col cols="12" xs="12" sm="12" md="8" xl="9">
             <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
               <v-col cols="12" xs="6" sm="6" md="6" xl="6" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
-                <v-select v-model="serverSearchInput.purchaseStatus" color="success" class="jh-v-input bg-white" :items="constantCollection.purchaseStatus" multiple dense filled single-line></v-select>
+                <v-select v-model="serverSearchInput.purchaseStatus" color="success" class="jh-v-input bg-white" :items="constantObj.purchaseStatus" multiple dense filled single-line></v-select>
               </v-col>
               <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('refreshTableData')">
                 查询
@@ -369,7 +369,7 @@ new Vue({
     goodListRules: [
       v => v.length > 0 || 'Name must be less than 10 characters',
     ],
-    constantCollection: {
+    constantObj: {
       purchaseStatus: [
         { text: "草稿", value: "草稿" },
         { text: "采购询价", value: "采购询价" },

@@ -1,5 +1,5 @@
 <template id="warehouseManagement-stock">
-  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+  <div>
 
     <v-row class="outSideMain ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
       style="justify-content: end">
@@ -31,7 +31,7 @@
       <v-data-table fixed-header :headers="headers" :items="tableData" :search="searchInput"
         :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" :items-per-page="50" mobile-breakpoint="0"
         :loading="isTableLoading" checkbox-color="success"
-        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+        class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
         <template v-slot:item.action="{ item }">
           <span
               role="button" class="success--text font-weight-medium font-size-2 mr-2"
@@ -59,12 +59,12 @@
         </v-row>
         <v-row class="mt-0 px-4">
 
-          <!-- <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <!-- <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">货架Id<font>(注意:编号一旦设置无法更改)</font></span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['stockId']"></v-text-field>
           </v-col> -->
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">货架名</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['stockName']"
               :rules="requireRules"></v-text-field>
@@ -102,7 +102,7 @@
         <v-row class="mt-0 px-4">
 
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">货架名</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['stockName']"
               :rules="requireRules"></v-text-field>
@@ -113,18 +113,18 @@
             <v-textarea class="jh-v-input " dense filled single-line v-model="updateItem['remark']"></v-textarea>
           </v-col>
 
-          <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+          <!--      <v-col cols="12" sm="12" md="4"> -->
           <!--        &lt;!&ndash; 必填字段样式 demo :rules="requireRules" &ndash;&gt; -->
           <!--            <span class="jh-input-label">学生ID</span> -->
           <!--        <v-text-field class="jh-v-input " dense filled single-line label="学生ID" v-model="updateItem.studentId" :rules="requireRules"></v-text-field> -->
           <!--      </v-col> -->
           <!--      &lt;!&ndash; select 字段 demo &ndash;&gt; -->
-          <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+          <!--      <v-col cols="12" sm="12" md="4"> -->
           <!--            <span class="jh-input-label">班级ID</span> -->
-          <!--        <v-select class="jh-v-input " dense filled single-line clearable label="班级ID" v-model="updateItem.classId" :items="constantCollection.classId"></v-select> -->
+          <!--        <v-select class="jh-v-input " dense filled single-line clearable label="班级ID" v-model="updateItem.classId" :items="constantObj.classId"></v-select> -->
           <!--      </v-col> -->
           <!--      &lt;!&ndash; 日期选择 demo &ndash;&gt; -->
-          <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+          <!--      <v-col cols="12" sm="12" md="4"> -->
           <!--        <span class="jh-input-label">出生日期</span> -->
           <!--        <v-menu class="jh-v-input " offset-y max-width="290"> -->
           <!--          <template v-slot:activator="{ on, attrs }"> -->
@@ -140,7 +140,7 @@
         </v-row>
       </v-form>
     </v-navigation-drawer>
-  </v-container>
+  </div>
 </template>
 
 <script type="module">
@@ -154,7 +154,7 @@
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
       },
 
       searchInput: null,
@@ -188,7 +188,8 @@
       }
     },
     watch: {
-      warehouseId() {
+      warehouseId(val) {
+        debugger
         this.doUiAction('refreshTableData');
       },
     },

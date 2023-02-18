@@ -101,22 +101,22 @@ SQL END! -->
     </v-row>
     <v-row class="mt-0 px-4">
 
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门名称</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['deptName']"></v-text-field>
       </v-col>
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门办公电话</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['deptContact']"></v-text-field>
       </v-col>
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门经理</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['deptManagerName']"></v-text-field>
       </v-col>
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门经理联系方式</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['deptManagerContact']"></v-text-field>
       </v-col>
@@ -149,22 +149,22 @@ SQL END! -->
        
   
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门名称</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['deptName']"></v-text-field>
       </v-col>
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门办公电话</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['deptContact']"></v-text-field>
       </v-col>
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门经理</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['deptManagerName']"></v-text-field>
       </v-col>
        
-      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+      <v-col cols="12" sm="12" md="4">
         <span class="jh-input-label">部门经理联系方式</span>
         <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['deptManagerContact']"></v-text-field>
       </v-col>
@@ -174,18 +174,18 @@ SQL END! -->
         <v-textarea class="jh-v-input " dense filled single-line v-model="updateItem['remark']"></v-textarea>
       </v-col>
        
-<!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+<!--      <v-col cols="12" sm="12" md="4"> -->
 <!--        &lt;!&ndash; 必填字段样式 demo :rules="requireRules" &ndash;&gt; -->
 <!--            <span class="jh-input-label">学生ID</span> -->
 <!--        <v-text-field class="jh-v-input " dense filled single-line label="学生ID" v-model="updateItem.studentId" :rules="requireRules"></v-text-field> -->
 <!--      </v-col> -->
 <!--      &lt;!&ndash; select 字段 demo &ndash;&gt; -->
-<!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+<!--      <v-col cols="12" sm="12" md="4"> -->
 <!--            <span class="jh-input-label">班级ID</span> -->
-<!--        <v-select class="jh-v-input " dense filled single-line clearable label="班级ID" v-model="updateItem.classId" :items="constantCollection.classId"></v-select> -->
+<!--        <v-select class="jh-v-input " dense filled single-line clearable label="班级ID" v-model="updateItem.classId" :items="constantObj.classId"></v-select> -->
 <!--      </v-col> -->
 <!--      &lt;!&ndash; 日期选择 demo &ndash;&gt; -->
-<!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+<!--      <v-col cols="12" sm="12" md="4"> -->
 <!--        <span class="jh-input-label">出生日期</span> -->
 <!--        <v-menu class="jh-v-input " offset-y max-width="290"> -->
 <!--          <template v-slot:activator="{ on, attrs }"> -->
@@ -221,7 +221,7 @@ new Vue({
     requireRules: [
       v => !!v || '必填',
     ],
-    constantCollection: {
+    constantObj: {
     },
 
     serverSearchInput: {

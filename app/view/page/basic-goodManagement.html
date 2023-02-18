@@ -23,7 +23,7 @@
           <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
             <v-col cols="12" xs="6" sm="6" md="6" xl="4" class="pa-xs-0 pb-2 pr-1 pr-xs-1">
               <v-select class="jh-v-input bg-white" v-model="serverSearchInput.goodCategory"
-                :items="constantCollection.goodCategory" prefix="商品分类：" item-text="text" item-value="value" dense
+                :items="constantObj.goodCategory" prefix="商品分类：" item-text="text" item-value="value" dense
                 filled single-line multiple>
               </v-select>
             </v-col>
@@ -134,19 +134,19 @@
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品类型</span>
-              <v-select class="jh-v-input mr-2" v-model="addItem['goodType']" :items="constantCollection.goodTypeList"
+              <v-select class="jh-v-input mr-2" v-model="addItem['goodType']" :items="constantObj.goodTypeList"
                 dense item-text="text" item-value="value" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">单位</span>
-              <v-select class="jh-v-input mr-2" v-model="addItem['goodUnit']" :items="constantCollection.goodUnitList"
+              <v-select class="jh-v-input mr-2" v-model="addItem['goodUnit']" :items="constantObj.goodUnitList"
                 dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品分类</span>
-              <v-select class="jh-v-input mr-2" v-model="addItem['goodCategory']" :items="constantCollection.goodCategory"
+              <v-select class="jh-v-input mr-2" v-model="addItem['goodCategory']" :items="constantObj.goodCategory"
                 dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
           </v-row>
@@ -189,19 +189,19 @@
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品类型</span>
-              <v-select class="jh-v-input mr-2" v-model="editItem['goodType']" :items="constantCollection.goodTypeList"
+              <v-select class="jh-v-input mr-2" v-model="editItem['goodType']" :items="constantObj.goodTypeList"
                 dense item-text="text" item-value="value" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">单位</span>
-              <v-select class="jh-v-input mr-2" v-model="editItem['goodUnit']" :items="constantCollection.goodUnitList"
+              <v-select class="jh-v-input mr-2" v-model="editItem['goodUnit']" :items="constantObj.goodUnitList"
                 dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品分类</span>
-              <v-select class="jh-v-input mr-2" v-model="editItem['goodCategory']" :items="constantCollection.goodCategory"
+              <v-select class="jh-v-input mr-2" v-model="editItem['goodCategory']" :items="constantObj.goodCategory"
                 dense item-text="text" disabled item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
           </v-row>
@@ -284,7 +284,7 @@
       isTableZebraLineShown: true,
       isFormValid: true,
       requireRules: [(v) => !!v || "必填"],
-      constantCollection: {
+      constantObj: {
         goodTypeList: [
           { value: "厨房设备类", text: "厨房设备类" },
           { value: "电脑设备类", text: "电脑设备类" },
@@ -410,12 +410,12 @@
       /**
        * 常量解析
        */
-      parseConstantValue(key, _value, constantCollection) {
-        const constantCollectionItemFind = constantCollection[key].find(
+      parseConstantValue(key, _value, constantObj) {
+        const constantObjItemFind = constantObj[key].find(
           ({ value }) => value === _value
         );
-        if (constantCollectionItemFind) {
-          return constantCollectionItemFind.text;
+        if (constantObjItemFind) {
+          return constantObjItemFind.text;
         }
         return _value;
       },

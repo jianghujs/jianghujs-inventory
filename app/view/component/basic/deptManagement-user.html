@@ -83,15 +83,15 @@
         </v-row>
         <v-row class="mt-0 px-4">
 
-          <!-- <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <!-- <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">用户</span>
           <v-select v-model="addItem.userId" :items="userList" dense filled item-text="username" item-value="userId"></v-select>
         </v-col> -->
 
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">角色名称</span>
-            <v-select v-model="addItem.roleName" :items="constantCollection.role" dense filled></v-select>
+            <v-select v-model="addItem.roleName" :items="constantObj.role" dense filled></v-select>
           </v-col>
 
         </v-row>
@@ -121,15 +121,15 @@
         </v-row>
         <v-row class="mt-0 px-4">
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">用户</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['userId']"
               disabled="true"></v-text-field>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">角色名称</span>
-            <v-select v-model="updateItem.roleName" :items="constantCollection.role" dense filled></v-select>
+            <v-select v-model="updateItem.roleName" :items="constantObj.role" dense filled></v-select>
           </v-col>
 
         </v-row>
@@ -155,7 +155,7 @@
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
         role: [
           { text: '部门员工', value: '部门员工' },
           { text: '部门经理', value: '部门经理' },

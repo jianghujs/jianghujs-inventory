@@ -9,18 +9,18 @@
     <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
       style="justify-content: end">
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-select v-model="tableGroupBy" :items="constantCollection.tableGroupBy" prefix="展示类型"
+        <v-select v-model="tableGroupBy" :items="constantObj.tableGroupBy" prefix="展示类型"
           :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data />
       </v-col>
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
         <v-autocomplete prefix="商品" class="jh-v-input mr-2" dense filled single-line clearable
-          v-model="serverSearchInput.goodId" :items="constantCollection.good" item-text="goodName" item-value="goodId"
+          v-model="serverSearchInput.goodId" :items="constantObj.good" item-text="goodName" item-value="goodId"
           :no-data-text="'没有数据'">
         </v-autocomplete>
       </v-col>
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
         <v-autocomplete prefix="仓库" class="jh-v-input mr-2" dense filled single-line clearable
-          v-model="serverSearchInput.warehouseId" :items="constantCollection.warehouse" item-text="warehouseName"
+          v-model="serverSearchInput.warehouseId" :items="constantObj.warehouse" item-text="warehouseName"
           item-value="warehouseId" :no-data-text="'没有数据'">
       </v-col>
       <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
@@ -126,13 +126,13 @@
         <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">仓库</span>
           <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="updateItem.warehouseId"
-            :items="constantCollection.warehouse" item-text="warehouseName" item-value="warehouseId"
+            :items="constantObj.warehouse" item-text="warehouseName" item-value="warehouseId"
             :rules="requireRules" @change="storeOfWarehouseSelectChange">
           </v-autocomplete>
         </v-col>
         <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">货架</span>
-          <v-select v-model="updateItem.stockId" :items="constantCollection.stock" :class="{'mr-2': !isMobile}"
+          <v-select v-model="updateItem.stockId" :items="constantObj.stock" :class="{'mr-2': !isMobile}"
             hide-details dense filled single-line hide-no-data item-text="stockName" item-value="stockId"
             :no-data-text="'没有数据'" />
         </v-col>
@@ -163,7 +163,7 @@
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
         tableGroupBy: [
           { text: '按仓库', value: 'warehouseId' },
           { text: '按商品', value: 'goodId' },
@@ -307,7 +307,7 @@
           }
         });
         const { rows } = result.data.appData.resultData;
-        this.constantCollection.good = rows;
+        this.constantObj.good = rows;
       },
       async selectWarehouseList() {
         const warehouseList = (await window.jianghuAxios({
@@ -334,7 +334,7 @@
         warehouseList.forEach(wh => {
           wh.stockList = allStockList.filter(stock => wh.warehouseId === stock.warehouseId);
         });
-        this.constantCollection.warehouse = warehouseList;
+        this.constantObj.warehouse = warehouseList;
       },
       // =================================uiAction 公共方法 end ======================================
       async openAssetHistoryDialog({ item, assetHistoryViewType }) {
@@ -344,8 +344,8 @@
       },
       async storeOfWarehouseSelectChange(warehouseId) {
         this.updateItem.stockId = null;
-        const wh = this.constantCollection.warehouse.find(wh => wh.warehouseId === warehouseId);
-        this.constantCollection.stock = wh.stockList;
+        const wh = this.constantObj.warehouse.find(wh => wh.warehouseId === warehouseId);
+        this.constantObj.stock = wh.stockList;
       },
       async prepareUpdateItemData({ item }) {
         this.storeOfWarehouseSelectChange(item.warehouseId);

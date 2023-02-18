@@ -9,12 +9,12 @@
     <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
       style="justify-content: end">
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-select v-model="tableGroupBy" :items="constantCollection.tableGroupBy" prefix="展示类型"
+        <v-select v-model="tableGroupBy" :items="constantObj.tableGroupBy" prefix="展示类型"
           :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data />
       </v-col>
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
         <v-autocomplete prefix="商品" class="jh-v-input mr-2" dense filled single-line clearable
-          v-model="serverSearchInput.goodId" :items="constantCollection.good" item-text="goodName" item-value="goodId"
+          v-model="serverSearchInput.goodId" :items="constantObj.good" item-text="goodName" item-value="goodId"
           :no-data-text="'没有数据'">
         </v-autocomplete>
       </v-col>
@@ -125,30 +125,30 @@
       <v-row class="mt-0 px-4">
 
 
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">资产编号</span>
           <v-text-field class="jh-v-input " dense filled single-line v-model="receiveItem['assetId']"
             :rules="requireRules" disabled="true"></v-text-field>
         </v-col>
 
         <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">仓库</span>
           <v-text-field class="jh-v-input " dense filled single-line v-model="receiveItem['warehouseName']"
             disabled="true"></v-text-field>
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">货架</span>
           <v-text-field class="jh-v-input " dense filled single-line v-model="receiveItem['stockName']"
             disabled="true"></v-text-field>
         </v-col>
         <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">领取人</span>
           <v-text-field class="jh-v-input " dense filled single-line v-model="receiveItem['assetOperationUser']"
             :rules="requireRules"></v-text-field>
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">领用人部门</span>
           <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable
             v-model="receiveItem.assetOperationDeptId" :items="deptList" item-text="deptName" item-value="deptId"
@@ -156,7 +156,7 @@
           </v-autocomplete>
 
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">备注</span>
           <v-text-field class="jh-v-input" dense filled single-line v-model="receiveItem['remark']"></v-text-field>
         </v-col>
@@ -182,7 +182,7 @@
         </v-btn>
       </v-row>
       <v-row class="mt-0 px-4">
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">资产选择</span>
           <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="returnItem.assetId"
             :items="returnItem.waittingReturnAssetList" item-text="text" item-value="value" :no-data-text="'没有数据'"
@@ -195,32 +195,32 @@
           </v-autocomplete>
         </v-col>
         <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">仓库</span>
           <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="returnItem.warehouseId"
             :items="warehouseList" item-text="warehouseName" item-value="warehouseId" :rules="requireRules"
             @change="returnOfWarehouseSelectChange">
           </v-autocomplete>
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">货架</span>
           <v-select v-model="returnItem.stockId" :items="stockList" :class="{'mr-2': !isMobile}" hide-details dense
             filled single-line hide-no-data item-text="stockName" item-value="stockId" :no-data-text="'没有数据'" />
         </v-col>
         <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">归还人</span>
           <v-text-field class="jh-v-input " dense filled single-line v-model="returnItem['assetOperationUser']"
             :rules="requireRules"></v-text-field>
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">归还人部门</span>
           <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable
             v-model="returnItem.assetOperationDeptId" :items="deptList" item-text="deptName" item-value="deptId"
             :rules="requireRules">
           </v-autocomplete>
         </v-col>
-        <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">备注</span>
           <v-text-field class="jh-v-input" dense filled single-line v-model="returnItem['remark']"></v-text-field>
         </v-col>
@@ -252,7 +252,7 @@
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
         tableGroupBy: [
           { text: '按仓库', value: 'warehouseId' },
           { text: '按商品', value: 'goodId' },
@@ -417,7 +417,7 @@
           }
         });
         const { rows } = result.data.appData.resultData;
-        this.constantCollection.good = rows;
+        this.constantObj.good = rows;
       },
       async selectWarehouseList() {
         const warehouseList = (await window.jianghuAxios({

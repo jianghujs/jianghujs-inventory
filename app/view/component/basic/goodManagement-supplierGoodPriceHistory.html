@@ -48,7 +48,7 @@
         <v-row class="mt-0 px-4">
 
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">商品报价</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['goodPrice']"
               type="number"></v-text-field>
@@ -85,7 +85,7 @@
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
       },
 
       serverSearchInput: {

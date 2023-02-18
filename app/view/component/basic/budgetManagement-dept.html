@@ -70,14 +70,14 @@
         <v-row class="mt-0 px-4">
 
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">部门</span>
             <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="addItem.deptId"
               :items="deptList" item-text="deptName" item-value="deptId">
             </v-autocomplete>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">预算开始时间</span>
 
             <v-menu v-model="isStartTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
@@ -90,7 +90,7 @@
             </v-menu>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">预算结束时间</span>
 
             <v-menu v-model="isEndTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
@@ -103,12 +103,12 @@
             </v-menu>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">预算</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['budgetPrice']"></v-text-field>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">备注</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['remark']"></v-text-field>
           </v-col>
@@ -140,7 +140,7 @@
         <v-row class="mt-0 px-4">
 
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">部门</span>
 
             <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable disabled="true"
@@ -148,7 +148,7 @@
             </v-autocomplete>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">预算开始时间</span>
             <v-menu v-model="isStartTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
               transition="scale-transition" offset-y min-width="auto">
@@ -159,7 +159,7 @@
               <v-date-picker v-model="updateItem['budgetStartDate']" @input="isStartTimeMenuShow = false"></v-date-picker>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">预算结束时间</span>
             <v-menu v-model="isEndTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
               transition="scale-transition" offset-y min-width="auto">
@@ -171,13 +171,13 @@
             </v-menu>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">预算</span>
             <v-text-field class="jh-v-input " dense filled single-line
               v-model="updateItem['budgetPrice']"></v-text-field>
           </v-col>
 
-          <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+          <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">备注</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['remark']"></v-text-field>
           </v-col>
@@ -202,7 +202,7 @@
       requireRules: [
         v => !!v || '必填',
       ],
-      constantCollection: {
+      constantObj: {
       },
 
       serverSearchInput: {
