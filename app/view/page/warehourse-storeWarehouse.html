@@ -1,196 +1,241 @@
-{% extends 'template/jhTemplateV3.html'%}
+{% extends 'template/jhTemplateV4.html'%}
 
-{% block vue_template %}
+{% block vueTemplate %}
 
-<!-- 3 table 下  的单表 crud 页面 -->
+<script type="text/html" id="app-template">
+<div>
+<v-app mobile-breakpoint="sm">
+  <jh-menu />
+  <v-main class="mt-15">
+    <!-- 头部内容 >>>>>>>>>>>>> -->
+    <div class="jh-page-second-bar px-8">
+      <v-row>
+        <v-col cols="12" xs="12" sm="12" md="4" xl="3">
+          <div class="pt-3 text-h7 font-weight-bold">采购商品入库
+            <!-- 帮助页按钮 -->
+            <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline
+            </v-icon>
+          </div>
+          <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
+        </v-col>
+        <!-- pc端的搜索条件表单 >>>>>>>> -->
+        <v-col cols="12" xs="12" sm="12" md="8" xl="9" class="d-flex align-center">
+          <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
+            <v-col cols="12" xs="6" sm="6" md="4" xl="3" class="pa-xs-0 pb-2 pl-1 pl-xs-1">
+              <v-select v-model="serverSearchInput.isStore" class="jh-v-input bg-white" :items="['是', '否']" prefix="采购单是否入库"
+                hide-details dense filled single-line hide-no-data />
+            </v-col>
+            <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('refreshTableData')">
+              查询
+            </v-btn>
+          </v-row>
+        </v-col>
+        <!-- <<<<<<<< pc端的搜索条件表单 -->
+      </v-row>
+    </div>
+    <!-- <<<<<<<<<<<<< 头部内容 -->
 
-<!-- SQL START
--- 以下为 jianghu init 工具生成的参考 SQL，使用后删除
--- 创建 page
-INSERT INTO `_page` (`pageId`,`pageName`,`pageType`,`sort`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT 'storeWarehouse','页面','showInMenu','5','jhInsert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_page` WHERE `pageId`='storeWarehouse');
+    <div class="jh-page-body-container px-8">
+      <!-- 页面内容 >>>>>>>>>>>>> -->
+      <v-card class="rounded-lg">
+        <v-row class="ma-0 pa-4">
+          <!-- 计算按钮 -->
+          <v-btn color="success" class="elevation-0 mr-2" @click="doUiAction('computeIsAllStoreForPurchaseOrder', {})" small>入库信息重新计算</v-btn>
+          <v-spacer></v-spacer>
+          <!-- 搜索过滤 -->
+          <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+            <v-text-field color="success" v-model="searchInput" prefix="搜索：" class="jh-v-input" dense filled single-line></v-text-field>
+          </v-col>
+        </v-row>
+        <!-- 表格 -->
+        <v-data-table
+          :headers="headers"
+          :items="tableData"
+          :search="searchInput"
+          :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
+          :items-per-page="-1"
+          mobile-breakpoint="0"
+          :loading="isTableLoading"
+          :class="{'zebraLine': isTableZebraLineShown }"
+          checkbox-color="success"
+          fixed-header
+          class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
+          <!-- 处理列显示 -->
+          <template v-slot:group.header="{items, isOpen, toggle, remove}">
+            <th colspan="2">
+              <v-icon @click="toggle">{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
+              采购单: {{ items[0].purchaseOrderId }} {{ items[0].purchaseTitle }}
+            </th>
+          </template>
+          <template v-slot:item.goodName="{ item }">
+            {{ item.goodName }}({{ item.goodId }})
+          </template>
+          <template v-slot:item.goodCount="{ item }">
+            {{ item.goodCount }}/{{ item.goodUnit }}
+          </template>
+          <template v-slot:item.waittingStoreCount="{ item }">
+            {{ item.waittingStoreCount }}/{{ item.goodUnit }}
+          </template>
+          <template v-slot:item.action="{ item }">
+            <span
+              role="button" class="success--text font-weight-medium font-size-2 mr-2"
+              @click="doUiAction('startStoreGood', {item})">
+              <v-icon size="16" class="success--text">mdi-home-plus-outline</v-icon>入库
+            </span>
+          </template>
 
--- 创建 resource
-INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'storeWarehouse','selectItemList','✅查询-查询列表','sql','{}','{ \"table\": \"purchase_order_good\", \"operation\": \"select\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='storeWarehouse' AND `actionId`='selectItemList');
-INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'storeWarehouse','insertItem','✅查询-添加成员','sql','{}','{ \"table\": \"purchase_order_good\", \"operation\": \"insert\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='storeWarehouse' AND `actionId`='insertItem');
-INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'storeWarehouse','updateItem','✅查询-更新成员','sql','{}','{ \"table\": \"purchase_order_good\", \"operation\": \"update\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='storeWarehouse' AND `actionId`='updateItem');
-INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'storeWarehouse','deleteItem','✅查询-删除信息','sql','{}','{ \"table\": \"purchase_order_good\", \"operation\": \"delete\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='storeWarehouse' AND `actionId`='deleteItem');
-SQL END! -->
+          <!-- 没有数据 -->
+          <template v-slot:loading>
+            <div class="jh-no-data">数据加载中</div>
+          </template>
+          <template v-slot:no-data>
+            <div class="jh-no-data">暂无数据</div>
+          </template>
+          <template v-slot:no-results>
+            <div class="jh-no-data">暂无数据</div>
+          </template>
+          <!-- 表格分页 -->
+          <template v-slot:footer.page-text="pagination">
+            <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
+            <span class="ml-1">共{{pagination.itemsLength}}条</span>
+          </template>
+        </v-data-table>
+      </v-card>
+      <!-- <<<<<<<<<<<<< 页面内容 -->
 
-<jh-layout-v3>
-
-  <!--   <template slot="serverSearch">
-    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
-      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+      <!-- 新增抽屉 -->
+      <v-navigation-drawer v-model="isStoreDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+        <v-form ref="createForm" lazy-validation>
+          <!-- 抽屉标题 -->
+          <v-row>
+            <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">【{{ storeItem.purchaseOrderId }} - {{
+              storeItem.purchaseTitle }} - {{ storeItem.goodName }}({{ storeItem.goodId }})】采购商品入库</span>
+          </v-row>
+          <!-- 抽屉表单主体 -->
+          <v-row class="mt-0 px-4">
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">入库分类</span>
+              <v-text-field class="jh-v-input" :rules="validationRules.requireRules" dense filled single-line hide-details
+                v-model="storeItem['goodCategory']" disabled="true"></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">入库操作人</span>
+              <v-text-field class="jh-v-input" :rules="validationRules.requireRules" dense filled single-line hide-details
+                v-model="storeItem['operationUser']" :rules="validationRules.requireRules"></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">仓库</span>
+              <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable hide-details v-model="storeItem.warehouseId"
+                :items="warehouseList" item-text="warehouseName" item-value="warehouseId" :rules="validationRules.requireRules"
+                @change="storeOfWarehouseSelectChange">
+              </v-autocomplete>
+            </v-col>
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">货架</span>
+              <v-select v-model="storeItem.stockId" :items="stockList" hide-details dense
+                filled single-line hide-no-data item-text="stockName" item-value="stockId" :no-data-text="'没有数据'" />
+            </v-col>
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">入库数量/{{ storeItem.goodUnit }}; 待入库: {{storeItem.waittingStoreCount}}</span>
+              <v-text-field type="number" class="jh-v-input" dense filled single-line v-model="storeItem.prepareStoreCount"
+                :max="storeItem.waittingStoreCount" type="number" :rules="[
+                () => (storeItem.prepareStoreCount % 1 === 0 ) || '请填写整数',
+                () => !(0 >= storeItem.prepareStoreCount ) || '请填写入库数量',
+                () => !(storeItem.prepareStoreCount > storeItem.waittingStoreCount) || '入库数量超过最大值',
+              ]"></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">商品保质期</span>
+              <v-menu v-model="isEndTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
+                transition="scale-transition" offset-y min-width="auto">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field class="jh-v-input" dense filled single-line v-model="storeItem['expirationAt']" label=""
+                    readonly v-bind="attrs" v-on="on" :rules="validationRules.requireRules"></v-text-field>
+                </template>
+                <v-date-picker v-model="storeItem['expirationAt']" @input="isEndTimeMenuShow = false"></v-date-picker>
+              </v-menu>
+            </v-col>
+            <v-col cols="12">
+              <span class="jh-input-label">备注</span>
+              <v-textarea class="jh-v-input" dense filled single-line v-model="storeItem['remark']" label=""></v-textarea>
+            </v-col>
+          </v-row>
+          <!-- 抽屉操作按钮 -->
+          <v-row class="justify-end mx-0 mt-8 px-6">
+            <v-btn color="success" @click="doUiAction('storeItem')" small>确定入库</v-btn>
+            <v-btn class="ml-2" @click="isStoreDrawerShow = false" small>取消</v-btn>
+          </v-row>
+        </v-form>
+        <!-- 抽屉关闭按钮 -->
         <v-btn
-          class="elevation-0"
-          color="success"
-          dark
-          @click="doUiAction('refreshTableData')"
-        >
-          查询
-        </v-btn>
-      </v-col>
-    </v-row>
-  </template> -->
-  <template slot="serverSearch">
-    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
-      style="justify-content: end">
-      <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-select v-model="serverSearchInput.isStore" :items="['是', '否']" prefix="采购单是否入库" :class="{'mr-2': !isMobile}"
-          hide-details dense filled single-line hide-no-data />
-      </v-col>
-      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
-        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')">
-          查询
-        </v-btn>
-      </v-col>
-    </v-row>
-  </template>
-
-  <!-- 页面主要内容 -->
-  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
-    <v-card>
-
-
-      <v-row class="ma-0 pa-4"
-        >
-
-        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
-          <span class="body-2">共{{ tableData.length }}条记录</span>
-          <v-btn class="" @click="doUiAction('computeIsAllStoreForPurchaseOrder', {})">入库信息重新计算</v-btn>
-        </v-col>
-
-        <v-spacer></v-spacer>
-
-        <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
-          <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
-        </v-col>
-      </v-row>
-      <v-data-table fixed-header height="600" :headers="headers" :items="tableData" :search="searchInput"
-        group-by="purchaseOrderId" :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" :items-per-page="50"
-        mobile-breakpoint="0" :loading="isTableLoading" checkbox-color="success"
-        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
-        <template v-slot:group.header="{items, isOpen, toggle, remove}">
-          <th colspan="2">
-            <v-icon @click="toggle">{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
-            采购单: {{ items[0].purchaseOrderId }} {{ items[0].purchaseTitle }}
-          </th>
-        </template>
-
-        <template v-slot:item.goodName="{ item }">
-          {{ item.goodName }}({{ item.goodId }})
-        </template>
-        <template v-slot:item.goodCount="{ item }">
-          {{ item.goodCount }}/{{ item.goodUnit }}
-        </template>
-        <template v-slot:item.waittingStoreCount="{ item }">
-          {{ item.waittingStoreCount }}/{{ item.goodUnit }}
-        </template>
-        <template v-slot:item.action="{ item }">
-          <v-btn v-if="item.goodCount > item.storeCount" small class=" success"
-            @click="doUiAction('startStoreGood', {item})">入库</v-btn>
-        </template>
-      </v-data-table>
-    </v-card>
-  </v-container>
-
-
-  <!-- 采购商品入库 -->
-  <v-navigation-drawer v-model="isStoreDrawerShow" :permanent="isStoreDrawerShow" fixed temporary right width="80%"
-    class="elevation-24">
-    <v-form v-model="isFormValid" v-if="isStoreDrawerShow" ref="form" lazy-validation>
-      <v-row class="pt-8">
-        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ storeItem.purchaseOrderId }} - {{
-          storeItem.purchaseTitle }} - {{ storeItem.goodName }}({{ storeItem.goodId }})】采购商品入库</span>
-        <v-spacer></v-spacer>
-        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+          elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
           @click="isStoreDrawerShow = false">
-          <v-icon dark>mdi-close</v-icon>
+          <v-icon>mdi-close</v-icon>
         </v-btn>
-      </v-row>
-      <v-row class="mt-0 px-4">
+      </v-navigation-drawer>
+    </div>
 
-        <v-col cols="12" sm="12" md="4">
-          <span class="jh-input-label">入库分类</span>
-          <v-text-field class="jh-v-input" :rules="requireRules" dense filled single-line
-            v-model="storeItem['goodCategory']" disabled="true"></v-text-field>
-        </v-col>
+    <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
+    <v-navigation-drawer v-model="isHelpPageDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+      <iframe
+        style="border: 0" :src="`/${appInfo.appId}/pageDoc#3.doUiAction.md`" width="100%"
+        height="100%"></iframe>
 
-        <v-col cols="12" sm="12" md="4">
-          <span class="jh-input-label">入库操作人</span>
-          <v-text-field class="jh-v-input" :rules="requireRules" dense filled single-line
-            v-model="storeItem['operationUser']" :rules="requireRules"></v-text-field>
-        </v-col>
+      <v-btn
+        elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+        @click="isHelpPageDrawerShown = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-navigation-drawer>
+    <!-- <<<<<<<<<<<<< 帮助页抽屉 -->
 
-        <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4">
-          <span class="jh-input-label">仓库</span>
-          <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="storeItem.warehouseId"
-            :items="warehouseList" item-text="warehouseName" item-value="warehouseId" :rules="requireRules"
-            @change="storeOfWarehouseSelectChange">
-          </v-autocomplete>
-        </v-col>
+  </v-main>
+</v-app>
 
-        <v-col cols="12" sm="12" md="4">
-          <span class="jh-input-label">货架</span>
-          <v-select v-model="storeItem.stockId" :items="stockList" :class="{'mr-2': !isMobile}" hide-details dense
-            filled single-line hide-no-data item-text="stockName" item-value="stockId" :no-data-text="'没有数据'" />
-        </v-col>
+<jh-toast />
+<jh-mask />
+<jh-confirm-dialog />
 
-        <v-col cols="12"></v-col>
-        <v-col cols="12" sm="12" md="4">
-          <span class="jh-input-label">入库数量/{{ storeItem.goodUnit }}; 待入库: {{storeItem.waittingStoreCount}}</span>
-          <v-text-field type="number" class="jh-v-input" dense filled single-line v-model="storeItem.prepareStoreCount"
-            :max="storeItem.waittingStoreCount" type="number" :rules="[
-            () => (storeItem.prepareStoreCount % 1 === 0 ) || '请填写整数',
-            () => !(0 >= storeItem.prepareStoreCount ) || '请填写入库数量',
-            () => !(storeItem.prepareStoreCount > storeItem.waittingStoreCount) || '入库数量超过最大值',
-          ]"></v-text-field>
-        </v-col>
-        <v-col cols="12" sm="12" md="4">
-          <span class="jh-input-label">商品保质期</span>
-          <v-menu v-model="isEndTimeMenuShow" :close-on-content-click="false" :nudge-right="40"
-            transition="scale-transition" offset-y min-width="auto">
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field class="jh-v-input" dense filled single-line v-model="storeItem['expirationAt']" label=""
-                readonly v-bind="attrs" v-on="on" :rules="requireRules"></v-text-field>
-            </template>
-            <v-date-picker v-model="storeItem['expirationAt']" @input="isEndTimeMenuShow = false"></v-date-picker>
-          </v-menu>
-        </v-col>
-        <v-col cols="12">
-          <span class="jh-input-label">备注</span>
-          <v-textarea class="jh-v-input" dense filled single-line v-model="storeItem['remark']" label=""></v-textarea>
-        </v-col>
-      </v-row>
-      <v-row class="justify-end pr-6">
-        <v-btn color="success" @click="doUiAction('storeItem')"
-          :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
-          :class="{'mb-2': isMobile, 'mr-4': isMobile}">确定入库</v-btn>
-        <v-btn class="ml-2" @click="isStoreDrawerShow = false"
-          :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
-      </v-row>
-    </v-form>
-  </v-navigation-drawer>
+</div>
+</script>
 
-
-</jh-layout-v3>
+<div id="app">
+</div>
 
 {% endblock %}
 
-{% block vue_body %}
+{% block vueScript %}
+
+<!-- 加载页面组件 >>>>>>>>>>>>> -->
+{% include 'common/jianghuJs/fixedTableHeightV4.html' %}
+<!-- <<<<<<<<<<<<< 加载页面组件 -->
 
 <script type="module">
   new Vue({
     el: '#app',
     template: '#app-template',
+    vueComponent: 'page',
     vuetify: new Vuetify(),
-    data: () => ({
-      // 表格相关数据
-      isFormValid: true,
-      requireRules: [
-        v => !!v || '必填',
+    data: {
+      // 面包屑
+      breadcrumbs: [
+        {
+          text: '首页',
+          disabled: true,
+        },
+        {
+          text: '采购商品入库',
+          disabled: true,
+        }
       ],
+      isHelpPageDrawerShown: false,
+      // 表格相关数据
+      isTableZebraLineShown: true,
+      validationRules: {
+        requireRules: [
+          v => !!v || 'This is required',
+        ],
+      },
       constantObj: {
         itemType: [
           { value: "低质易耗", text: "低质易耗" },
@@ -207,17 +252,13 @@ SQL END! -->
       isTableLoading: true,
       tableDataFromBackend: [],
       headers: [
-        // {text: "采购单Id", value: "purchaseOrderId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
-        // {text: "采购单", value: "purchaseTitle", width: 150, class: 'fixed', cellClass: 'fixed'}, 
-        // {text: "商品编号", value: "goodId", width: 120}, 
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 80, class: 'fixed', cellClass: 'fixed' },
         { text: "商品名称", value: "goodName", width: 120 },
         { text: "申购部门", value: "purchaseDeptName", width: 120 },
-        // {text: "单位", value: "goodUnit", width: 120}, 
         { text: "采购数量", value: "goodCount", width: 120 },
         { text: "待入库数量", value: "waittingStoreCount", width: 120 },
         { text: "分类", value: "goodCategory", width: 120 },
         { text: "备注", value: "remark", width: 120 },
-        { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
       ],
       isUpdateDrawerShown: false,
       storeItem: {
@@ -227,11 +268,8 @@ SQL END! -->
       warehouseList: [],
       stockList: [],
       isEndTimeMenuShow: false,
-    }),
+    },
     computed: {
-      isMobile() {
-        return window.innerWidth < 600;
-      },
       tableData() {
         return this.tableDataFromBackend;
       },
@@ -241,7 +279,6 @@ SQL END! -->
       await this.doUiAction('getwarehouseList');
       await this.doUiAction('refreshTableData');
     },
-    mounted() { },
     methods: {
       async doUiAction(uiActionId, uiActionData) {
         switch (uiActionId) {
@@ -271,20 +308,31 @@ SQL END! -->
             break;
         }
       },
-      // =================================uiAction 公共方法 start ======================================
-      async prepareStoreItemData({ item }) {
-        this.stockList = [];
-        this.storeItem = {
-          ...item,
-        };
-      },
-      async openStoreItemDialog() {
-        this.isStoreDrawerShow = true;
-      },
-      async prepareValidate() {
-        if (this.$refs.form.validate() === false) {
-          throw new Error("[prepareValidate] false");
-        }
+
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'storeWarehouse',
+              actionId: 'selectItemList',
+              actionData: {},
+              where: {
+                purchaseStatus: '采购完成',
+                isAllStore: this.serverSearchInput.isStore
+              },
+              orderBy: [{ column: 'purchaseOrderId', order: 'asc' }]
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+
+        rows.forEach(row => {
+          row.waittingStoreCount = row.goodCount - row.storeCount;
+          row.prepareStoreCount = row.waittingStoreCount;
+        });
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
       },
       async getwarehouseList() {
         const warehouseList = (await window.jianghuAxios({
@@ -312,41 +360,25 @@ SQL END! -->
         });
         this.warehouseList = warehouseList;
       },
-      /**
-       * uiActionId:  refreshTableData
-       * description: ✅获取表格数据
-      */
-      async refreshTableData() {
-        this.isTableLoading = true;
-        const result = await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'storeWarehouse',
-              actionId: 'selectItemList',
-              actionData: {},
-              where: {
-                purchaseStatus: '采购完成',
-                isAllStore: this.serverSearchInput.isStore
-              },
-              orderBy: [{ column: 'purchaseOrderId', order: 'asc' }]
-            }
-          }
-        });
-        const { rows } = result.data.appData.resultData;
 
-        rows.forEach(row => {
-          row.waittingStoreCount = row.goodCount - row.storeCount;
-          row.prepareStoreCount = row.waittingStoreCount;
-        });
-        this.tableDataFromBackend = rows;
-        this.isTableLoading = false;
+      // ---------- startStoreGood uiAction >>>>>>>>>>> --------
+      async prepareStoreItemData({ item }) {
+        this.stockList = [];
+        this.storeItem = {
+          ...item,
+        };
       },
-      // =================================uiAction 公共方法 end ======================================
+      async openStoreItemDialog() {
+        this.isStoreDrawerShow = true;
+      },
+      async prepareValidate() {
+        if (this.$refs.form.validate() === false) {
+          throw new Error("[prepareValidate] false");
+        }
+      },
+      // ---------- <<<<<<<<<<< startStoreGood uiAction --------
 
-      /**
-        * uiActionId:  createItem
-        * description: ✅获取表格数据
-       */
+      // ---------- storeItem uiAction >>>>>>>>>>> --------
       async confirmStoreItemDialog() {
         if (await window.confirmDialog({ title: "入库", content: "确定入库吗？" }) === false) {
           throw new Error("取消");
@@ -372,6 +404,9 @@ SQL END! -->
       async closeDrawerShow() {
         this.isStoreDrawerShow = false;
       },
+      // ---------- <<<<<<<<<<< storeItem uiAction --------
+
+      // ---------- computeIsAllStoreForPurchaseOrder uiAction >>>>>>>>>>> --------
       async computeIsAllStoreForPurchaseOrder({ purchaseOrderId }) {
         window.vtoast.loading('入库信息重新计算');
         await window.jianghuAxios({
@@ -392,20 +427,11 @@ SQL END! -->
         const wh = this.warehouseList.find(wh => wh.warehouseId === warehouseId);
         this.stockList = wh.stockList;
       },
+      // ---------- <<<<<<<<<<< computeIsAllStoreForPurchaseOrder uiAction --------
     }
   })
 </script>
 
-<style>
-  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr>td:not(.v-data-table__mobile-row) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 500px;
-  }
-
-  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr {
-    cursor: pointer;
-  }
+<style scoped>
 </style>
 {% endblock %}
