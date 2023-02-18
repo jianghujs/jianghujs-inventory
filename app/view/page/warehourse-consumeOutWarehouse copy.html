@@ -75,12 +75,7 @@
         <template v-slot:item.action="{ item }">
           <v-btn small class="success"
             @click="doUiAction('openConsumeHistoryDialog', { item, consumeHistoryViewType: 'consumeId' } )">出库入库记录</v-btn>
-          <span
-              role="button" class="success--text font-weight-medium font-size-2 mr-2"
-              @click="doUiAction('startUpdateItem', {item})">
-              <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
-            </span>
-          <!-- <v-btn small class=" error" @click="doUiAction('deleteItem', {item})">删除</v-btn> -->
+          <v-btn small class="success" @click="doUiAction('startOutWarehouse', {item})">出库</v-btn>
         </template>
       </v-data-table>
     </v-card>
@@ -110,51 +105,78 @@
     </v-row>
     <v-row class="mt-0 px-4">
       <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-        <consumeManagement-consumeHistory :consume="updateItem" :view-type="consumeHistoryViewType"
-          v-if="isConsumeHistoryDrawerShow"></consumeManagement-consumeHistory>
+        <consumeOutWarehouse-consumeHistory :consume="updateItem" :view-type="consumeHistoryViewType"
+          v-if="isConsumeHistoryDrawerShow"></consumeOutWarehouse-consumeHistory>
       </v-col>
     </v-row>
   </v-navigation-drawer>
 
-  <v-navigation-drawer v-model="isUpdateDrawerShown" hide-overlay :permanent="isUpdateDrawerShown" app temporary right
-    width="50%" class="elevation-24">
-    <v-form v-model="isFormValid" v-if="isUpdateDrawerShown" ref="form" lazy-validation>
+
+  <!-- 出库抽屉 -->
+  <v-navigation-drawer v-model="isOutDrawerShow" :permanent="isOutDrawerShow" fixed temporary right width="80%"
+    class="elevation-24">
+    <v-form v-model="isFormValid" v-if="isOutDrawerShow" ref="form" lazy-validation>
       <v-row class="pt-8">
-        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ updateItem.goodName }}】修改</span>
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{outItem.goodName}}】消耗品出库</span>
         <v-spacer></v-spacer>
         <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
-          @click="isUpdateDrawerShown = false">
+          @click="isOutDrawerShow = false">
           <v-icon dark>mdi-close</v-icon>
         </v-btn>
       </v-row>
       <v-row class="mt-0 px-4">
+
+
         <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">仓库</span>
-          <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="updateItem.warehouseId"
-            :items="constantObj.warehouse" item-text="warehouseName" item-value="warehouseId"
-            :rules="requireRules" @change="storeOfWarehouseSelectChange">
-          </v-autocomplete>
+          <v-text-field class="jh-v-input " dense filled single-line v-model="outItem['warehouseName']"
+            :rules="requireRules" disabled="true"></v-text-field>
         </v-col>
         <v-col cols="12" sm="12" md="4">
           <span class="jh-input-label">货架</span>
-          <v-select v-model="updateItem.stockId" :items="constantObj.stock" 
-            hide-details dense filled single-line hide-no-data item-text="stockName" item-value="stockId"
-            :no-data-text="'没有数据'" />
+          <v-text-field class="jh-v-input " dense filled single-line v-model="outItem['stockName']"
+            disabled="true"></v-text-field>
+        </v-col>
+        <v-col cols="12"></v-col>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">出库数量(库存: {{ outItem.storeCountOfConsume }}/{{ outItem.goodUnit }})</span>
+          <v-text-field class="jh-v-input " dense filled single-line v-model="outItem['consumeOperationCount']"
+            type="number" :rules="[
+            () => (outItem.consumeOperationCount % 1 === 0 ) || '请填写整数',
+            () => !(0 >= outItem.consumeOperationCount ) || '请填写入库数量',
+            () => !(outItem.consumeOperationCount > outItem.storeCountOfConsume) || '入库数量超过最大值',
+          ]"></v-text-field>
+        </v-col>
+        <v-col cols="12"></v-col>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">领用人</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="outItem['consumeOperationUser']"
+            :rules="requireRules"></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">领用人部门</span>
+          <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable
+            v-model="outItem.consumeOperationDeptId" :items="deptList" item-text="deptName" item-value="deptId"
+            :rules="requireRules">
+        </v-col>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">备注</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="outItem['remark']"></v-text-field>
         </v-col>
       </v-row>
       <v-row class="justify-end mx-0 mt-8 px-6">
-        <v-btn color="success" @click="doUiAction('updateItem')">保存
-        </v-btn>
-        <v-btn class="elevation-0 ml-2" @click="isUpdateDrawerShown = false">取消</v-btn>
+        <v-btn color="success" @click="doUiAction('outWarehouse')">出库</v-btn>
+        <v-btn class="ml-2" @click="isOutDrawerShow = false">取消</v-btn>
       </v-row>
     </v-form>
   </v-navigation-drawer>
+
 </jh-layout-v3>
 
 {% endblock %}
 
 {% block vue_body %}
-{% include 'component/warehouse/consumeManagement-consumeHistory.html' %}
+{% include 'component/warehouse/consumeOutWarehouse-consumeHistory.html' %}
 
 <script type="module">
   new Vue({
@@ -171,7 +193,8 @@
         tableGroupBy: [
           { text: '按仓库', value: 'warehouseId' },
           { text: '按商品', value: 'goodId' },
-        ]
+        ],
+        dept: [],
       },
 
       serverSearchInput: {
@@ -186,6 +209,7 @@
         { text: "商品名称", value: "goodName", width: 150, class: 'fixed', cellClass: 'fixed' },
         { text: "仓库", value: "warehouseName", width: 150, class: 'fixed', cellClass: 'fixed' },
         { text: "货架", value: "stockName", width: 120 },
+
         { text: "商品类型", value: "goodType", width: 120 },
         { text: "商品分类", value: "goodCategory", width: 120 },
         { text: "库存", value: "storeCountOfConsume", width: 120 },
@@ -197,11 +221,14 @@
         { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
       ],
       updateItem: {},
-      isUpdateDrawerShown: false,
       isConsumeHistoryDrawerShow: false,
 
       tableGroupBy: 'warehouseId',
       consumeHistoryViewType: null,
+
+      outItem: {},
+      isOutDrawerShow: false,
+      deptList: [],
     }),
     computed: {
       isMobile() {
@@ -223,6 +250,7 @@
           case 'initConstantCollection':
             await this.selectGoodList();
             await this.selectWarehouseList();
+            await this.selectDeptList();
             break;
           case 'refreshTableData':
             await this.refreshTableData();
@@ -230,15 +258,15 @@
           case 'openConsumeHistoryDialog':
             await this.openConsumeHistoryDialog(uiActionData);
             break;
-          case 'startUpdateItem':
-            await this.prepareUpdateItemData(uiActionData);
-            await this.openUpdateItemDialog();
+          case 'startOutWarehouse':
+            await this.prepareOutData(uiActionData);
+            await this.openOutDialog();
             break;
-          case 'updateItem':
+          case 'outWarehouse':
             await this.prepareValidate();
-            await this.confirmUpdateItemDialog();
-            await this.doUpdateItem();
-            await this.closeUpdateItemDialog();
+            await this.confirmOutConsumeDialog();
+            await this.doOutWarehouse();
+            await this.closeDrawerShow();
             await this.refreshTableData();
             break;
           default:
@@ -274,16 +302,16 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'consumeManagement',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectItemList',
               actionData: {},
               where,
               whereIn: {
                 goodCategory: this.serverSearchInput.goodCategory,
               },
-              // whereOptions: [
-              //   ['storeCountOfConsume', '>', 0],
-              // ],
+              whereOptions: [
+                ['storeCountOfConsume', '>', 0],
+              ],
               orderBy: [{ column: 'operationAt', order: 'desc' }]
             }
           }
@@ -297,11 +325,10 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'consumeManagement',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectGoodList',
               actionData: {},
               whereIn: { goodCategory: this.serverSearchInput.goodCategory },
-              where: { rowStatus: '正常' },
               orderBy: [{ column: 'goodName', order: 'desc' }]
             }
           }
@@ -310,31 +337,34 @@
         this.constantObj.good = rows;
       },
       async selectWarehouseList() {
-        const warehouseList = (await window.jianghuAxios({
+        const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'consumeManagement',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectWarehouseList',
               actionData: {},
               where: { rowStatus: '正常' },
               orderBy: [{ column: 'warehouseName', order: 'desc' }]
             }
           }
-        })).data.appData.resultData.rows;
-        const allStockList = (await window.jianghuAxios({
+        });
+        const { rows } = result.data.appData.resultData;
+        this.constantObj.warehouse = rows;
+      },
+      async selectDeptList() {
+        const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'consumeManagement',
-              actionId: 'selectStockList',
+              pageId: 'consumeOutWarehouse',
+              actionId: 'selectDeptList',
               actionData: {},
               where: { rowStatus: '正常' },
+              orderBy: [{ column: 'deptName', order: 'desc' }]
             }
           }
-        })).data.appData.resultData.rows;
-        warehouseList.forEach(wh => {
-          wh.stockList = allStockList.filter(stock => wh.warehouseId === stock.warehouseId);
         });
-        this.constantObj.warehouse = warehouseList;
+        const { rows } = result.data.appData.resultData;
+        this.deptList = rows;
       },
       // =================================uiAction 公共方法 end ======================================
       async openConsumeHistoryDialog({ item, consumeHistoryViewType }) {
@@ -342,44 +372,35 @@
         this.isConsumeHistoryDrawerShow = true;
         this.consumeHistoryViewType = consumeHistoryViewType;
       },
-      async storeOfWarehouseSelectChange(warehouseId) {
-        this.updateItem.stockId = null;
-        const wh = this.constantObj.warehouse.find(wh => wh.warehouseId === warehouseId);
-        this.constantObj.stock = wh.stockList;
+      async prepareOutData({ item }) {
+        this.outItem = { ...item, remark: null, };
       },
-      async prepareUpdateItemData({ item }) {
-        this.storeOfWarehouseSelectChange(item.warehouseId);
-        this.updateItem = { ...item };
+      async openOutDialog() {
+        this.isOutDrawerShow = true;
       },
-      async openUpdateItemDialog() {
-        this.isUpdateDrawerShown = true;
-      },
-      async closeUpdateItemDialog() {
-        this.isUpdateDrawerShown = false;
-      },
-      async confirmUpdateItemDialog() {
-        if (await window.confirmDialog({ title: "修改", content: "确定修改吗？" }) === false) {
+      async confirmOutConsumeDialog() {
+        if (await window.confirmDialog({ title: "出库", content: "确定出库吗？" }) === false) {
           throw new Error("取消");
         }
       },
-      async doUpdateItem() {
-        await window.vtoast.loading("保存修改");
-        const result = await window.jianghuAxios({
+      async doOutWarehouse() {
+        const { id, consumeId, consumeOperationCount, consumeOperationUser, consumeOperationDeptId, remark } = this.outItem;
+        await window.vtoast.loading("消耗品出库");
+        await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'consumeManagement',
-              actionId: 'updateItem',
-              actionData: {
-                warehouseId: this.updateItem.warehouseId,
-                stockId: this.updateItem.stockId,
-              },
-              where: { id: this.updateItem.id }
+              pageId: 'consumeOutWarehouse',
+              actionId: 'consumeOutWarehouse',
+              actionData: { consumeId, consumeOperationCount, consumeOperationUser, consumeOperationDeptId, remark },
             }
           }
-        });
-        const { rows } = result.data.appData.resultData;
-        window.vtoast.success({ message: "更新成功!" });
-      }
+        })
+        await window.vtoast.success("消耗品出库成功");
+      },
+      async closeDrawerShow() {
+        this.isOutDrawerShow = false;
+      },
+
     }
   })
 </script>
