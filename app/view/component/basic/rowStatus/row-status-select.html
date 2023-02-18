@@ -1,6 +1,7 @@
 <template id="row-status-select">
   <v-select
-    class="jh-v-input bg-white"
+    class="jh-v-input"
+    :class="{'bg-white': bgWhite}"
     v-model="value"
     :items="items"
     prefix="数据状态"
@@ -24,6 +25,10 @@
         }
       },
       multiple: {
+        type: Boolean,
+        default: true
+      },
+      bgWhite: {
         type: Boolean,
         default: true
       },

@@ -48,12 +48,13 @@
         </v-row>
         <!-- 表格 -->
         <v-data-table
+          dense
           :headers="headers"
           :items="tableData"
           height="350"
           :search="searchInput"
           :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
-          :items-per-page="-1"
+          :items-per-page="50"
           mobile-breakpoint="0"
           :loading="isTableLoading"
           :class="{'zebraLine': isTableZebraLineShown }"
@@ -98,7 +99,7 @@
         </v-data-table>
       </v-card>
 
-      <warehouseManagement-stock class="mt-4" v-if="selectedRows.length > 0" :warehouse-id="selectwarehouseId"
+      <warehouseManagement-stock class="mt-4" dense v-if="selectedRows.length > 0" :warehouse-id="selectwarehouseId"
       :warehouse-name="selectwarehouseName"></warehouseManagement-stock>
       <!-- <<<<<<<<<<<<< 页面内容 -->
 
@@ -272,7 +273,7 @@
         // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
         { text: '操作', value: 'action', align: 'center', sortable: false, width: 160, class: 'fixed', cellClass: 'fixed' },
         { text: "仓库编号", value: "warehouseId", width: 120 },
-        { text: "仓库名", value: "warehouseName", width: 150 },
+        { text: "仓库名", value: "warehouseName", width: 200 },
         { text: "仓库类型", value: "warehouseType", width: 150 },
         { text: "备注", value: "remark", width: 120 },
         { text: "操作者", value: "operationByUser", width: 120 },
@@ -505,5 +506,8 @@
 </script>
 
 <style scoped>
+  .v-data-table--dense>.v-data-table__wrapper>table>tbody>tr>td, .v-data-table--dense>.v-data-table__wrapper>table>tbody>tr>th, .v-data-table--dense>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table--dense>.v-data-table__wrapper>table>tfoot>tr>th, .v-data-table--dense>.v-data-table__wrapper>table>thead>tr>td, .v-data-table--dense>.v-data-table__wrapper>table>thead>tr>th {
+    height: 32px;
+  }
 </style>
 {% endblock %}

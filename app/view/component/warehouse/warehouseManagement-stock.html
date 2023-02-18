@@ -1,144 +1,117 @@
 <template id="warehouseManagement-stock">
   <div>
-
-    <v-row class="outSideMain ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
-      style="justify-content: end">
-      <v-col cols="12" sm="10" xs="8" md="5" xl="2" class="pb-3" :class="{'pt-0': isMobile}">
-        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
-      </v-col>
-      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
-        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')">
-          查询
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <v-card>
-      <v-row class="ma-0 pa-4"
-        >
-
+    <!-- 组件内容 -->
+    <v-card class="rounded-lg">
+      <v-row class="ma-0 pa-4">
         <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
-          <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">仓库-新增货架</v-btn>
-          <span class="body-2">共{{ tableData.length }}条记录</span>
+          <v-btn color="success" small dark class="elevation-0 mr-2"
+            @click="doUiAction('startCreateItem')">仓库-新增货架</v-btn>
         </v-col>
-
         <v-spacer></v-spacer>
-
-        <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+        <v-col cols="12" xs="6" sm="4" md="3" xl="2" class="pa-0 pr-1">
+          <row-status-select :value="serverSearchInput.rowStatus" :bg-white="false" @update-value="serverSearchInput.rowStatus=$event" />
+        </v-col>
+        <v-col cols="12" xs="6" sm="4" md="3" xl="2" class="pa-0 pl-1">
           <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
         </v-col>
       </v-row>
-      <v-data-table fixed-header :headers="headers" :items="tableData" :search="searchInput"
-        :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" :items-per-page="50" mobile-breakpoint="0"
-        :loading="isTableLoading" checkbox-color="success"
+      <v-data-table :dense="dense" fixed-header :headers="headers" :items="tableData" :search="searchInput"
+        :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
+        :items-per-page="50" mobile-breakpoint="0" :loading="isTableLoading" checkbox-color="success"
         class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
         <template v-slot:item.action="{ item }">
-          <span
-              role="button" class="success--text font-weight-medium font-size-2 mr-2"
-              @click="doUiAction('startUpdateItem', {item})">
-              <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
-            </span>
+          <span role="button" class="success--text font-weight-medium font-size-2 mr-2"
+            @click="doUiAction('startUpdateItem', {item})">
+            <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
+          </span>
           <row-status-switch-button :value="item.rowStatus"
             @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })" />
+        </template>
+
+        <!-- 没有数据 -->
+        <template v-slot:loading>
+          <div class="jh-no-data">数据加载中</div>
+        </template>
+        <template v-slot:no-data>
+          <div class="jh-no-data">暂无数据</div>
+        </template>
+        <template v-slot:no-results>
+          <div class="jh-no-data">暂无数据</div>
+        </template>
+        <!-- 表格分页 -->
+        <template v-slot:footer.page-text="pagination">
+          <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
+          <span class="ml-1">共{{pagination.itemsLength}}条</span>
         </template>
       </v-data-table>
     </v-card>
 
     <!-- 新增 -->
-    <v-navigation-drawer v-model="isCreateDrawerShown" :permanent="isCreateDrawerShown" fixed temporary right width="80%"
-      class="elevation-24">
+    <v-navigation-drawer v-model="isCreateDrawerShown" :permanent="isCreateDrawerShown" fixed temporary right
+      width="80%" class="elevation-24">
       <v-form v-model="isFormValid" v-if="isCreateDrawerShown" ref="form" lazy-validation>
-        <v-row class="pt-8">
-          <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">{{ warehouseName &&
+        <!-- 抽屉标题 -->
+        <v-row>
+          <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">{{ warehouseName &&
             `【${warehouseName}】-` }}新增货架</span>
-          <v-spacer></v-spacer>
-          <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
-            @click="isCreateDrawerShown = false">
-            <v-icon dark>mdi-close</v-icon>
-          </v-btn>
         </v-row>
+        <!-- 抽屉表单 -->
         <v-row class="mt-0 px-4">
-
-          <!-- <v-col cols="12" sm="12" md="4">
-            <span class="jh-input-label">货架Id<font>(注意:编号一旦设置无法更改)</font></span>
-            <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['stockId']"></v-text-field>
-          </v-col> -->
-
           <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">货架名</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['stockName']"
               :rules="requireRules"></v-text-field>
           </v-col>
-
           <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">备注</span>
             <v-textarea class="jh-v-input " dense filled single-line v-model="addItem['remark']"></v-textarea>
           </v-col>
-
         </v-row>
         <v-row class="justify-end pr-6">
-          <v-btn color="success" @click="doUiAction('createItem')"
-            :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
-            :class="{'mb-2': isMobile, 'mr-4': isMobile}">新增</v-btn>
-          <v-btn class="ml-2" @click="isCreateDrawerShown = false"
-            :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+          <v-btn color="success" @click="doUiAction('createItem')" >新增</v-btn>
+          <v-btn class="ml-2" @click="isCreateDrawerShown = false" >取消</v-btn>
         </v-row>
       </v-form>
+      <!-- 抽屉关闭按钮 -->
+      <v-btn
+        elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+        @click="isCreateDrawerShown = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
     </v-navigation-drawer>
 
 
     <!-- 编辑抽屉 -->
-    <v-navigation-drawer v-model="isUpdateDrawerShown" :permanent="isUpdateDrawerShown" fixed temporary right width="80%"
-      class="elevation-24">
+    <v-navigation-drawer v-model="isUpdateDrawerShown" :permanent="isUpdateDrawerShown" fixed temporary right
+      width="80%" class="elevation-24">
       <v-form v-model="isFormValid" v-if="isUpdateDrawerShown" ref="form" lazy-validation>
-        <v-row class="pt-8">
-          <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ warehouseName }}】-编辑货架信息</span>
-          <v-spacer></v-spacer>
-          <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
-            @click="isUpdateDrawerShown = false">
-            <v-icon dark>mdi-close</v-icon>
-          </v-btn>
+        <!-- 抽屉标题 -->
+        <v-row>
+          <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">【{{ warehouseName }}】-编辑货架信息</span>
         </v-row>
+        <!-- 抽屉表单 -->
         <v-row class="mt-0 px-4">
-
-
           <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">货架名</span>
             <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['stockName']"
               :rules="requireRules"></v-text-field>
           </v-col>
-
           <v-col cols="12" sm="12" md="4">
             <span class="jh-input-label">备注</span>
             <v-textarea class="jh-v-input " dense filled single-line v-model="updateItem['remark']"></v-textarea>
           </v-col>
-
-          <!--      <v-col cols="12" sm="12" md="4"> -->
-          <!--        &lt;!&ndash; 必填字段样式 demo :rules="requireRules" &ndash;&gt; -->
-          <!--            <span class="jh-input-label">学生ID</span> -->
-          <!--        <v-text-field class="jh-v-input " dense filled single-line label="学生ID" v-model="updateItem.studentId" :rules="requireRules"></v-text-field> -->
-          <!--      </v-col> -->
-          <!--      &lt;!&ndash; select 字段 demo &ndash;&gt; -->
-          <!--      <v-col cols="12" sm="12" md="4"> -->
-          <!--            <span class="jh-input-label">班级ID</span> -->
-          <!--        <v-select class="jh-v-input " dense filled single-line clearable label="班级ID" v-model="updateItem.classId" :items="constantObj.classId"></v-select> -->
-          <!--      </v-col> -->
-          <!--      &lt;!&ndash; 日期选择 demo &ndash;&gt; -->
-          <!--      <v-col cols="12" sm="12" md="4"> -->
-          <!--        <span class="jh-input-label">出生日期</span> -->
-          <!--        <v-menu class="jh-v-input " offset-y max-width="290"> -->
-          <!--          <template v-slot:activator="{ on, attrs }"> -->
-          <!--            <v-text-field class="jh-v-input " dense filled single-line v-on="on" label="出生日期" v-model="updateItem.dateOfBirth"></v-text-field> -->
-          <!--          </template> -->
-          <!--          <v-date-picker color="success" elevation="20" v-model="updateItem.dateOfBirth"></v-date-picker> -->
-          <!--        </v-menu> -->
-          <!--      </v-col> -->
         </v-row>
         <v-row class="justify-end mx-0 mt-8 px-6">
           <v-btn color="success" @click="doUiAction('updateItem')">保存</v-btn>
           <v-btn class="ml-2" @click="isUpdateDrawerShown = false">取消</v-btn>
         </v-row>
       </v-form>
+      <!-- 抽屉关闭按钮 -->
+      <v-btn
+        elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+        @click="isUpdateDrawerShown = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
     </v-navigation-drawer>
   </div>
 </template>
@@ -146,7 +119,7 @@
 <script type="module">
   Vue.component("warehouseManagement-stock", {
     template: '#warehouseManagement-stock',
-    props: ['warehouseId', 'warehouseName'],
+    props: ['warehouseId', 'warehouseName', 'dense'],
     vuetify: new Vuetify(),
     data: () => ({
       // 表格相关数据
@@ -166,13 +139,13 @@
       headers: [
         // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
 
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
         { text: "货架Id", value: "stockId", width: 120, class: 'fixed', cellClass: 'fixed' },
         { text: "货架名", value: "stockName", width: 120, class: 'fixed', cellClass: 'fixed' },
         // {text: "仓库编号", value: "warehouseId", width: 120}, 
         { text: "备注", value: "remark", width: 120 },
         { text: "操作者", value: "operationByUser", width: 120 },
         { text: "操作时间", value: "operationAt", width: 250 },
-        { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
       ],
       isUpdateDrawerShown: false,
       updateItem: {},
@@ -184,12 +157,14 @@
         return window.innerWidth < 600;
       },
       tableData() {
-        return this.tableDataFromBackend;
+        return this.tableDataFromBackend.filter(item => {
+          return this.serverSearchInput.rowStatus.includes(item.rowStatus);
+        });
       }
     },
     watch: {
       warehouseId(val) {
-        debugger
+        this.serverSearchInput.rowStatus = ['正常'];
         this.doUiAction('refreshTableData');
       },
     },
@@ -266,7 +241,7 @@
               where: {
                 warehouseId: this.warehouseId
               },
-              whereIn: { rowStatus: this.serverSearchInput.rowStatus },
+              whereIn: {rowStatus: ['正常', '回收站']},
               orderBy: [{ column: 'stockName', order: 'asc' }]
             }
           }
