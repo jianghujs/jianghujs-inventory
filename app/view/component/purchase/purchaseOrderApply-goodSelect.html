@@ -3,28 +3,18 @@
     <v-card elevation="0" outlined>
       <v-data-table :loading="loading" :headers="headers" :items="value" hide-default-footer
         class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
-        
+
         <template v-slot:item.good-id="{ item }">
-          <v-autocomplete 
-            :loading="loadingGoodList" 
-            class="cus-v-input mr-2" 
-            dense filled single-line clearable 
-            label="选择商品" v-model="item.goodId" 
-            :items="goodList" item-text="goodName" item-value="goodId"
-            :rules="requireRules"
-            hide-details
-            @change="onGoodIdChange($event, item)"></v-autocomplete>
+          <v-autocomplete :loading="loadingGoodList" class="jh-v-input mr-2" dense filled single-line clearable
+            label="选择商品" v-model="item.goodId" :items="goodList" item-text="goodName" item-value="goodId"
+            :rules="requireRules" hide-details @change="onGoodIdChange($event, item)"></v-autocomplete>
         </template>
         <template v-slot:item.good-count="{ item }">
-          <v-text-field 
-            class="cus-v-input mr-2" dense filled single-line 
-            v-model.number="item.goodCount" 
-            type="number"
-            hide-details
-            :rules="[
+          <v-text-field class="jh-v-input mr-2" dense filled single-line v-model.number="item.goodCount" type="number"
+            hide-details :rules="[
               () => (item.goodCount % 1 === 0 ) || '请填写整数',
               () => !(0 >= item.goodCount) || '请填写数量',
-            ]"> 
+            ]">
           </v-text-field>
         </template>
         <template v-slot:item.good-category="{ item }">
@@ -49,7 +39,7 @@
 <script type="module">
   Vue.component("purchase-order-apply-good-select", {
     template: '#purchase-order-apply-good-select',
-    props: {  
+    props: {
       value: {
         type: Array,
         default: () => [],
@@ -106,20 +96,20 @@
           case 'deleteItem':
             await this.doDeleteItem(uiActionData);
             break;
-     
+
           default:
             console.error("[doUiAction] uiActionId not find", { uiActionId });
             break;
         }
       },
-      
-      
+
+
       async updateValueGoodInfo() {
-        if(this.value) {
+        if (this.value) {
           let value = this.value.map(item => {
-            if(item && item.goodId) {
+            if (item && item.goodId) {
               const good = this.goodList.find(good => good.goodId === item.goodId);
-              if(good) {
+              if (good) {
                 item.goodUnit = good.goodUnit;
                 item.supplierCount = good.supplierCount;
                 item.goodSuggestPrice = good.goodSuggestPrice;
@@ -135,7 +125,7 @@
       async doAddItem() {
         this.$emit("input", [...this.value, { goodName: null, goodUnit: null, goodSuggestPrice: null, stock: null, goodCount: 1 }]);
       },
-      async doDeleteItem({index}) {
+      async doDeleteItem({ index }) {
         let list = _.cloneDeep(this.value);
         list.splice(index, 1);
         this.$emit("input", list);
@@ -154,7 +144,7 @@
       },
       async checkGoodExist(goodId, item) {
         return new Promise((resolve, reject) => {
-          if(this.value.filter(x => x.goodId == goodId).length > 1) {
+          if (this.value.filter(x => x.goodId == goodId).length > 1) {
             window.vtoast.fail("商品已存在");
             item.goodId = null;
             return
@@ -166,9 +156,9 @@
   })
 </script>
 <style>
-.add-btn {
-  width: 100%;
-  margin-top: 5px;
-  padding: 5px;
-}
+  .add-btn {
+    width: 100%;
+    margin-top: 5px;
+    padding: 5px;
+  }
 </style>

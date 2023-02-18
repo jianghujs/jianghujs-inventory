@@ -6,162 +6,144 @@
 <jh-layout-v3>
 
   <template slot="serverSearch">
-    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
+    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
+      style="justify-content: end">
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-select v-model="tableGroupBy" :items="constantCollection.tableGroupBy" prefix="展示类型" :class="{'mr-2': !isMobile}" hide-details dense 
-          filled single-line hide-no-data/> 
+        <v-select v-model="tableGroupBy" :items="constantCollection.tableGroupBy" prefix="展示类型"
+          :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data />
       </v-col>
       <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-autocomplete 
-          prefix="商品"
-          class="cus-v-input mr-2" 
-          dense filled single-line clearable
-          v-model="serverSearchInput.goodId" 
-          :items="constantCollection.good" 
-          item-text="goodName" 
-          item-value="goodId"
+        <v-autocomplete prefix="商品" class="jh-v-input mr-2" dense filled single-line clearable
+          v-model="serverSearchInput.goodId" :items="constantCollection.good" item-text="goodName" item-value="goodId"
           :no-data-text="'没有数据'">
-       </v-autocomplete>
+        </v-autocomplete>
       </v-col>
-      <v-col cols="12" sm="4" md="3" xl="2"  class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
-        <v-autocomplete 
-          prefix="仓库"
-          class="cus-v-input mr-2" 
-          dense filled single-line clearable
-          v-model="serverSearchInput.warehouseId" 
-          :items="constantCollection.warehouse" 
-          item-text="warehouseName" 
-          item-value="warehouseId"
-          :no-data-text="'没有数据'">
+      <v-col cols="12" sm="4" md="3" xl="2" class=" pb-3" :class="{'pb-xs-4': !isMobile, 'mt-2': isMobile}">
+        <v-autocomplete prefix="仓库" class="jh-v-input mr-2" dense filled single-line clearable
+          v-model="serverSearchInput.warehouseId" :items="constantCollection.warehouse" item-text="warehouseName"
+          item-value="warehouseId" :no-data-text="'没有数据'">
       </v-col>
       <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
-        <v-btn
-          class="elevation-0"
-          color="success"
-          dark
-          @click="doUiAction('refreshTableData')"
-        >
+        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')">
           查询
         </v-btn>
       </v-col>
     </v-row>
   </template>
 
-<!-- 页面主要内容 -->
-<v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
-  <v-card>
-  <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
+  <!-- 页面主要内容 -->
+  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+    <v-card>
+      <v-row class="ma-0 pa-4"
+        >
 
-      <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <span class="body-2">共{{ tableData.length }}条记录</span>
-      </v-col>
+        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
+          <span class="body-2">共{{ tableData.length }}条记录</span>
+        </v-col>
 
-      <v-spacer></v-spacer>
+        <v-spacer></v-spacer>
 
-      <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
-        <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
-      </v-col>
-    </v-row>
-    <v-data-table fixed-header
-                  height="600"
-                  :headers="headers"
-                  :items="tableData"
-                  :search="searchInput"
-                  :group-by="tableGroupBy"
-                  :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-                  :items-per-page="100"
-                  mobile-breakpoint="0"
-                  :loading="isTableLoading"
-                  checkbox-color="success"
-                  class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
-      <template v-slot:group.header="{items, isOpen, toggle, remove}">
-        <th colspan="2">
-          <v-icon @click="toggle">{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
-          <span v-if="tableGroupBy === 'warehouseId'">
-            仓库: {{ items[0].warehouseName }}
-            <v-btn small class="success" @click="doUiAction('openAssetHistoryDialog', { item: items[0], assetHistoryViewType: 'warehouseId' } )">资产状态记录</v-btn>
-          </span>
-          <span v-if="tableGroupBy === 'goodId'">
-            商品: {{ items[0].goodName }}
-            <v-btn small class="success" @click="doUiAction('openAssetHistoryDialog', { item: items[0], assetHistoryViewType: 'goodId' } )">资产状态记录</v-btn>
-          </span>
-        </th>
-        <th colspan="1">
-          库存: {{ items.length }}
-        </th>
-      </template>
-           
-      <template v-slot:item.action="{ item }">
-        <v-btn small class="success" @click="doUiAction('openAssetHistoryDialog', { item, assetHistoryViewType: 'assetId' } )">资产状态记录</v-btn>
-        <v-btn small class=" success" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
-      </template>
-    </v-data-table>
-  </v-card>
-</v-container>
+        <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+          <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
+        </v-col>
+      </v-row>
+      <v-data-table fixed-header height="600" :headers="headers" :items="tableData" :search="searchInput"
+        :group-by="tableGroupBy" :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" :items-per-page="50"
+        mobile-breakpoint="0" :loading="isTableLoading" checkbox-color="success"
+        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+        <template v-slot:group.header="{items, isOpen, toggle, remove}">
+          <th colspan="2">
+            <v-icon @click="toggle">{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
+            <span v-if="tableGroupBy === 'warehouseId'">
+              仓库: {{ items[0].warehouseName }}
+              <v-btn small class="success"
+                @click="doUiAction('openAssetHistoryDialog', { item: items[0], assetHistoryViewType: 'warehouseId' } )">资产状态记录</v-btn>
+            </span>
+            <span v-if="tableGroupBy === 'goodId'">
+              商品: {{ items[0].goodName }}
+              <v-btn small class="success"
+                @click="doUiAction('openAssetHistoryDialog', { item: items[0], assetHistoryViewType: 'goodId' } )">资产状态记录</v-btn>
+            </span>
+          </th>
+          <th colspan="1">
+            库存: {{ items.length }}
+          </th>
+        </template>
+
+        <template v-slot:item.action="{ item }">
+          <v-btn small class="success"
+            @click="doUiAction('openAssetHistoryDialog', { item, assetHistoryViewType: 'assetId' } )">资产状态记录</v-btn>
+          <span
+              role="button" class="success--text font-weight-medium font-size-2 mr-2"
+              @click="doUiAction('startUpdateItem', {item})">
+              <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
+            </span>
+        </template>
+      </v-data-table>
+    </v-card>
+  </v-container>
 
 
-<v-navigation-drawer v-model="isAssetHistoryDrawerShow" hide-overlay :permanent="isAssetHistoryDrawerShow" app temporary right width="80%" class="elevation-24">
-  <v-row class="pt-8">
-    <span v-if="assetHistoryViewType === 'assetId'" class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">
-      【资产维度: {{editItem.assetId}}】资产状态记录
-    </span>
-    <span v-if="assetHistoryViewType === 'goodId'" class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">
-      【商品维度: {{editItem.goodName}}({{editItem.goodId}})】资产状态记录
-    </span>
-    <span v-if="assetHistoryViewType === 'goodId'" class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">
-      【仓库维度: {{editItem.warehouseName}}({{editItem.warehouseId}})】资产状态记录
-    </span>
-    <v-spacer></v-spacer>
-    <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isAssetHistoryDrawerShow = false">
-      <v-icon dark>mdi-close</v-icon>
-    </v-btn>
-  </v-row>
-  <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-    <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-      <assetManagement-assetHistory :asset="editItem" :view-type="assetHistoryViewType" v-if="isAssetHistoryDrawerShow"></assetManagement-assetHistory>
-    </v-col>
-  </v-row>
-</v-navigation-drawer>
-
-<v-navigation-drawer v-model="isEditDrawerShow" hide-overlay :permanent="isEditDrawerShow" app temporary right width="50%" class="elevation-24">
-  <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
+  <v-navigation-drawer v-model="isAssetHistoryDrawerShow" hide-overlay :permanent="isAssetHistoryDrawerShow" app
+    temporary right width="80%" class="elevation-24">
     <v-row class="pt-8">
-      <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ editItem.goodName }}】修改</span>
+      <span v-if="assetHistoryViewType === 'assetId'" class="title pa-6"
+        :class="{'pl-12': !isMobile, 'pl-6': isMobile}">
+        【资产维度: {{updateItem.assetId}}】资产状态记录
+      </span>
+      <span v-if="assetHistoryViewType === 'goodId'" class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">
+        【商品维度: {{updateItem.goodName}}({{updateItem.goodId}})】资产状态记录
+      </span>
+      <span v-if="assetHistoryViewType === 'goodId'" class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">
+        【仓库维度: {{updateItem.warehouseName}}({{updateItem.warehouseId}})】资产状态记录
+      </span>
       <v-spacer></v-spacer>
-      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isEditDrawerShow = false">
+      <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+        @click="isAssetHistoryDrawerShow = false">
         <v-icon dark>mdi-close</v-icon>
       </v-btn>
     </v-row>
-    <v-row  :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-      <v-col cols="12" sm="12" md="12" xl="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-        <span class="inputLabel">仓库</span>
-        <v-autocomplete 
-            class="cus-v-input mr-2" 
-            dense filled single-line clearable
-            v-model="editItem.warehouseId" 
-            :items="constantCollection.warehouse" 
-            item-text="warehouseName" 
-            item-value="warehouseId"
-            :rules="requireRules"
-            @change="storeOfWarehouseSelectChange">
-        </v-autocomplete>
-      </v-col>
-      <v-col cols="12" sm="12" md="12" xl="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-        <span class="inputLabel">货架</span>
-        <v-select v-model="editItem.stockId"
-          :items="constantCollection.stock" :class="{'mr-2': !isMobile}" hide-details dense filled single-line hide-no-data
-          item-text="stockName" item-value="stockId"
-          :no-data-text="'没有数据'" /> 
+    <v-row class="mt-0 px-4">
+      <v-col cols="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
+        <assetManagement-assetHistory :asset="updateItem" :view-type="assetHistoryViewType"
+          v-if="isAssetHistoryDrawerShow"></assetManagement-assetHistory>
       </v-col>
     </v-row>
-    <v-row class="justify-end mx-0 mt-8" :class="{'px-10': !isMobile, 'px-4': isMobile, 'mb-8': isMobile}">
-      <v-btn color="success" @click="doUiAction('updateItem')"
-        >保存
-      </v-btn>
-      <v-btn class="elevation-0 ml-2" @click="isEditDrawerShow = false">取消</v-btn>
-    </v-row>
-  </v-form>
-</v-navigation-drawer>
+  </v-navigation-drawer>
+
+  <v-navigation-drawer v-model="isUpdateDrawerShown" hide-overlay :permanent="isUpdateDrawerShown" app temporary right
+    width="50%" class="elevation-24">
+    <v-form v-model="isFormValid" v-if="isUpdateDrawerShown" ref="form" lazy-validation>
+      <v-row class="pt-8">
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ updateItem.goodName }}】修改</span>
+        <v-spacer></v-spacer>
+        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+          @click="isUpdateDrawerShown = false">
+          <v-icon dark>mdi-close</v-icon>
+        </v-btn>
+      </v-row>
+      <v-row class="mt-0 px-4">
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">仓库</span>
+          <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable v-model="updateItem.warehouseId"
+            :items="constantCollection.warehouse" item-text="warehouseName" item-value="warehouseId"
+            :rules="requireRules" @change="storeOfWarehouseSelectChange">
+          </v-autocomplete>
+        </v-col>
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">货架</span>
+          <v-select v-model="updateItem.stockId" :items="constantCollection.stock" :class="{'mr-2': !isMobile}"
+            hide-details dense filled single-line hide-no-data item-text="stockName" item-value="stockId"
+            :no-data-text="'没有数据'" />
+        </v-col>
+      </v-row>
+      <v-row class="justify-end mx-0 mt-8 px-6">
+        <v-btn color="success" @click="doUiAction('updateItem')">保存
+        </v-btn>
+        <v-btn class="elevation-0 ml-2" @click="isUpdateDrawerShown = false">取消</v-btn>
+      </v-row>
+    </v-form>
+  </v-navigation-drawer>
 
 </jh-layout-v3>
 
@@ -171,249 +153,249 @@
 {% include 'component/assetManagement-assetHistory.html' %}
 
 <script type="module">
-new Vue({
-  el: '#app',
-  template: '#app-template',
-  vuetify: new Vuetify(),
-  data: () => ({
-    // 表格相关数据
-    isFormValid: true,
-    requireRules: [
-      v => !!v || '必填',
-    ],
-    constantCollection: {
-      tableGroupBy: [
-        { text: '按仓库', value: 'warehouseId'},
-        { text: '按商品', value: 'goodId'},
-      ]
-    },
+  new Vue({
+    el: '#app',
+    template: '#app-template',
+    vuetify: new Vuetify(),
+    data: () => ({
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [
+        v => !!v || '必填',
+      ],
+      constantCollection: {
+        tableGroupBy: [
+          { text: '按仓库', value: 'warehouseId' },
+          { text: '按商品', value: 'goodId' },
+        ]
+      },
 
-    serverSearchInput: {
-      goodCategory: ['固定资产', '一般资产'],
-      warehouseId: null,
-      goodId: null,
-    },
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      {text: "资产编号", value: "assetId", width: 150, class: 'fixed', cellClass: 'fixed'}, 
-      {text: "商品名称", value: "goodName", width: 150, class: 'fixed', cellClass: 'fixed'}, 
-      {text: "仓库", value: "warehouseName", width: 150}, 
-      {text: "货架", value: "stockName", width: 120},
-      
-      {text: "资产状态", value: "assetOperation", width: 120}, 
-      {text: "资产操作人", value: "assetOperationUser", width: 120}, 
+      serverSearchInput: {
+        goodCategory: ['固定资产', '一般资产'],
+        warehouseId: null,
+        goodId: null,
+      },
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        { text: "资产编号", value: "assetId", width: 150, class: 'fixed', cellClass: 'fixed' },
+        { text: "商品名称", value: "goodName", width: 150, class: 'fixed', cellClass: 'fixed' },
+        { text: "仓库", value: "warehouseName", width: 150 },
+        { text: "货架", value: "stockName", width: 120 },
 
-      {text: "商品类型", value: "goodType", width: 120}, 
-      {text: "商品分类", value: "goodCategory", width: 120}, 
-      {text: "保质期", value: "expirationAt", width: 120}, 
-      {text: "入库时间", value: "storeAt", width: 260}, 
-      {text: "采购单", value: "purchaseOrderId", width: 150}, 
-      {text: "备注", value: "remark", width: 120}, 
-      // {text: "商品描述", value: "goodDesc", width: 150}, 
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'},
-    ],
-    editItem: {},
-    isEditDrawerShow: false,
-    isAssetHistoryDrawerShow: false,
+        { text: "资产状态", value: "assetOperation", width: 120 },
+        { text: "资产操作人", value: "assetOperationUser", width: 120 },
 
-    tableGroupBy: 'warehouseId',
-    assetHistoryViewType: null,
-  }),
-  computed: {
-    isMobile() {
-      return window.innerWidth < 600;
+        { text: "商品类型", value: "goodType", width: 120 },
+        { text: "商品分类", value: "goodCategory", width: 120 },
+        { text: "保质期", value: "expirationAt", width: 120 },
+        { text: "入库时间", value: "storeAt", width: 260 },
+        { text: "采购单", value: "purchaseOrderId", width: 150 },
+        { text: "备注", value: "remark", width: 120 },
+        // {text: "商品描述", value: "goodDesc", width: 150}, 
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
+      ],
+      updateItem: {},
+      isUpdateDrawerShown: false,
+      isAssetHistoryDrawerShow: false,
+
+      tableGroupBy: 'warehouseId',
+      assetHistoryViewType: null,
+    }),
+    computed: {
+      isMobile() {
+        return window.innerWidth < 600;
+      },
+      tableData() {
+        return this.tableDataFromBackend;
+      }
     },
-    tableData() {
-      return this.tableDataFromBackend;
+    watch: {},
+    async created() {
+      await this.doUiAction('initConstantCollection');
+      await this.doUiAction('refreshTableData');
+    },
+    mounted() { },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'initConstantCollection':
+            await this.selectGoodList();
+            await this.selectWarehouseList();
+            break;
+          case 'refreshTableData':
+            await this.refreshTableData();
+            break;
+          case 'openAssetHistoryDialog':
+            await this.openAssetHistoryDialog(uiActionData);
+            break;
+          case 'startUpdateItem':
+            await this.prepareUpdateItemData(uiActionData);
+            await this.openUpdateItemDialog();
+            break;
+          case 'updateItem':
+            await this.prepareValidate();
+            await this.confirmUpdateItemDialog();
+            await this.doUpdateItem();
+            await this.closeUpdateItemDialog();
+            await this.refreshTableData();
+            break;
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
+        }
+      },
+      // =================================uiAction 公共方法 start ======================================
+      /**
+       * uiActionId:  prepareValidate
+       * description: ✅表单校验
+      */
+      async prepareValidate() {
+        if (this.$refs.form.validate() === false) {
+          window.vtoast.fail({ message: "输入有误, 请检查!" });
+          throw new Error("[prepareValidate] false");
+        }
+      },
+
+      /**
+       * uiActionId:  refreshTableData
+       * description: ✅获取表格数据
+      */
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const where = {};
+        if (this.serverSearchInput.goodId) {
+          where.goodId = this.serverSearchInput.goodId;
+        }
+        if (this.serverSearchInput.warehouseId) {
+          where.warehouseId = this.serverSearchInput.warehouseId;
+        }
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'assetManagement',
+              actionId: 'selectItemList',
+              actionData: {},
+              where,
+              whereIn: {
+                goodCategory: this.serverSearchInput.goodCategory,
+              },
+              // whereOptions: [
+              //   ['storeCountOfConsume', '>', 0],
+              // ],
+              orderBy: [{ column: 'operationAt', order: 'desc' }]
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
+      },
+      async selectGoodList() {
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'assetManagement',
+              actionId: 'selectGoodList',
+              actionData: {},
+              whereIn: { goodCategory: this.serverSearchInput.goodCategory },
+              where: { rowStatus: '正常' },
+              orderBy: [{ column: 'goodName', order: 'desc' }]
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+        this.constantCollection.good = rows;
+      },
+      async selectWarehouseList() {
+        const warehouseList = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'assetManagement',
+              actionId: 'selectWarehouseList',
+              actionData: {},
+              where: { rowStatus: '正常' },
+              orderBy: [{ column: 'warehouseName', order: 'desc' }]
+            }
+          }
+        })).data.appData.resultData.rows;
+        const allStockList = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'assetManagement',
+              actionId: 'selectStockList',
+              actionData: {},
+              where: { rowStatus: '正常' },
+            }
+          }
+        })).data.appData.resultData.rows;
+        warehouseList.forEach(wh => {
+          wh.stockList = allStockList.filter(stock => wh.warehouseId === stock.warehouseId);
+        });
+        this.constantCollection.warehouse = warehouseList;
+      },
+      // =================================uiAction 公共方法 end ======================================
+      async openAssetHistoryDialog({ item, assetHistoryViewType }) {
+        this.updateItem = item;
+        this.isAssetHistoryDrawerShow = true;
+        this.assetHistoryViewType = assetHistoryViewType;
+      },
+      async storeOfWarehouseSelectChange(warehouseId) {
+        this.updateItem.stockId = null;
+        const wh = this.constantCollection.warehouse.find(wh => wh.warehouseId === warehouseId);
+        this.constantCollection.stock = wh.stockList;
+      },
+      async prepareUpdateItemData({ item }) {
+        this.storeOfWarehouseSelectChange(item.warehouseId);
+        this.updateItem = { ...item };
+      },
+      async openUpdateItemDialog() {
+        this.isUpdateDrawerShown = true;
+      },
+      async closeUpdateItemDialog() {
+        this.isUpdateDrawerShown = false;
+      },
+      async confirmUpdateItemDialog() {
+        if (await window.confirmDialog({ title: "修改", content: "确定修改吗？" }) === false) {
+          throw new Error("取消");
+        }
+      },
+      async doUpdateItem() {
+        await window.vtoast.loading("保存修改");
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'assetManagement',
+              actionId: 'updateItem',
+              actionData: {
+                warehouseId: this.updateItem.warehouseId,
+                stockId: this.updateItem.stockId,
+              },
+              where: { id: this.updateItem.id }
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+        window.vtoast.success({ message: "更新成功!" });
+      }
+
+
     }
-  },
-  watch: {},
-  async created() {
-    await this.doUiAction('initConstantCollection');
-    await this.doUiAction('refreshTableData');
-  },
-  mounted() {},
-  methods: {
-    async doUiAction(uiActionId, uiActionData) {
-      switch (uiActionId) {
-        case 'initConstantCollection':
-          await this.selectGoodList();
-          await this.selectWarehouseList();
-          break;
-        case 'refreshTableData':
-          await this.refreshTableData();
-          break;
-        case 'openAssetHistoryDialog':
-          await this.openAssetHistoryDialog(uiActionData);
-          break;
-        case 'startUpdateItem':
-          await this.prepareUpdateItemData(uiActionData);
-          await this.openUpdateItemDialog();
-          break;
-        case 'updateItem':
-          await this.prepareValidate();
-          await this.confirmUpdateItemDialog();
-          await this.doUpdateItem();
-          await this.closeUpdateItemDialog();
-          await this.refreshTableData();
-          break;
-        default:
-          console.error("[doUiAction] uiActionId not find", { uiActionId });
-          break;
-      }
-    },
-    // =================================uiAction 公共方法 start ======================================
-    /**
-     * uiActionId:  prepareValidate
-     * description: ✅表单校验
-    */
-    async prepareValidate() {
-      if (this.$refs.form.validate() === false) {
-        window.vtoast.fail({ message: "输入有误, 请检查!" });
-        throw new Error("[prepareValidate] false");
-      }
-    },
-
-    /**
-     * uiActionId:  refreshTableData
-     * description: ✅获取表格数据
-    */
-    async refreshTableData() {
-      this.isTableLoading = true;
-      const where = {};
-      if (this.serverSearchInput.goodId) {
-        where.goodId = this.serverSearchInput.goodId;
-      }
-      if (this.serverSearchInput.warehouseId) {
-        where.warehouseId = this.serverSearchInput.warehouseId;
-      }
-      const result = await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'assetManagement',
-            actionId: 'selectItemList',
-            actionData: {},
-            where,
-            whereIn: {
-              goodCategory: this.serverSearchInput.goodCategory,
-            },
-            // whereOptions: [
-            //   ['storeCountOfConsume', '>', 0],
-            // ],
-            orderBy: [{column: 'operationAt', order: 'desc'}]
-          }
-        }
-      });
-      const { rows } = result.data.appData.resultData;
-
-      this.tableDataFromBackend = rows;
-      this.isTableLoading = false;
-    },
-    async selectGoodList() {
-      const result = await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'assetManagement',
-            actionId: 'selectGoodList',
-            actionData: {},
-            whereIn: { goodCategory: this.serverSearchInput.goodCategory },
-            where: { rowStatus: '正常' },
-            orderBy: [{ column: 'goodName', order: 'desc' }]
-          }
-        }
-      });
-      const { rows } = result.data.appData.resultData;
-      this.constantCollection.good = rows;
-    },
-    async selectWarehouseList() {
-      const warehouseList = (await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'assetManagement',
-            actionId: 'selectWarehouseList',
-            actionData: {},
-            where: { rowStatus: '正常' },
-            orderBy: [{column: 'warehouseName', order: 'desc'}]
-          }
-        }
-      })).data.appData.resultData.rows;
-      const allStockList = (await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'assetManagement',
-            actionId: 'selectStockList',
-            actionData: {},
-            where: { rowStatus: '正常' },
-          }
-        }
-      })).data.appData.resultData.rows;
-      warehouseList.forEach(wh => {
-        wh.stockList = allStockList.filter(stock => wh.warehouseId === stock.warehouseId);
-      });
-      this.constantCollection.warehouse = warehouseList;
-    },
-    // =================================uiAction 公共方法 end ======================================
-    async openAssetHistoryDialog({ item, assetHistoryViewType }) {
-      this.editItem = item;
-      this.isAssetHistoryDrawerShow = true;
-      this.assetHistoryViewType = assetHistoryViewType;
-    },
-    async storeOfWarehouseSelectChange (warehouseId) {
-      this.editItem.stockId = null;
-      const wh = this.constantCollection.warehouse.find(wh => wh.warehouseId === warehouseId);
-      this.constantCollection.stock = wh.stockList;
-    },
-    async prepareUpdateItemData({item}) {
-      this.storeOfWarehouseSelectChange(item.warehouseId);
-      this.editItem = {...item};
-    },
-    async openUpdateItemDialog() {
-      this.isEditDrawerShow = true;
-    },
-    async closeUpdateItemDialog() {
-      this.isEditDrawerShow = false;
-    },
-    async confirmUpdateItemDialog() {
-      if (await window.confirmDialog({title: "修改", content: "确定修改吗？"}) === false) {
-        throw new Error("取消");
-      }
-    },
-    async doUpdateItem() {
-      await window.vtoast.loading("保存修改");
-      const result = await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'assetManagement',
-            actionId: 'updateItem',
-            actionData: {
-              warehouseId: this.editItem.warehouseId,
-              stockId: this.editItem.stockId,
-            },
-            where: {id: this.editItem.id}
-          }
-        }
-      });
-      const { rows } = result.data.appData.resultData;
-      window.vtoast.success({ message: "更新成功!" });
-    }
-
-    
-  }
-})
+  })
 </script>
 
 <style>
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 500px;
-}
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr>td:not(.v-data-table__mobile-row) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 500px;
+  }
 
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
-  cursor: pointer;
-}
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr {
+    cursor: pointer;
+  }
 </style>
 {% endblock %}

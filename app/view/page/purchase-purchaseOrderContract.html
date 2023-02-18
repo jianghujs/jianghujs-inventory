@@ -95,7 +95,7 @@
             <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">采购单详情</span>
           </v-row>
           <!-- 抽屉表单 -->
-          <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          <purchase-order-detail :purchase-order="updateItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
         </v-form>
 
         <!-- 抽屉关闭按钮 -->
@@ -169,7 +169,7 @@ new Vue({
     isHelpPageDrawerShown: false,
     // 表格相关数据
     isTableZebraLineShown: true,
-    editItem: {},
+    updateItem: {},
     searchInput: null,
     isTableLoading: true,
     tableDataFromBackend: [],
@@ -285,7 +285,7 @@ new Vue({
 
     // <!-- 查看详情 >>>>>>>>>>>>> -->
     async doViewDetail({ item }) {
-      this.editItem = { ...item, time: new Date() }
+      this.updateItem = { ...item, time: new Date() }
       this.isDetailDrawerShow = true
     },
     async closeDetailDrawer() {

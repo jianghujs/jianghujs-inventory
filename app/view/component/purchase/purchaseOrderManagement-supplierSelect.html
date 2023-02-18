@@ -3,41 +3,34 @@
     <v-card elevation="0" outlined>
       <v-data-table :headers="headers" :items="value" hide-default-footer
         class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
-        
+
         <template v-slot:item.good-id="{ item }">
-          <v-text-field class="cus-v-input mr-2" 
-            v-model="item.goodName"
-            dense filled single-line hide-details disabled="true"></v-text-field>
+          <v-text-field class="jh-v-input mr-2" v-model="item.goodName" dense filled single-line hide-details
+            disabled="true"></v-text-field>
         </template>
         <template v-slot:item.good-count="{ item }">
-          <v-text-field class="cus-v-input mr-2" dense filled single-line hide-details v-model.number="item.goodCount" type="number" disabled="true"></v-text-field>
+          <v-text-field class="jh-v-input mr-2" dense filled single-line hide-details v-model.number="item.goodCount"
+            type="number" disabled="true"></v-text-field>
         </template>
 
         <template v-slot:item.supplier-id="{ item }">
-          <v-autocomplete 
-            :loading="loadingSupplierListMapOfGoodId" 
-            class="cus-v-input mr-2" 
-            style="display: inline-block; width: 230px;"
-            dense filled single-line hide-details
-            clearable label="选择供应商" 
-            v-model="item.supplierId" 
-            :items="supplierListMapOfGoodId[item.goodId]" 
-            item-text="supplierName" item-value="supplierId" 
-            @change="(supplierId) => {
+          <v-autocomplete :loading="loadingSupplierListMapOfGoodId" class="jh-v-input mr-2"
+            style="display: inline-block; width: 230px;" dense filled single-line hide-details clearable label="选择供应商"
+            v-model="item.supplierId" :items="supplierListMapOfGoodId[item.goodId]" item-text="supplierName"
+            item-value="supplierId" @change="(supplierId) => {
               const supplier = supplierListMapOfGoodId[item.goodId].find(s => s.supplierId === supplierId);
               item.supplierId = supplier.supplierId;
               item.supplierName = supplier.supplierName;
             }">
           </v-autocomplete>
-          <v-btn v-if="item.supplierId" 
-            color="success" 
-            text small
+          <v-btn v-if="item.supplierId" color="success" text small
             @click="doUiAction('getGoodHistoryPriceList', { item })">
             报价历史
           </v-btn>
         </template>
         <template v-slot:item.good-price="{ item }">
-          <v-text-field class="cus-v-input mr-2" dense filled single-line hide-details v-model.number="item.goodPrice" type="number"></v-text-field>
+          <v-text-field class="jh-v-input mr-2" dense filled single-line hide-details v-model.number="item.goodPrice"
+            type="number"></v-text-field>
         </template>
         <template v-slot:item.good-category="{ item }">
           {{ item.goodCategory }}
@@ -54,13 +47,12 @@
     </v-card>
 
     <v-row justify="center">
-      <v-dialog v-model="goodHistoryPriceListShow" scrollable max-width="400px" >
+      <v-dialog v-model="goodHistoryPriceListShow" scrollable max-width="400px">
         <v-card>
           <v-card-title>
             <span class="title">报价历史</span>
             <v-spacer></v-spacer>
-            <v-btn fab x-small 
-              @click="goodHistoryPriceListShow = false;">
+            <v-btn fab x-small @click="goodHistoryPriceListShow = false;">
               <v-icon dark>mdi-close</v-icon>
             </v-btn>
           </v-card-title>
@@ -71,20 +63,21 @@
             <div style="height: 20px;"></div>
             <div v-if="loadingHistoryPrice">报价历史查询中</div>
             <div v-if="!loadingHistoryPrice && (!priceHistoryList || priceHistoryList.length === 0)">暂无报价历史</div>
-            <div v-for="priceItem in priceHistoryList">报价: {{priceItem.goodPrice}}  时间: {{ priceItem.operationAt && dayjs(priceItem.operationAt).format('YYYY-MM-DD HH:mm:ss') }}</div>
+            <div v-for="priceItem in priceHistoryList">报价: {{priceItem.goodPrice}} 时间: {{ priceItem.operationAt &&
+              dayjs(priceItem.operationAt).format('YYYY-MM-DD HH:mm:ss') }}</div>
           </v-card-text>
           <v-divider></v-divider>
         </v-card>
       </v-dialog>
     </v-row>
-   
+
   </v-container>
 </template>
 
 <script type="module">
   Vue.component("purchase-order-management-supplier-select", {
     template: '#purchase-order-management-supplier-select',
-    props: {  
+    props: {
       value: {
         type: Array,
         default: () => [],
@@ -111,7 +104,7 @@
       headers: [
         { text: "商品", value: "good-id", width: 170, class: 'fixed', cellClass: 'fixed' },
         { text: "供应商数", value: "supplier-count", width: 80 },
-        { text: "采购数量", value: "good-count", width: 80, class: 'fixed', cellClass: 'fixed'},
+        { text: "采购数量", value: "good-count", width: 80, class: 'fixed', cellClass: 'fixed' },
         { text: "商品分类", value: "good-category", width: 80 },
         { text: "单位", value: "goodUnit", width: 80 },
         { text: "库存", value: "storeCount", width: 80 },
@@ -133,7 +126,7 @@
       }
     },
     async created() {
-      
+
     },
     mounted() { },
     methods: {
@@ -155,18 +148,18 @@
       },
 
       async prepareValidate() {
-        const isWriteDone = this.value.every(item=> item.goodPrice || item.supplierId)
+        const isWriteDone = this.value.every(item => item.goodPrice || item.supplierId)
 
         if (!isWriteDone) {
           window.vtoast.fail({ message: "请填写完整报价信息!" });
           throw new Error("[prepareValidate] false");
         }
       },
-    
+
       async updateSupplierListToValue() {
         for (let i = 0; i < this.value.length; i++) {
           const purchaseOrderGood = this.value[i];
-          this.supplierListMapOfGoodId[purchaseOrderGood.goodId] = this.supplierList.filter(item=> item.goodId == purchaseOrderGood.goodId);
+          this.supplierListMapOfGoodId[purchaseOrderGood.goodId] = this.supplierList.filter(item => item.goodId == purchaseOrderGood.goodId);
         }
       },
       async doUpdateItem({ item }) {
@@ -177,18 +170,18 @@
         }
 
         await window.vtoast.loading("保存");
-        
+
         // 计算采购单价格
-        const purchaseOrderPrice = this.value.reduce((prev, next)=> prev + (next.goodPrice*next.goodCount), 0)
+        const purchaseOrderPrice = this.value.reduce((prev, next) => prev + (next.goodPrice * next.goodCount), 0)
         await window.jianghuAxios({
           data: {
             appData: {
               pageId: 'purchaseOrderManagement',
               actionId: 'supplierSelect-updateItem',
-              actionData: { 
-                purchaseOrderId, 
+              actionData: {
+                purchaseOrderId,
                 goodId,
-                supplierId, 
+                supplierId,
                 goodPrice,
                 purchaseOrderPrice
               }
@@ -199,7 +192,7 @@
       },
       async checkGoodExist(goodId, item) {
         return new Promise((resolve, reject) => {
-          if(this.value.filter(x => x.goodId == goodId).length > 1) {
+          if (this.value.filter(x => x.goodId == goodId).length > 1) {
             window.vtoast.fail("商品已存在");
             item.goodId = null;
             return
@@ -213,12 +206,12 @@
         const purchaseOrderId = this.value[0].purchaseOrderId
         const savePricePromise = []
 
-        this.value.map(item=> {
-          savePricePromise.push(this.doUpdateItem( { item }))
+        this.value.map(item => {
+          savePricePromise.push(this.doUpdateItem({ item }))
         })
 
         await Promise.all(savePricePromise)
-        
+
         await window.vtoast.success("提交报价成功");
       },
       async doPurchaseOrderApproval() {
@@ -252,7 +245,7 @@
                 goodId: item.goodId
               },
               limit: 10,
-              orderBy: [{column: 'operationAt', order: 'desc'}],
+              orderBy: [{ column: 'operationAt', order: 'desc' }],
               actionData: {}
             }
           }
@@ -271,9 +264,9 @@
   })
 </script>
 <style>
-.add-btn {
-  width: 100%;
-  margin-top: 5px;
-  padding: 5px;
-}
+  .add-btn {
+    width: 100%;
+    margin-top: 5px;
+    padding: 5px;
+  }
 </style>

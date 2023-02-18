@@ -1,4 +1,3 @@
-
 <template id="task-icreate-management-task-history">
   <div>
     <!-- 页面内容 >>>>>>>>>>>>> -->
@@ -12,37 +11,23 @@
         <v-spacer></v-spacer>
         <!-- 搜索 -->
         <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
-          <v-text-field v-model="searchInput" label="搜索：" class="cus-v-input" dense filled single-line></v-text-field>
+          <v-text-field v-model="searchInput" label="搜索：" class="jh-v-input" dense filled single-line></v-text-field>
         </v-col>
-        <v-btn
-          class="elevation-0 ml-2"
-          fab
-          dark
-          x-small
-          color="primary"
-          @click="doUiAction('refreshTableData')"
-        >
+        <v-btn class="elevation-0 ml-2" fab dark x-small color="primary" @click="doUiAction('refreshTableData')">
           <v-icon dark>
             mdi-cached
           </v-icon>
         </v-btn>
       </v-row>
       <!-- 表格 -->
-      <v-data-table fixed-header
-        :headers="headers"
-        :items="tableData"
-        height="350"
-        :search="searchInput"
+      <v-data-table fixed-header :headers="headers" :items="tableData" height="350" :search="searchInput"
         :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
-        :items-per-page="-1"
-        mobile-breakpoint="0"
-        :loading="isTableLoading"
-        checkbox-color="success"
+        :items-per-page="-1" mobile-breakpoint="0" :loading="isTableLoading" checkbox-color="success"
         class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
         <template v-slot:item.operation-at="{ item }">
           {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
         </template>
-      
+
         <!-- 没有数据 -->
         <template v-slot:loading>
           <div class="jh-no-data">数据加载中</div>
@@ -65,94 +50,94 @@
 </template>
 
 <script type="module">
-Vue.component('task-icreate-management-task-history', {
-  el: '#app',
-  template: '#task-icreate-management-task-history',
-  vuetify: new Vuetify(),
-  data: () => ({
-    // 表格相关数据
+  Vue.component('task-icreate-management-task-history', {
+    el: '#app',
+    template: '#task-icreate-management-task-history',
+    vuetify: new Vuetify(),
+    data: () => ({
+      // 表格相关数据
 
-    serverSearchInput: {
-      
-    },
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      {text: "名称", value: "taskTitle", width: 230, class: 'fixed', cellClass: 'fixed'},
-      // {text: "任务ID", value: "taskId", width: 120}, 
-      // {text: "节点ID", value: "taskConfigId", width: 200}, 
-      {text: "节点说明", value: "taskExplain", width: 200}, 
-      {text: "操作人", value: "operationByUser", width: 80}, 
-      {text: "操作描述", value: "taskHandleDesc", width: 120}, 
-      {text: "操作时间", value: "operation-at", width: 250},
-    ],
-    isEditDrawerShow: false,
-    editItem: {},
-    isAddDrawerShow: false,
-    addItem: {}
-  }),
-  computed: {
-    tableData() {
-      return this.tableDataFromBackend;
-    }
-  },
-  watch: {},
-  async created() {
-    await this.doUiAction('refreshTableData');
-  },
-  mounted() {},
-  methods: {
-    async doUiAction(uiActionId, uiActionData) {
-      switch (uiActionId) {
-        case 'refreshTableData':
-          await this.refreshTableData();
-          break;
-        default:
-          console.error("[doUiAction] uiActionId not find", { uiActionId });
-          break;
+      serverSearchInput: {
+
+      },
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        { text: "名称", value: "taskTitle", width: 230, class: 'fixed', cellClass: 'fixed' },
+        // {text: "任务ID", value: "taskId", width: 120}, 
+        // {text: "节点ID", value: "taskConfigId", width: 200}, 
+        { text: "节点说明", value: "taskExplain", width: 200 },
+        { text: "操作人", value: "operationByUser", width: 80 },
+        { text: "操作描述", value: "taskHandleDesc", width: 120 },
+        { text: "操作时间", value: "operation-at", width: 250 },
+      ],
+      isUpdateDrawerShown: false,
+      updateItem: {},
+      isCreateDrawerShown: false,
+      addItem: {}
+    }),
+    computed: {
+      tableData() {
+        return this.tableDataFromBackend;
       }
     },
-    async prepareValidate() {
-      if (this.$refs.form.validate() === false) {
-        window.vtoast.fail({ message: "输入有误, 请检查!" });
-        throw new Error("[prepareValidate] false");
-      }
+    watch: {},
+    async created() {
+      await this.doUiAction('refreshTableData');
     },
-    async refreshTableData() {
-      this.isTableLoading = true;
-      const serverSearchInput = _.pickBy(this.serverSearchInput, value=> !!value);
-      const result = await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'taskICreateManagement',
-            actionId: 'selectTaskHistoryList',
-            actionData: {},
-            where: {},
-            whereLike: {},
-            whereIn: serverSearchInput,
-            orderBy: [{column: 'operationAt', order: 'desc'}]
-          }
+    mounted() { },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'refreshTableData':
+            await this.refreshTableData();
+            break;
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
         }
-      });
-      const { rows } = result.data.appData.resultData;
+      },
+      async prepareValidate() {
+        if (this.$refs.form.validate() === false) {
+          window.vtoast.fail({ message: "输入有误, 请检查!" });
+          throw new Error("[prepareValidate] false");
+        }
+      },
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const serverSearchInput = _.pickBy(this.serverSearchInput, value => !!value);
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'taskICreateManagement',
+              actionId: 'selectTaskHistoryList',
+              actionData: {},
+              where: {},
+              whereLike: {},
+              whereIn: serverSearchInput,
+              orderBy: [{ column: 'operationAt', order: 'desc' }]
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
 
-      this.tableDataFromBackend = rows;
-      this.isTableLoading = false;
-    },
-  }
-})
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
+      },
+    }
+  })
 </script>
 
 <style>
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr > td:not(.v-data-table__mobile-row) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 500px;
-}
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr>td:not(.v-data-table__mobile-row) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 500px;
+  }
 
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr {
-  cursor: pointer;
-}
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr {
+    cursor: pointer;
+  }
 </style>

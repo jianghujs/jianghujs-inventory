@@ -169,7 +169,7 @@
             <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">采购单详情</span>
           </v-row>
           <purchase-order-detail 
-          :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          :purchase-order="updateItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
           <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isDetailDrawerShown = false">
             <v-icon>mdi-close</v-icon>
@@ -275,7 +275,7 @@ new Vue({
     inputGoodPriceItem: { goodList: []},
     isInputGoodPriceDrawerShow: false,
     isInputGoodPriceDrawerLoading: false,
-    editItem: {},
+    updateItem: {},
     goodList: [],
     supplierList: [],
     isDetailDrawerShown: false,
@@ -505,7 +505,7 @@ new Vue({
       await this.$refs.purchaseOrderSupplier.doPurchaseOrderApproval()
     },
     async doViewDetail({ item }) {
-      this.editItem = { ...item, time: new Date() }
+      this.updateItem = { ...item, time: new Date() }
       this.isDetailDrawerShown = true
     },
     async closeDetailDrawer() {

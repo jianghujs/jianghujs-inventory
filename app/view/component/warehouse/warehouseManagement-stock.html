@@ -1,136 +1,142 @@
-<template id="warehouseManagement-stock"> 
+<template id="warehouseManagement-stock">
   <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
 
-    <v-row class="outSideMain ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}" style="justify-content: end">
+    <v-row class="outSideMain ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
+      style="justify-content: end">
       <v-col cols="12" sm="10" xs="8" md="5" xl="2" class="pb-3" :class="{'pt-0': isMobile}">
-        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event"/>
+        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
       </v-col>
       <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
-        <v-btn
-          class="elevation-0"
-          color="success"
-          dark
-          @click="doUiAction('refreshTableData')"
-        >
+        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')">
           查询
         </v-btn>
       </v-col>
     </v-row>
 
     <v-card>
-      <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-  
-        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+      <v-row class="ma-0 pa-4"
+        >
+
+        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
           <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">仓库-新增货架</v-btn>
           <span class="body-2">共{{ tableData.length }}条记录</span>
         </v-col>
-  
+
         <v-spacer></v-spacer>
-  
-        <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
-          <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
+
+        <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+          <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
         </v-col>
       </v-row>
-      <v-data-table fixed-header
-                    :headers="headers"
-                    :items="tableData"
-                    :search="searchInput"
-                    :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
-                    :items-per-page="100"
-                    mobile-breakpoint="0"
-                    :loading="isTableLoading"
-                    checkbox-color="success"
-                    class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+      <v-data-table fixed-header :headers="headers" :items="tableData" :search="searchInput"
+        :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" :items-per-page="50" mobile-breakpoint="0"
+        :loading="isTableLoading" checkbox-color="success"
+        class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
         <template v-slot:item.action="{ item }">
-          <v-btn small class=" success" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
-          <row-status-switch-button :value="item.rowStatus" @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })"/>
+          <span
+              role="button" class="success--text font-weight-medium font-size-2 mr-2"
+              @click="doUiAction('startUpdateItem', {item})">
+              <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
+            </span>
+          <row-status-switch-button :value="item.rowStatus"
+            @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })" />
         </template>
       </v-data-table>
     </v-card>
 
     <!-- 新增 -->
-    <v-navigation-drawer v-model="isAddDrawerShow" :permanent="isAddDrawerShow" fixed temporary right width="80%" class="elevation-24">
-      <v-form v-model="isFormValid" v-if="isAddDrawerShow" ref="form" lazy-validation>
+    <v-navigation-drawer v-model="isCreateDrawerShown" :permanent="isCreateDrawerShown" fixed temporary right width="80%"
+      class="elevation-24">
+      <v-form v-model="isFormValid" v-if="isCreateDrawerShown" ref="form" lazy-validation>
         <v-row class="pt-8">
-          <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">{{ warehouseName && `【${warehouseName}】-` }}新增货架</span>
+          <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">{{ warehouseName &&
+            `【${warehouseName}】-` }}新增货架</span>
           <v-spacer></v-spacer>
-          <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isAddDrawerShow = false">
+          <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+            @click="isCreateDrawerShown = false">
             <v-icon dark>mdi-close</v-icon>
           </v-btn>
         </v-row>
-        <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-           
+        <v-row class="mt-0 px-4">
+
           <!-- <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-            <span class="inputLabel">货架Id<font>(注意:编号一旦设置无法更改)</font></span>
-            <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['stockId']"></v-text-field>
+            <span class="jh-input-label">货架Id<font>(注意:编号一旦设置无法更改)</font></span>
+            <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['stockId']"></v-text-field>
           </v-col> -->
-           
+
           <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-            <span class="inputLabel">货架名</span>
-            <v-text-field class="cus-v-input " dense filled single-line v-model="addItem['stockName']" :rules="requireRules"></v-text-field>
+            <span class="jh-input-label">货架名</span>
+            <v-text-field class="jh-v-input " dense filled single-line v-model="addItem['stockName']"
+              :rules="requireRules"></v-text-field>
           </v-col>
-           
-          <v-col cols="12" sm="12" md="12" xl="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-            <span class="inputLabel">备注</span>
-            <v-textarea class="cus-v-input " dense filled single-line v-model="addItem['remark']"></v-textarea>
+
+          <v-col cols="12" sm="12" md="4">
+            <span class="jh-input-label">备注</span>
+            <v-textarea class="jh-v-input " dense filled single-line v-model="addItem['remark']"></v-textarea>
           </v-col>
-           
+
         </v-row>
         <v-row class="justify-end pr-6">
-          <v-btn color="success" @click="doUiAction('createItem')" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">新增</v-btn>
-          <v-btn class="ml-2" @click="isAddDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
+          <v-btn color="success" @click="doUiAction('createItem')"
+            :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
+            :class="{'mb-2': isMobile, 'mr-4': isMobile}">新增</v-btn>
+          <v-btn class="ml-2" @click="isCreateDrawerShown = false"
+            :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
         </v-row>
       </v-form>
     </v-navigation-drawer>
 
 
     <!-- 编辑抽屉 -->
-    <v-navigation-drawer v-model="isEditDrawerShow" :permanent="isEditDrawerShow" fixed temporary right width="80%" class="elevation-24">
-      <v-form v-model="isFormValid" v-if="isEditDrawerShow" ref="form" lazy-validation>
+    <v-navigation-drawer v-model="isUpdateDrawerShown" :permanent="isUpdateDrawerShown" fixed temporary right width="80%"
+      class="elevation-24">
+      <v-form v-model="isFormValid" v-if="isUpdateDrawerShown" ref="form" lazy-validation>
         <v-row class="pt-8">
           <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">【{{ warehouseName }}】-编辑货架信息</span>
           <v-spacer></v-spacer>
-          <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small @click="isEditDrawerShow = false">
+          <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+            @click="isUpdateDrawerShown = false">
             <v-icon dark>mdi-close</v-icon>
           </v-btn>
         </v-row>
-        <v-row :class="{'px-10': !isMobile, 'px-3': isMobile, 'pb-7': isMobile}">
-           
-    
+        <v-row class="mt-0 px-4">
+
+
           <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-            <span class="inputLabel">货架名</span>
-            <v-text-field class="cus-v-input " dense filled single-line v-model="editItem['stockName']" :rules="requireRules"></v-text-field>
+            <span class="jh-input-label">货架名</span>
+            <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['stockName']"
+              :rules="requireRules"></v-text-field>
           </v-col>
-           
-          <v-col cols="12" sm="12" md="12" xl="12" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}">
-            <span class="inputLabel">备注</span>
-            <v-textarea class="cus-v-input " dense filled single-line v-model="editItem['remark']"></v-textarea>
+
+          <v-col cols="12" sm="12" md="4">
+            <span class="jh-input-label">备注</span>
+            <v-textarea class="jh-v-input " dense filled single-line v-model="updateItem['remark']"></v-textarea>
           </v-col>
-           
-    <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
-    <!--        &lt;!&ndash; 必填字段样式 demo :rules="requireRules" &ndash;&gt; -->
-    <!--            <span class="inputLabel">学生ID</span> -->
-    <!--        <v-text-field class="cus-v-input " dense filled single-line label="学生ID" v-model="editItem.studentId" :rules="requireRules"></v-text-field> -->
-    <!--      </v-col> -->
-    <!--      &lt;!&ndash; select 字段 demo &ndash;&gt; -->
-    <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
-    <!--            <span class="inputLabel">班级ID</span> -->
-    <!--        <v-select class="cus-v-input " dense filled single-line clearable label="班级ID" v-model="editItem.classId" :items="constantCollection.classId"></v-select> -->
-    <!--      </v-col> -->
-    <!--      &lt;!&ndash; 日期选择 demo &ndash;&gt; -->
-    <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
-    <!--        <span class="inputLabel">出生日期</span> -->
-    <!--        <v-menu class="cus-v-input " offset-y max-width="290"> -->
-    <!--          <template v-slot:activator="{ on, attrs }"> -->
-    <!--            <v-text-field class="cus-v-input " dense filled single-line v-on="on" label="出生日期" v-model="editItem.dateOfBirth"></v-text-field> -->
-    <!--          </template> -->
-    <!--          <v-date-picker color="success" elevation="20" v-model="editItem.dateOfBirth"></v-date-picker> -->
-    <!--        </v-menu> -->
-    <!--      </v-col> -->
+
+          <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+          <!--        &lt;!&ndash; 必填字段样式 demo :rules="requireRules" &ndash;&gt; -->
+          <!--            <span class="jh-input-label">学生ID</span> -->
+          <!--        <v-text-field class="jh-v-input " dense filled single-line label="学生ID" v-model="updateItem.studentId" :rules="requireRules"></v-text-field> -->
+          <!--      </v-col> -->
+          <!--      &lt;!&ndash; select 字段 demo &ndash;&gt; -->
+          <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+          <!--            <span class="jh-input-label">班级ID</span> -->
+          <!--        <v-select class="jh-v-input " dense filled single-line clearable label="班级ID" v-model="updateItem.classId" :items="constantCollection.classId"></v-select> -->
+          <!--      </v-col> -->
+          <!--      &lt;!&ndash; 日期选择 demo &ndash;&gt; -->
+          <!--      <v-col cols="12" sm="12" md="4" xl="3" :class="{'pa-0': isMobile, 'px-4': isMobile, 'pt-6': isMobile}"> -->
+          <!--        <span class="jh-input-label">出生日期</span> -->
+          <!--        <v-menu class="jh-v-input " offset-y max-width="290"> -->
+          <!--          <template v-slot:activator="{ on, attrs }"> -->
+          <!--            <v-text-field class="jh-v-input " dense filled single-line v-on="on" label="出生日期" v-model="updateItem.dateOfBirth"></v-text-field> -->
+          <!--          </template> -->
+          <!--          <v-date-picker color="success" elevation="20" v-model="updateItem.dateOfBirth"></v-date-picker> -->
+          <!--        </v-menu> -->
+          <!--      </v-col> -->
         </v-row>
-        <v-row class="justify-end mx-0 mt-8" :class="{'px-10': !isMobile, 'px-4': isMobile, 'mb-8': isMobile}">
+        <v-row class="justify-end mx-0 mt-8 px-6">
           <v-btn color="success" @click="doUiAction('updateItem')">保存</v-btn>
-          <v-btn class="ml-2" @click="isEditDrawerShow = false">取消</v-btn>
+          <v-btn class="ml-2" @click="isUpdateDrawerShown = false">取消</v-btn>
         </v-row>
       </v-form>
     </v-navigation-drawer>
@@ -138,263 +144,263 @@
 </template>
 
 <script type="module">
-Vue.component("warehouseManagement-stock", {
-  template: '#warehouseManagement-stock',
-  props: ['warehouseId', 'warehouseName'],
-  vuetify: new Vuetify(),
-  data: () => ({
-    // 表格相关数据
-    isFormValid: true,
-    requireRules: [
-      v => !!v || '必填',
-    ],
-    constantCollection: {
-    },
+  Vue.component("warehouseManagement-stock", {
+    template: '#warehouseManagement-stock',
+    props: ['warehouseId', 'warehouseName'],
+    vuetify: new Vuetify(),
+    data: () => ({
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [
+        v => !!v || '必填',
+      ],
+      constantCollection: {
+      },
 
-    searchInput: null,
-    serverSearchInput: {
-      rowStatus: ['正常'],
-    },
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
-       
-      {text: "货架Id", value: "stockId", width: 120, class: 'fixed', cellClass: 'fixed'}, 
-      {text: "货架名", value: "stockName", width: 120, class: 'fixed', cellClass: 'fixed'}, 
-      // {text: "仓库编号", value: "warehouseId", width: 120}, 
-      {text: "备注", value: "remark", width: 120}, 
-      {text: "操作者", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'},
-    ],
-    isEditDrawerShow: false,
-    editItem: {},
-    isAddDrawerShow: false,
-    addItem: {}
-  }),
-  computed: {
-    isMobile() {
-      return window.innerWidth < 600;
-    },
-    tableData() {
-      return this.tableDataFromBackend;
-    }
-  },
-  watch: {
-     warehouseId() {
-       this.doUiAction('refreshTableData');
-     },
-  },
-  async created() {
-    await this.doUiAction('refreshTableData');
-  },
-  mounted() {},
-  methods: {
-    async doUiAction(uiActionId, uiActionData) {
-      switch (uiActionId) {
-        case 'refreshTableData':
-          await this.refreshTableData();
-          break;
-        case 'startCreateItem':
-          await this.clearItemData();
-          await this.openCreateItemDialog();
-          break;
-        case 'createItem':
-          await this.prepareValidate();
-          await this.confirmCreateItemDialog();
-          await this.doCreateItem();
-          await this.closeDrawerShow();
-          await this.refreshTableData();
-          break;
-        case 'startUpdateItem':
-          await this.prepareItemData(uiActionData);
-          await this.openUpdateDialog();
-          break;
-        case 'updateItem':
-          await this.prepareValidate();
-          await this.confirmUpdateItemDialog();
-          await this.doUpdateItem();
-          await this.closeDrawerShow();
-          await this.refreshTableData();
-          break;
-        case 'deleteItem':
-          await this.confirmDeleteItemDialog();
-          await this.doDeleteItem(uiActionData);
-          await this.refreshTableData();
-          break;
-        case 'rowStatusChange':
-          await this.rowStatusChange(uiActionData);
-          await this.refreshTableData();
-          break;    
-        default:
-          console.error("[doUiAction] uiActionId not find", { uiActionId });
-          break;
+      searchInput: null,
+      serverSearchInput: {
+        rowStatus: ['正常'],
+      },
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
+
+        { text: "货架Id", value: "stockId", width: 120, class: 'fixed', cellClass: 'fixed' },
+        { text: "货架名", value: "stockName", width: 120, class: 'fixed', cellClass: 'fixed' },
+        // {text: "仓库编号", value: "warehouseId", width: 120}, 
+        { text: "备注", value: "remark", width: 120 },
+        { text: "操作者", value: "operationByUser", width: 120 },
+        { text: "操作时间", value: "operationAt", width: 250 },
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
+      ],
+      isUpdateDrawerShown: false,
+      updateItem: {},
+      isCreateDrawerShown: false,
+      addItem: {}
+    }),
+    computed: {
+      isMobile() {
+        return window.innerWidth < 600;
+      },
+      tableData() {
+        return this.tableDataFromBackend;
       }
     },
-    // =================================uiAction 公共方法 start ======================================
-    /**
-     * uiActionId:  prepareValidate
-     * description: ✅表单校验
-    */
-    async prepareValidate() {
-      if (this.$refs.form.validate() === false) {
-        window.vtoast.fail({ message: "输入有误, 请检查!" });
-        throw new Error("[prepareValidate] false");
-      }
+    watch: {
+      warehouseId() {
+        this.doUiAction('refreshTableData');
+      },
     },
-
-    /**
-     * uiActionId:  refreshTableData
-     * description: ✅获取表格数据
-    */
-    async refreshTableData() {
-      this.isTableLoading = true;
-      const result = await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'warehouseManagement',
-            actionId: 'stock-selectItemList',
-            actionData: {},
-            where: {
-               warehouseId: this.warehouseId
-            },
-            whereIn: { rowStatus: this.serverSearchInput.rowStatus },
-            orderBy: [{column: 'stockName', order: 'asc'}]
-          }
+    async created() {
+      await this.doUiAction('refreshTableData');
+    },
+    mounted() { },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'refreshTableData':
+            await this.refreshTableData();
+            break;
+          case 'startCreateItem':
+            await this.clearItemData();
+            await this.openCreateItemDialog();
+            break;
+          case 'createItem':
+            await this.prepareValidate();
+            await this.confirmCreateItemDialog();
+            await this.doCreateItem();
+            await this.closeDrawerShow();
+            await this.refreshTableData();
+            break;
+          case 'startUpdateItem':
+            await this.prepareItemData(uiActionData);
+            await this.openUpdateDialog();
+            break;
+          case 'updateItem':
+            await this.prepareValidate();
+            await this.confirmUpdateItemDialog();
+            await this.doUpdateItem();
+            await this.closeDrawerShow();
+            await this.refreshTableData();
+            break;
+          case 'deleteItem':
+            await this.confirmDeleteItemDialog();
+            await this.doDeleteItem(uiActionData);
+            await this.refreshTableData();
+            break;
+          case 'rowStatusChange':
+            await this.rowStatusChange(uiActionData);
+            await this.refreshTableData();
+            break;
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
         }
-      });
-      const { rows } = result.data.appData.resultData;
+      },
+      // =================================uiAction 公共方法 start ======================================
+      /**
+       * uiActionId:  prepareValidate
+       * description: ✅表单校验
+      */
+      async prepareValidate() {
+        if (this.$refs.form.validate() === false) {
+          window.vtoast.fail({ message: "输入有误, 请检查!" });
+          throw new Error("[prepareValidate] false");
+        }
+      },
 
-      this.tableDataFromBackend = rows;
-      this.isTableLoading = false;
-    },
-    // =================================uiAction 公共方法 end ======================================
-
-
-    /**
-     * uiActionId:  startCreateItem
-     * description: ✅获取表格数据
-    */
-    async clearItemData() {
-      this.addItem = {};
-    },
-    async openCreateItemDialog() {
-      this.isAddDrawerShow = true;
-    },
-
-    /**
-     * uiActionId:  createItem
-     * description: ✅获取表格数据
-    */
-    async confirmCreateItemDialog() {
-      if (await window.confirmDialog({title: "新增", content: "确定新增吗？"}) === false) {
-        throw new Error("取消");
-      }
-    },
-    async doCreateItem() {
-      const { id, ...data } = this.addItem;
-      data.warehouseId = this.warehouseId;
-      await window.vtoast.loading("新增数据");
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'warehouseManagement',
-            actionId: 'stock-insertItem',
-            actionData: data,
-            idGenerate: {
-              type: 'idSequence',
-              prefix: 'HJ',
-              bizId: 'stockId',
-              tableName: 'stock',
+      /**
+       * uiActionId:  refreshTableData
+       * description: ✅获取表格数据
+      */
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouseManagement',
+              actionId: 'stock-selectItemList',
+              actionData: {},
+              where: {
+                warehouseId: this.warehouseId
+              },
+              whereIn: { rowStatus: this.serverSearchInput.rowStatus },
+              orderBy: [{ column: 'stockName', order: 'asc' }]
             }
           }
-        }
-      })
-      await window.vtoast.success("新增数据成功");
-    },
-    async closeDrawerShow() {
-      this.isEditDrawerShow = false;
-      this.isAddDrawerShow = false;
-    },
+        });
+        const { rows } = result.data.appData.resultData;
 
-    /**
-     * uiActionId:  startUpdateItem
-     * description: ✅获取表格数据
-    */
-    async prepareItemData({item}) {
-      this.editItem = {...item};
-    },
-    async openUpdateDialog() {
-      this.isEditDrawerShow = true;
-    },
-    /**
-     * uiActionId:  updateItem
-     * description: ✅获取表格数据
-    */
-    async confirmUpdateItemDialog() {
-      if (await window.confirmDialog({title: "修改", content: "确定修改吗？"}) === false) {
-        throw new Error("取消");
-      }
-    },
-    async doUpdateItem() {
-      const { id, ...data } = this.editItem;
-      await window.vtoast.loading("修改数据");
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'warehouseManagement',
-            actionId: 'stock-updateItem',
-            actionData: data,
-            where: { id }
-          }
-        }
-      })
-      await window.vtoast.success("修改数据成功");
-    },
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
+      },
+      // =================================uiAction 公共方法 end ======================================
 
-    /**
-     * uiActionId:  deleteItem
-     * description: ✅获取表格数据
-    */
-    async confirmDeleteItemDialog() {
-      if (await window.confirmDialog({title: "删除", content: "确定删除吗？"}) === false) {
-        throw new Error("取消");
-      }
-    },
-    async doDeleteItem({item}) {
-      const { id } = item;
-      await window.vtoast.loading("删除数据");
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'warehouseManagement',
-            actionId: 'stock-deleteItem',
-            actionData: {},
-            where: { id: id }
-          }
+
+      /**
+       * uiActionId:  startCreateItem
+       * description: ✅获取表格数据
+      */
+      async clearItemData() {
+        this.addItem = {};
+      },
+      async openCreateItemDialog() {
+        this.isCreateDrawerShown = true;
+      },
+
+      /**
+       * uiActionId:  createItem
+       * description: ✅获取表格数据
+      */
+      async confirmCreateItemDialog() {
+        if (await window.confirmDialog({ title: "新增", content: "确定新增吗？" }) === false) {
+          throw new Error("取消");
         }
-      });
-      await window.vtoast.success("删除数据成功");
-    },
-    async rowStatusChange({ item, rowStatus }) {
-      if (await window.confirmDialog({title: "数据状态", content: `确定将数据修改为【${rowStatus}】吗？`}) === false) {
-        throw new Error("rowStatus 取消");
-      }
-      await window.vtoast.loading("修改数据状态");
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'warehouseManagement',
-            actionId: 'stock-updateItem',
-            actionData: { rowStatus },
-            where: { id: item.id }
+      },
+      async doCreateItem() {
+        const { id, ...data } = this.addItem;
+        data.warehouseId = this.warehouseId;
+        await window.vtoast.loading("新增数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouseManagement',
+              actionId: 'stock-insertItem',
+              actionData: data,
+              idGenerate: {
+                type: 'idSequence',
+                prefix: 'HJ',
+                bizId: 'stockId',
+                tableName: 'stock',
+              }
+            }
           }
+        })
+        await window.vtoast.success("新增数据成功");
+      },
+      async closeDrawerShow() {
+        this.isUpdateDrawerShown = false;
+        this.isCreateDrawerShown = false;
+      },
+
+      /**
+       * uiActionId:  startUpdateItem
+       * description: ✅获取表格数据
+      */
+      async prepareItemData({ item }) {
+        this.updateItem = { ...item };
+      },
+      async openUpdateDialog() {
+        this.isUpdateDrawerShown = true;
+      },
+      /**
+       * uiActionId:  updateItem
+       * description: ✅获取表格数据
+      */
+      async confirmUpdateItemDialog() {
+        if (await window.confirmDialog({ title: "修改", content: "确定修改吗？" }) === false) {
+          throw new Error("取消");
         }
-      });
-      item.rowStatus = rowStatus;
-      await window.vtoast.success("修改数据状态成功");
+      },
+      async doUpdateItem() {
+        const { id, ...data } = this.updateItem;
+        await window.vtoast.loading("修改数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouseManagement',
+              actionId: 'stock-updateItem',
+              actionData: data,
+              where: { id }
+            }
+          }
+        })
+        await window.vtoast.success("修改数据成功");
+      },
+
+      /**
+       * uiActionId:  deleteItem
+       * description: ✅获取表格数据
+      */
+      async confirmDeleteItemDialog() {
+        if (await window.confirmDialog({ title: "删除", content: "确定删除吗？" }) === false) {
+          throw new Error("取消");
+        }
+      },
+      async doDeleteItem({ item }) {
+        const { id } = item;
+        await window.vtoast.loading("删除数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouseManagement',
+              actionId: 'stock-deleteItem',
+              actionData: {},
+              where: { id: id }
+            }
+          }
+        });
+        await window.vtoast.success("删除数据成功");
+      },
+      async rowStatusChange({ item, rowStatus }) {
+        if (await window.confirmDialog({ title: "数据状态", content: `确定将数据修改为【${rowStatus}】吗？` }) === false) {
+          throw new Error("rowStatus 取消");
+        }
+        await window.vtoast.loading("修改数据状态");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouseManagement',
+              actionId: 'stock-updateItem',
+              actionData: { rowStatus },
+              where: { id: item.id }
+            }
+          }
+        });
+        item.rowStatus = rowStatus;
+        await window.vtoast.success("修改数据状态成功");
+      }
     }
-  }
-})
+  })
 </script>

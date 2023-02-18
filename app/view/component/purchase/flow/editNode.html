@@ -21,21 +21,21 @@
   <v-form v-model="isFormValid" ref="dataForm" lazy-validation>
     <v-row class="px-2" :class="{'pb-7': isMobile}">
       <v-col cols="12" class=" pb-3">
-        <span class="inputLabel">GUID</span>
-        <v-text-field class="cus-v-input" dense filled single-line disabled label="GUID" v-model="node.id"></v-text-field>
+        <span class="jh-input-label">GUID</span>
+        <v-text-field class="jh-v-input" dense filled single-line disabled label="GUID" v-model="node.id"></v-text-field>
       </v-col>
       <v-col cols="12" class=" pb-3">
-        <span class="inputLabel">名称</span>
-        <v-text-field class="cus-v-input" dense filled single-line label="名称" v-model="node.label"></v-text-field>
+        <span class="jh-input-label">名称</span>
+        <v-text-field class="jh-v-input" dense filled single-line label="名称" v-model="node.label"></v-text-field>
       </v-col>
       <v-col cols="12" class=" pb-3">
-        <span class="inputLabel">备注说明</span>
-        <v-text-field class="cus-v-input" dense filled single-line label="备注说明" v-model="node.Remark"></v-text-field>
+        <span class="jh-input-label">备注说明</span>
+        <v-text-field class="jh-v-input" dense filled single-line label="备注说明" v-model="node.Remark"></v-text-field>
       </v-col>
       <template v-if="!node.id.includes('start-') && !node.id.includes('end-')">
 
         <!-- <v-col cols="12" class=" pb-3">
-          <span class="inputLabel">指派类型</span>
+          <span class="jh-input-label">指派类型</span>
   
           <v-select
             :items="assignTypeList"
@@ -44,16 +44,16 @@
             color="success"
             item-color="success"
             item-value="value"
-            class="cus-v-input"
+            class="jh-v-input"
             label="指派类型"
             v-model="node.assignType"
           ></v-select>
         </v-col>
       -->
         <v-col cols="12" class=" pb-3">
-          <span class="inputLabel">指派</span>
+          <span class="jh-input-label">指派</span>
           <v-autocomplete 
-              class="cus-v-input mr-2" 
+              class="jh-v-input mr-2" 
               dense filled single-line clearable
               :items="optionList" 
               item-text="text" 
@@ -65,7 +65,7 @@
           </v-autocomplete>
         </v-col>
         <v-col cols="12" class=" pb-3" v-if="mode == 'serial'">
-          <span class="inputLabel">允许的操作（英文逗号分隔）</span>
+          <span class="jh-input-label">允许的操作（英文逗号分隔）</span>
           <!-- <v-textarea
             filled single-line
             name="input-7-4"
@@ -74,10 +74,10 @@
             rows="3"
             hide-details
           ></v-textarea> -->
-          <v-text-field class="cus-v-input" dense filled single-line label="允许的操作（英文逗号分隔）" v-model="node.lineTypeList"></v-text-field>
+          <v-text-field class="jh-v-input" dense filled single-line label="允许的操作（英文逗号分隔）" v-model="node.lineTypeList"></v-text-field>
         </v-col>
         <!-- <v-col cols="12" class=" pb-3" >
-          <span class="inputLabel">可写模板</span>
+          <span class="jh-input-label">可写模板</span>
           <v-select
             :items="tpl"
             dense filled single-line
@@ -85,14 +85,14 @@
             color="success"
             item-color="success"
             item-value="value"
-            class="cus-v-input"
+            class="jh-v-input"
             label="可写模板"
             multiple
             v-model="node.formId"
           ></v-select>
         </v-col>
         <v-col cols="12" class=" pb-3" >
-          <span class="inputLabel">隐藏模板</span>
+          <span class="jh-input-label">隐藏模板</span>
           <v-select
             :items="tpl"
             dense filled single-line
@@ -100,7 +100,7 @@
             item-value="value"
             color="success"
             item-color="success"
-            class="cus-v-input"
+            class="jh-v-input"
             label="隐藏模板"
             multiple
             v-model="node.formIdHidden"
@@ -109,12 +109,12 @@
       </template>
       <template v-if="node.id.includes('end-')">
         <v-col cols="12" class=" pb-3">
-          <span class="inputLabel">流程完成Hook</span>
-          <v-text-field class="cus-v-input mr-2" dense filled single-line label="流程完成Hook" v-model="node.finishHook"></v-text-field>
+          <span class="jh-input-label">流程完成Hook</span>
+          <v-text-field class="jh-v-input mr-2" dense filled single-line label="流程完成Hook" v-model="node.finishHook"></v-text-field>
         </v-col>
         <v-col cols="12" class=" pb-3">
-          <span class="inputLabel">流程中断Hook</span>
-          <v-text-field class="cus-v-input mr-2" dense filled single-line label="流程中断Hook" v-model="node.interruptHook"></v-text-field>
+          <span class="jh-input-label">流程中断Hook</span>
+          <v-text-field class="jh-v-input mr-2" dense filled single-line label="流程中断Hook" v-model="node.interruptHook"></v-text-field>
         </v-col>
       </template>
     </v-row>

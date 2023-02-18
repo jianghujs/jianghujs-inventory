@@ -6,16 +6,16 @@
 
 <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
   <v-card>
-  <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
-      <!-- <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
+  <v-row class="ma-0 pa-4" >
+      <!-- <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
         <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新建采购单</v-btn>
         <span class="body-2">共{{ tableData.length }}条记录</span>
       </v-col> -->
 
       <v-spacer></v-spacer>
 
-      <v-col cols="12" xs="3" sm="3" md="2" xl="2" class="pa-xs-0 pa-xs-2 col-sm-8-flex">
-        <v-text-field v-model="searchInput" label="表格过滤" class="cus-v-input" dense filled single-line></v-text-field>
+      <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+        <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
       </v-col>
       <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')" >
         <v-icon left dark > mdi-cached </v-icon>
@@ -26,9 +26,9 @@
                   :headers="headers"
                   :items="tableData"
                   :search="searchInput"
-                  :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1] }"
+                  :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
                   height="600"
-                  :items-per-page="100"
+                  :items-per-page="50"
                   mobile-breakpoint="0"
                   :loading="isTableLoading"
                   checkbox-color="success"
@@ -62,7 +62,7 @@
     </v-btn>
   </v-row>
   <purchase-order-detail 
-  :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+  :purchase-order="updateItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
 </v-navigation-drawer>
 
 
@@ -97,7 +97,7 @@ new Vue({
       studentId: null,
       classId: null
     },
-    editItem: {},
+    updateItem: {},
     searchInput: null,
     isTableLoading: true,
     tableDataFromBackend: [],
@@ -231,7 +231,7 @@ new Vue({
       await window.vtoast.success("操作成功");
     },
     async doViewDetail({ item }) {
-      this.editItem = { ...item, time: new Date() }
+      this.updateItem = { ...item, time: new Date() }
       this.isDetailDrawerShow = true
     },
     async closeDetailDrawer() {

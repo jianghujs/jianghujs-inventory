@@ -1,0 +1,536 @@
+{% extends 'template/jhTemplateV3.html'%} {% block vue_template %}
+
+<!-- 3 table 下  的单表 crud 页面 -->
+
+<!-- SQL START
+-- 以下为 jianghu init 工具生成的参考 SQL，使用后删除
+-- 创建 page
+INSERT INTO `_page` (`pageId`,`pageName`,`pageType`,`sort`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT 'supplierManagement','页面','showInMenu','5','jhInsert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_page` WHERE `pageId`='supplierManagement');
+
+-- 创建 resource
+INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'supplierManagement','selectItemList','✅查询-查询列表','sql','{}','{ \"table\": \"supplier\", \"operation\": \"select\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='supplierManagement' AND `actionId`='selectItemList');
+INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'supplierManagement','insertItem','✅查询-添加成员','sql','{}','{ \"table\": \"supplier\", \"operation\": \"insert\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='supplierManagement' AND `actionId`='insertItem');
+INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'supplierManagement','updateItem','✅查询-更新成员','sql','{}','{ \"table\": \"supplier\", \"operation\": \"update\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='supplierManagement' AND `actionId`='updateItem');
+INSERT INTO `_resource` (`accessControlTable`,`resourceHook`,`pageId`,`actionId`,`desc`,`resourceType`,`appDataSchema`,`resourceData`,`requestDemo`,`responseDemo`,`operation`,`operationByUserId`,`operationByUser`,`operationAt`) SELECT NULL,NULL,'supplierManagement','deleteItem','✅查询-删除信息','sql','{}','{ \"table\": \"supplier\", \"operation\": \"delete\" }','','','insert',NULL,NULL,NULL FROM DUAL WHERE NOT EXISTS (SELECT `pageId` FROM `_resource` WHERE `pageId`='supplierManagement' AND `actionId`='deleteItem');
+SQL END! -->
+
+<jh-layout-v3>
+  <template slot="serverSearch">
+    <v-row class="ma-0 align-center flex-none pa-0" :class="{'pa-2': !isMobile, 'pa-2': isMobile}"
+      style="justify-content: end">
+      <v-col cols="12" sm="10" xs="8" md="5" xl="2" :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}">
+        <row-status-select :value="serverSearchInput.rowStatus" @update-value="serverSearchInput.rowStatus=$event" />
+      </v-col>
+      <v-col :class="{'pt-2': isMobile, 'pl-0': isMobile, 'pr-0': !isMobile}" style="max-width: 77px">
+        <v-btn class="elevation-0" color="success" dark @click="doUiAction('refreshTableData')">
+          查询
+        </v-btn>
+      </v-col>
+    </v-row>
+  </template>
+
+  <!-- 页面主要内容 -->
+  <v-container class="fullScreen d-flex flex-column pa-xs-0 pa-0">
+    <v-card>
+      <v-row class="rounded-lg"
+        >
+        <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pa-0">
+          <v-btn color="success" dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem')">新增供应商</v-btn>
+
+          <span class="body-2">共{{ tableData.length }}条记录</span>
+        </v-col>
+
+        <v-spacer></v-spacer>
+
+        <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+          <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
+        </v-col>
+      </v-row>
+      <v-data-table fixed-header :headers="headers" height="350" :items="tableData" :search="searchInput"
+        :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" :items-per-page="50" v-model="selectedRows"
+        mobile-breakpoint="0" :loading="isTableLoading" checkbox-color="success" show-select single-select @click:row="(item, row) => {
+                    row.select(true);
+                  }" class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+        <template v-slot:item.action="{ item }">
+          <v-btn small class="success" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
+          <row-status-switch-button :value="item.rowStatus"
+            @update-value="doUiAction('rowStatusChange', { item, rowStatus: $event })" />
+        </template>
+        <template v-slot:item.operationAt="{ item }">
+          {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
+        </template>
+      </v-data-table>
+    </v-card>
+    <div style="height: 20px"></div>
+
+    <supplier-good v-if="selectedRows.length" :supplier-id="selectSupplierId"></supplier-good>
+  </v-container>
+
+  <!-- 新增 -->
+  <v-navigation-drawer v-model="isCreateDrawerShown" :permanent="isCreateDrawerShown" fixed temporary right width="80%"
+    class="elevation-24">
+    <v-form v-model="isFormValid" v-if="isCreateDrawerShown" ref="form" lazy-validation>
+      <v-row class="pt-8">
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">新增信息</span>
+        <v-spacer></v-spacer>
+        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+          @click="isCreateDrawerShown = false">
+          <v-icon dark>mdi-close</v-icon>
+        </v-btn>
+      </v-row>
+      <v-row class="mt-0 px-4">
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商名称</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="addItem['supplierName']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商类型</span>
+          <v-select class="jh-v-input mr-2" v-model="addItem['supplierType']" :items="constantCollection.supplierType"
+            dense item-text="text" item-value="value" dense filled single-line></v-select>
+        </v-col>
+
+        <v-col cols="12"></v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商地址</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="addItem['supplierAddress']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商门户网站</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="addItem['supplierHome']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人1</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="addItem['supplierPerson1']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人1-电话</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="addItem['supplierContact1']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人2</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="addItem['supplierPerson2']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人2-电话</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="addItem['supplierContact2']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">备注</span>
+          <v-textarea class="jh-v-input" dense filled single-line v-model="addItem['remark']"></v-textarea>
+        </v-col>
+      </v-row>
+      <v-row class="justify-end pr-6">
+        <v-btn color="success" @click="doUiAction('createItem')"
+          :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
+          :class="{'mb-2': isMobile, 'mr-4': isMobile}">新增</v-btn>
+        <v-btn class="ml-2" @click="isCreateDrawerShown = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}"
+          :class="{'mr-4': isMobile}">取消</v-btn>
+      </v-row>
+    </v-form>
+  </v-navigation-drawer>
+
+  <!-- 编辑抽屉 -->
+  <v-navigation-drawer v-model="isUpdateDrawerShown" :permanent="isUpdateDrawerShown" fixed temporary right width="80%"
+    class="elevation-24">
+    <v-form v-model="isFormValid" v-if="isUpdateDrawerShown" ref="form" lazy-validation>
+      <v-row class="pt-8">
+        <span class="title pa-6" :class="{'pl-12': !isMobile, 'pl-6': isMobile}">编辑信息</span>
+        <v-spacer></v-spacer>
+        <v-btn class="mt-6 elevation-0" :class="{'mr-16': !isMobile, 'mr-8': isMobile}" fab x-small
+          @click="isUpdateDrawerShown = false">
+          <v-icon dark>mdi-close</v-icon>
+        </v-btn>
+      </v-row>
+      <v-row class="mt-0 px-4">
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商名称</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="updateItem['supplierName']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商类型</span>
+          <v-select class="jh-v-input mr-2" v-model="updateItem['supplierType']" :items="constantCollection.supplierType"
+            dense item-text="text" item-value="value" dense filled single-line></v-select>
+        </v-col>
+
+        <v-col cols="12"></v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商地址</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="updateItem['supplierAddress']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商门户网站</span>
+          <v-text-field class="jh-v-input" dense filled single-line v-model="updateItem['supplierHome']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人1</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="updateItem['supplierPerson1']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人1-电话</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="updateItem['supplierContact1']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人2</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="updateItem['supplierPerson2']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">供应商联系人2-电话</span>
+          <v-text-field class="jh-v-input" dense filled single-line
+            v-model="updateItem['supplierContact2']"></v-text-field>
+        </v-col>
+
+        <v-col cols="12" sm="12" md="4">
+          <span class="jh-input-label">备注</span>
+          <v-textarea class="jh-v-input" dense filled single-line v-model="updateItem['remark']"></v-textarea>
+        </v-col>
+      </v-row>
+      <v-row class="justify-end mx-0 mt-8 px-6">
+        <v-btn color="success" @click="doUiAction('updateItem')">保存</v-btn>
+        <v-btn class="ml-2" @click="isUpdateDrawerShown = false">取消</v-btn>
+      </v-row>
+    </v-form>
+  </v-navigation-drawer>
+</jh-layout-v3>
+
+{% endblock %} {% block vue_body %} 
+{% include 'component/basic/rowStatus/row-status-select.html' %} 
+{% include 'component/basic/rowStatus/row-status-switch-button.html' %} 
+{% include 'component/basic/supplierManagement-supplierGood.html' %}
+<script type="module">
+  new Vue({
+    el: "#app",
+    template: "#app-template",
+    vuetify: new Vuetify(),
+    data: () => ({
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [(v) => !!v || "必填"],
+      constantCollection: {
+        supplierType: [
+          { value: "公司", text: "公司" },
+          { value: "个人", text: "个人" },
+        ],
+      },
+
+      serverSearchInput: {
+        rowStatus: ["正常"],
+      },
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        // {text: "ID", value: "id", width: 120, class: 'fixed', cellClass: 'fixed'},
+
+        { text: "供应编号", value: "supplierId", width: 150 },
+        { text: "供应商名称", value: "supplierName", width: 150 },
+        { text: "供应商类型", value: "supplierType", width: 100 },
+        { text: "供应商地址", value: "supplierAddress", width: 150 },
+        { text: "供应商门户网站", value: "supplierHome", width: 150 },
+        { text: "供应商联系人1", value: "supplierPerson1", width: 150 },
+        { text: "供应商联系人1-电话", value: "supplierContact1", width: 150 },
+        { text: "供应商联系人2", value: "supplierPerson2", width: 150 },
+        { text: "供应商联系人2-电话", value: "supplierContact2", width: 150 },
+        { text: "备注", value: "remark", width: 250 },
+        { text: "操作者", value: "operationByUser", width: 150 },
+        { text: "操作时间", value: "operationAt", width: 250 },
+        {
+          text: "操作",
+          value: "action",
+          align: "center",
+          sortable: false,
+          width: 200,
+          class: "fixed",
+          cellClass: "fixed",
+        },
+      ],
+      isUpdateDrawerShown: false,
+      updateItem: {},
+      isCreateDrawerShown: false,
+      addItem: {},
+      selectedRows: [],
+    }),
+    computed: {
+      isMobile() {
+        return window.innerWidth < 600;
+      },
+      tableData() {
+        return this.tableDataFromBackend;
+      },
+      selectSupplierId() {
+        return this.selectedRows.length
+          ? this.selectedRows[0].supplierId
+          : null;
+      },
+    },
+    watch: {},
+    async created() {
+      await this.doUiAction("refreshTableData");
+    },
+    mounted() { },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case "refreshTableData":
+            await this.refreshTableData();
+            break;
+          case "startCreateItem":
+            await this.clearItemData();
+            await this.openCreateItemDialog();
+            break;
+          case "createItem":
+            await this.prepareValidate();
+            await this.confirmCreateItemDialog();
+            await this.doCreateItem();
+            await this.closeDrawerShow();
+            await this.refreshTableData();
+            break;
+          case "startUpdateItem":
+            await this.prepareItemData(uiActionData);
+            await this.openUpdateDialog();
+            break;
+          case "updateItem":
+            await this.prepareValidate();
+            await this.confirmUpdateItemDialog();
+            await this.doUpdateItem();
+            await this.closeDrawerShow();
+            await this.refreshTableData();
+            break;
+          case "deleteItem":
+            await this.confirmDeleteItemDialog();
+            await this.doDeleteItem(uiActionData);
+            await this.refreshTableData();
+            break;
+          case "openRecycled":
+            await this.openRecycled();
+            break;
+          case "rowStatusChange":
+            await this.rowStatusChange(uiActionData);
+            await this.refreshTableData();
+            break;
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
+        }
+      },
+      // =================================uiAction 公共方法 start ======================================
+      /**
+       * uiActionId:  prepareValidate
+       * description: ✅表单校验
+       */
+      async prepareValidate() {
+        if (this.$refs.form.validate() === false) {
+          window.vtoast.fail({ message: "输入有误, 请检查!" });
+          throw new Error("[prepareValidate] false");
+        }
+      },
+
+      /**
+       * uiActionId:  refreshTableData
+       * description: ✅获取表格数据
+       */
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const serverSearchInput = _.pickBy(
+          this.serverSearchInput,
+          (value) => !!value
+        );
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: "supplierManagement",
+              actionId: "selectItemList",
+              actionData: {},
+              where: {},
+              whereIn: serverSearchInput,
+              orderBy: [{ column: "supplierId", order: "desc" }],
+            },
+          },
+        });
+        const { rows } = result.data.appData.resultData;
+
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
+      },
+      // =================================uiAction 公共方法 end ======================================
+
+      /**
+       * uiActionId:  startCreateItem
+       * description: ✅获取表格数据
+       */
+      async clearItemData() {
+        this.addItem = {};
+      },
+      async openCreateItemDialog() {
+        this.isCreateDrawerShown = true;
+      },
+
+      /**
+       * uiActionId:  createItem
+       * description: ✅获取表格数据
+       */
+      async confirmCreateItemDialog() {
+        if (
+          (await window.confirmDialog({
+            title: "新增",
+            content: "确定新增吗？",
+          })) === false
+        ) {
+          throw new Error("取消");
+        }
+      },
+      async doCreateItem() {
+        const { id, ...data } = this.addItem;
+        await window.vtoast.loading("新增数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: "supplierManagement",
+              actionId: "insertItem",
+              actionData: data,
+              idGenerate: {
+                type: "idSequence",
+                prefix: "GYS",
+                bizId: "supplierId",
+                tableName: "supplier",
+              },
+            },
+          },
+        });
+        await window.vtoast.success("新增数据成功");
+      },
+      async closeDrawerShow() {
+        this.isUpdateDrawerShown = false;
+        this.isCreateDrawerShown = false;
+      },
+
+      /**
+       * uiActionId:  startUpdateItem
+       * description: ✅获取表格数据
+       */
+      async prepareItemData({ item }) {
+        this.updateItem = { ...item };
+      },
+      async openUpdateDialog() {
+        this.isUpdateDrawerShown = true;
+      },
+      /**
+       * uiActionId:  updateItem
+       * description: ✅获取表格数据
+       */
+      async confirmUpdateItemDialog() {
+        if (
+          (await window.confirmDialog({
+            title: "修改",
+            content: "确定修改吗？",
+          })) === false
+        ) {
+          throw new Error("取消");
+        }
+      },
+      async doUpdateItem() {
+        const { id, ...data } = this.updateItem;
+        await window.vtoast.loading("修改数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: "supplierManagement",
+              actionId: "updateItem",
+              actionData: data,
+              where: { id },
+            },
+          },
+        });
+        await window.vtoast.success("修改数据成功");
+      },
+
+      /**
+       * uiActionId:  deleteItem
+       * description: ✅获取表格数据
+       */
+      async confirmDeleteItemDialog() {
+        if (
+          (await window.confirmDialog({
+            title: "删除",
+            content: "确定删除吗？",
+          })) === false
+        ) {
+          throw new Error("取消");
+        }
+      },
+      async doDeleteItem({ item }) {
+        const { id } = item;
+        await window.vtoast.loading("删除数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: "supplierManagement",
+              actionId: "deleteItem",
+              actionData: {},
+              where: { id: id },
+            },
+          },
+        });
+        await window.vtoast.success("删除数据成功");
+      },
+
+      async rowStatusChange({ item, rowStatus }) {
+        if (
+          (await window.confirmDialog({
+            title: "数据状态",
+            content: `确定将数据修改为【${rowStatus}】吗？`,
+          })) === false
+        ) {
+          throw new Error("rowStatus 取消");
+        }
+        await window.vtoast.loading("修改数据状态");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: "supplierManagement",
+              actionId: "updateItem",
+              actionData: { rowStatus },
+              where: { id: item.id },
+            },
+          },
+        });
+        item.rowStatus = rowStatus;
+        await window.vtoast.success("修改数据状态成功");
+      },
+    },
+  });
+</script>
+
+<style>
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr>td:not(.v-data-table__mobile-row) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 500px;
+  }
+
+  .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr {
+    cursor: pointer;
+  }
+</style>
+{% endblock %}

@@ -36,28 +36,28 @@
             <v-col cols="12" sm="12" md="3" xl="3" class=" pb-3">
               <v-text-field
                 class="jh-v-input mr-2" dense filled single-line color="success" prefix="流程名:"
-                v-model="editItem['workflowName']" :rules="validationRules.requireRules">
+                v-model="updateItem['workflowName']" :rules="validationRules.requireRules">
               </v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="3" xl="3" class=" pb-3">
               <v-text-field
                 class="jh-v-input mr-2" dense filled single-line color="success" prefix="备注:"
-                v-model="editItem['workflowRemark']">
+                v-model="updateItem['workflowRemark']">
               </v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="3" xl="3" class=" pb-3">
               <v-select
                 class="jh-v-input mr-2" dense filled single-line color="success" prefix="审批模式:"
-                v-model="editItem['mode']" :items="constantObj.modeList" />
+                v-model="updateItem['mode']" :items="constantObj.modeList" />
             </v-col>
           </v-row>
         </v-card>
 
         <div class="pt-4 pb-4 text-h7">流程设置</div>
         <process-flow
-          v-if="!loading" ref="processFlow" :data="editItem.workflowConfig" :user="constantObj.userList"
+          v-if="!loading" ref="processFlow" :data="updateItem.workflowConfig" :user="constantObj.userList"
           :group="constantObj.groupList"
-          :mode="editItem.mode">
+          :mode="updateItem.mode">
         </process-flow>`
       </div>
 
@@ -123,17 +123,17 @@ new Vue({
         {text: '并行', value: 'parallel'},
       ]
     },
-    editItem: {},
+    updateItem: {},
     dialogSaveInfoAction: 'createItem',
     loading: false,
     isHelpPageDrawerShown: false,
   }),
   watch: {
-    'editItem.workflowForm': {
+    'updateItem.workflowForm': {
       handler(val) {
         if (!val) return
         this.buildWorkflowFormList(val);
-        if (!this.editItem.workflowConfig) return;
+        if (!this.updateItem.workflowConfig) return;
         this.buildWorkflowConfig()
       },
       deep: true,
@@ -144,7 +144,7 @@ new Vue({
     const searchParams = new URLSearchParams(location.search.substring(1));
     const id = searchParams.get('id');
     if (id) {
-      this.editItem = {id};
+      this.updateItem = {id};
       await this.syncEditItem()
     } else {
       this.clearItemData();
@@ -185,7 +185,7 @@ new Vue({
     },
 
     buildWorkflowConfig() {
-      for (const config of this.editItem.workflowConfig.nodeList) {
+      for (const config of this.updateItem.workflowConfig.nodeList) {
         if (!config.formId) return;
         const formId = []
         for (const item of config.formId) {
@@ -236,7 +236,7 @@ new Vue({
 
     async clearItemData() {
       this.dialogSaveInfoAction = 'createItem';
-      this.editItem = {workflowForm: [], workflowConfig: {lineList: [], nodeList: []}, mode: 'serial'};
+      this.updateItem = {workflowForm: [], workflowConfig: {lineList: [], nodeList: []}, mode: 'serial'};
     },
 
     // ---------- 新建流程 createItem >>>>>>>>>> --------
@@ -246,7 +246,7 @@ new Vue({
       }
     },
     async doCreateItem() {
-      delete this.editItem.id;
+      delete this.updateItem.id;
       const item = this.buildEditItem();
       await window.vtoast.loading("新增数据");
       const {rows} = (await window.jianghuAxios({
@@ -258,7 +258,7 @@ new Vue({
           }
         }
       })).data.appData.resultData;
-      this.editItem.id = rows[0];
+      this.updateItem.id = rows[0];
       history.pushState({}, '', `?id=${rows[0]}`);
       await window.vtoast.success("新增数据成功");
     },
@@ -270,7 +270,7 @@ new Vue({
           appData: {
             pageId: 'workflowManagement',
             actionId: 'selectItemList',
-            where: {id: this.editItem.id},
+            where: {id: this.updateItem.id},
           }
         }
       })).data.appData.resultData;
@@ -281,14 +281,14 @@ new Vue({
         item.workflowConfig = item.workflowConfig ? JSON.parse(item.workflowConfig) : null;
         item.workflowForm = item.workflowForm ? JSON.parse(item.workflowForm) : [];
         item.mode = item.workflowConfig.mode || 'serial';
-        this.editItem = item;
+        this.updateItem = item;
       }
       setTimeout(() => {
         this.loading = false;
       }, 500)
     },
     buildEditItem() {
-      const {id, workflowId, workflowName, workflowRemark, workflowCategory, mode, workflowForm} = this.editItem;
+      const {id, workflowId, workflowName, workflowRemark, workflowCategory, mode, workflowForm} = this.updateItem;
       const workflowConfig = this.$refs.processFlow.getData();
       workflowConfig.mode = mode
       // TODO: 清除不存在的用户

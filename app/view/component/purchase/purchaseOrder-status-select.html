@@ -1,14 +1,6 @@
 <template id="purchase-order-status-select">
-  <v-select
-    class="cus-v-input mr-2"
-    v-model="value"
-    :items="items"
-    prefix="数据状态"
-    hide-details dense filled
-    multiple
-    persistent-hint
-    @change="$emit('update-value', $event)"
-  ></v-select>
+  <v-select class="jh-v-input mr-2" v-model="value" :items="items" prefix="数据状态" hide-details dense filled multiple
+    persistent-hint @change="$emit('update-value', $event)"></v-select>
 
 </template>
 
@@ -22,7 +14,7 @@
           return ['草稿', '采购询价', '审核中', '采购中', '采购完成', '审核失败']
         }
       },
-    
+
     },
     vuetify: new Vuetify(),
     data: () => ({

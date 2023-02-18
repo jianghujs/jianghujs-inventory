@@ -98,12 +98,12 @@
       <v-navigation-drawer v-model="isCreateTableDrawerShown" :permanent="isCreateTableDrawerShown" fixed temporary right width="80%" class="elevation-24">
         <v-form ref="createForm" lazy-validation>
           <!-- 抽屉标题 -->
-          <v-row class="ma-0">
-            <v-col cols="12" sm="12" md="6" xl="6" class="pa-4">
+          <v-row class="ma-0 pa-4">
+            <v-col cols="12" sm="12" md="6" xl="6" class="pa-0">
               <span class="text-subtitle-1 font-weight-medium">新增-商品预算</span>
             </v-col>
-            <v-col cols="12" sm="12" md="6" xl="6" class="pa-4">
-              <v-text-field v-model="addTableSearchInput" label="表格过滤" class="cus-v-input" dense filled single-line hide-details></v-text-field>
+            <v-col cols="12" sm="12" md="6" xl="6" class="pa-0">
+              <v-text-field v-model="addTableSearchInput" label="表格过滤" class="jh-v-input" dense filled single-line hide-details></v-text-field>
             </v-col>
           </v-row>
           <!-- 抽屉表单主体 -->
@@ -115,7 +115,7 @@
             :items="drawerTableData" 
             item-key="supplierId"
             :footer-props="{ itemsPerPageOptions: [20, 40, 60, 100, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有' }" 
-            :items-per-page="100"
+            :items-per-page="50"
             mobile-breakpoint="0"
             fixed-header
             class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
@@ -159,7 +159,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
-                    class="cus-v-input"
+                    class="jh-v-input"
                     dense filled single-line
                     v-model="addItem['budgetStartDate']"
                     label=""
@@ -189,7 +189,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-text-field
-                    class="cus-v-input"
+                    class="jh-v-input"
                     dense filled single-line
                     v-model="addItem['budgetEndDate']"
                     label=""
@@ -208,12 +208,12 @@
              
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">总预算</span>
-              <v-text-field class="cus-v-input " dense filled single-line hide-details v-model="addItem['budgetPrice']"></v-text-field>
+              <v-text-field class="jh-v-input " dense filled single-line hide-details v-model="addItem['budgetPrice']"></v-text-field>
             </v-col>
              
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">备注</span>
-              <v-text-field class="cus-v-input " dense filled single-line hide-details v-model="addItem['remark']"></v-text-field>
+              <v-text-field class="jh-v-input " dense filled single-line hide-details v-model="addItem['remark']"></v-text-field>
             </v-col>
           </v-row>
           <!-- 抽屉操作按钮 -->
@@ -261,7 +261,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  class="cus-v-input"
+                  class="jh-v-input"
                   dense filled single-line
                   v-model="updateItem['budgetStartDate']"
                   label=""
@@ -290,7 +290,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  class="cus-v-input"
+                  class="jh-v-input"
                   dense filled single-line
                   v-model="updateItem['budgetEndDate']"
                   label=""
@@ -309,12 +309,12 @@
              
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">预算</span>
-              <v-text-field class="cus-v-input " dense filled single-line hide-details v-model="updateItem['budgetPrice']"></v-text-field>
+              <v-text-field class="jh-v-input " dense filled single-line hide-details v-model="updateItem['budgetPrice']"></v-text-field>
             </v-col>
              
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">备注</span>
-              <v-text-field class="cus-v-input " dense filled single-line hide-details v-model="updateItem['remark']"></v-text-field>
+              <v-text-field class="jh-v-input " dense filled single-line hide-details v-model="updateItem['remark']"></v-text-field>
             </v-col>
           </v-row>
           <!-- 抽屉操作按钮 -->

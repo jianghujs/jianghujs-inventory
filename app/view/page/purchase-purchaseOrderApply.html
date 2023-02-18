@@ -134,12 +134,12 @@
             <v-row class="mt-0 px-6">
               <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">标题</span>
-                <v-text-field class="cus-v-input " dense filled single-line hide-details v-model="addItem['purchaseTitle']" :rules="requireRules"></v-text-field>
+                <v-text-field class="jh-v-input " dense filled single-line hide-details v-model="addItem['purchaseTitle']" :rules="requireRules"></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">申购部门</span>
                 <v-autocomplete 
-                    class="cus-v-input mr-2" 
+                    class="jh-v-input mr-2" 
                     dense filled single-line clearable hide-details
                     v-model="addItem.purchaseDeptId" 
                     :items="deptList" 
@@ -159,7 +159,7 @@
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
-                <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable hide-details label="选择审批流程" 
+                <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable hide-details label="选择审批流程" 
                     v-model="addItem['workflowId']" 
                     :items="workflowList" 
                     item-text="workflowName" item-value="workflowId" 
@@ -172,11 +172,11 @@
                 <span class="jh-input-label">审批人修改</span>
                 <v-row v-for="item in workflowPersonList">
                   <v-col cols="2">
-                    <v-text-field class="cus-v-input " dense filled single-line v-model="item.label" disabled hide-details></v-text-field>
+                    <v-text-field class="jh-v-input " dense filled single-line v-model="item.label" disabled hide-details></v-text-field>
                   </v-col>
                   <v-col cols="4">
                     <v-autocomplete 
-                      class="cus-v-input mr-2" 
+                      class="jh-v-input mr-2" 
                       dense filled single-line clearable hide-details
                       :items="userList" 
                       item-text="username" 
@@ -220,38 +220,38 @@
             <v-row class="mt-0 px-6">
               <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">标题</span>
-                <v-text-field class="cus-v-input " dense filled single-line v-model="editItem['purchaseTitle']" :rules="requireRules" hide-details></v-text-field>
+                <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['purchaseTitle']" :rules="requireRules" hide-details></v-text-field>
               </v-col>
               <v-col cols="12" sm="12" md="6">
                 <span class="jh-input-label">申购部门</span>
-                <v-select v-model="editItem.purchaseDeptId"
+                <v-select v-model="updateItem.purchaseDeptId"
                   :items="deptList" class="mr-2" hide-details dense filled single-line hide-no-data
                   item-text="deptName"
                   item-value="deptId"
                   @change="(deptId) => {
                     const dept = deptList.find(dept => dept.deptId === deptId);
-                    editItem.purchaseDeptId = dept.deptId;
-                    editItem.purchaseDeptName = dept.deptName;
+                    updateItem.purchaseDeptId = dept.deptId;
+                    updateItem.purchaseDeptName = dept.deptName;
                   }"
                   /> 
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">申购商品</span>
-                <purchase-order-apply-good-select :loading="purchaseOrderGoodTableLoading" :good-list="goodList" v-model="editItem['goodList']"/>
+                <purchase-order-apply-good-select :loading="purchaseOrderGoodTableLoading" :good-list="goodList" v-model="updateItem['goodList']"/>
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
-                <v-autocomplete class="cus-v-input mr-2" dense filled single-line clearable label="选择审批流程" v-model="editItem['workflowId']" :items="workflowList" item-text="workflowName" item-value="workflowId" :rules="requireRules" hide-details></v-autocomplete>
+                <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable label="选择审批流程" v-model="updateItem['workflowId']" :items="workflowList" item-text="workflowName" item-value="workflowId" :rules="requireRules" hide-details></v-autocomplete>
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">审批人修改</span>
                 <v-row v-for="item in workflowPersonList">
                   <v-col cols="2">
-                    <v-text-field class="cus-v-input " dense filled single-line v-model="item.label" disabled hide-details></v-text-field>
+                    <v-text-field class="jh-v-input " dense filled single-line v-model="item.label" disabled hide-details></v-text-field>
                   </v-col>
                   <v-col cols="4">
                     <v-autocomplete 
-                      class="cus-v-input mr-2" 
+                      class="jh-v-input mr-2" 
                       dense filled single-line clearable hide-details
                       :items="userList" 
                       item-text="username" 
@@ -268,7 +268,7 @@
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">备注</span>
-                <v-textarea dense filled single-line v-model="editItem['remark']" hint="填写备注（如功能需求、是否要回单或反馈等）" ></v-textarea>  
+                <v-textarea dense filled single-line v-model="updateItem['remark']" hint="填写备注（如功能需求、是否要回单或反馈等）" ></v-textarea>  
               </v-col>
             </v-row>
             <!-- 抽屉操作按钮 -->
@@ -290,7 +290,7 @@
             <span class="title pa-6 pl-8">采购单详情</span>
           </v-row>
           <purchase-order-detail 
-          :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          :purchase-order="updateItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
           <!-- 抽屉关闭按钮 -->
           <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn" @click="isDetailDrawerShown = false">
             <v-icon>mdi-close</v-icon>
@@ -401,7 +401,7 @@ new Vue({
     isCreateDrawerShown: false,
     addItem: {},
     isUpdateDrawerShown: false,
-    editItem: {},
+    updateItem: {},
     workflowList: [ ],
     goodList: [],
     deptList: [],
@@ -592,7 +592,7 @@ new Vue({
         }
       })).data.appData.resultData;
       this.purchaseOrderGoodTableLoading = false
-      this.editItem['goodList'] = rows
+      this.updateItem['goodList'] = rows
     },
     
     
@@ -693,7 +693,7 @@ new Vue({
      * description: ✅获取表格数据
     */
     async prepareItemData({item}) {
-      this.editItem = {...item};
+      this.updateItem = {...item};
       if (item.workflowConfigCustom) {
         this.workflowPersonList = JSON.parse(item.workflowConfigCustom || {}).nodeListOfUserTaskNode || []
       } else {
@@ -713,7 +713,7 @@ new Vue({
       }
     },
     async doUpdateItemSaveDraft() {
-      const { id, ...data } = this.editItem;
+      const { id, ...data } = this.updateItem;
       await window.vtoast.loading("修改草稿");
       await window.jianghuAxios({
         data: {
@@ -739,7 +739,7 @@ new Vue({
             pageId: 'purchaseOrderApply',
             actionId: 'submitPurchaseOrder',
             actionData: {
-              ...this.editItem,
+              ...this.updateItem,
               workflowConfigCustom: JSON.stringify({ nodeListOfUserTaskNode: this.workflowPersonList })
             }
           }
@@ -820,7 +820,7 @@ new Vue({
       this.workflowPersonList = workflowPersonList.filter(item=> item.id.includes('userTask-'))
     },
     async doViewDetail({ item }) {
-      this.editItem = { ...item, time: new Date() }
+      this.updateItem = { ...item, time: new Date() }
       this.isDetailDrawerShown = true
     },
     async closeDetailDrawer() {

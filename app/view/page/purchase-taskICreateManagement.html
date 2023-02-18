@@ -115,7 +115,7 @@
             <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">采购单详情</span>
           </v-row>
           <!-- 抽屉表单 -->
-          <purchase-order-detail :purchase-order="editItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
+          <purchase-order-detail :purchase-order="updateItem" @close-detail-drawer="doUiAction('closeDetailDrawer')" />
         </v-form>
 
         <!-- 抽屉关闭按钮 -->
@@ -227,7 +227,7 @@
       ],
       userId: localStorage.getItem(`${window.appInfo.appId}_userId`),
       isDetailDrawerShow: false,
-      editItem: {},
+      updateItem: {},
       userList: [],
     },
     watch: {},
@@ -320,7 +320,7 @@
         location.href = `/${window.appInfo.appId}/page/purchaseOrderDetail?workflowTaskId=${item.taskId}`;
       },
       async doViewDetail({ item }) {
-        this.editItem = {
+        this.updateItem = {
           ...item, time: new Date(),
           // purchase-order-detail 读取 workflowTaskId
           workflowTaskId: item.taskId,

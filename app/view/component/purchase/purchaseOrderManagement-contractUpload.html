@@ -33,7 +33,7 @@
       </v-row>
       <v-data-table fixed-header :headers="headers" :items="tableDataFromBackend" :search="searchInput"
         :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
-        :items-per-page="100" :loading="isTableLoading" checkbox-color="success" mobile-breakpoint="0"
+        :items-per-page="50" :loading="isTableLoading" checkbox-color="success" mobile-breakpoint="0"
         class="elevation-0 mt-0 flex-fill d-flex flex-column" :class="{'zebraLine': isTableZebraLineShown }">
         <template v-slot:item.download-path="{ item }">
           <preview-file-group :file-list="item.contractFileList" />
@@ -74,37 +74,37 @@
     </v-card>
 
     <!-- 编辑抽屉 -->
-    <v-navigation-drawer v-model="isEditDrawerShow" :permanent="isEditDrawerShow" fixed temporary right width="80%"
+    <v-navigation-drawer v-model="isUpdateDrawerShown" :permanent="isUpdateDrawerShown" fixed temporary right width="80%"
       class="elevation-24">
       <v-form v-model="isFormValid" ref="form" lazy-validation>
         <v-row>
           <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">{{ currentClickButton.title }}文件</span>
         </v-row>
-        <v-row class="mt-0 px-6" v-if="isEditDrawerShow">
+        <v-row class="mt-0 px-6" v-if="isUpdateDrawerShown">
           <v-col v-if="currentClickButton.action === 'add'" cols="12" sm="12" md="4">
-            <span class="inputLabel">文件</span>
-            <v-file-input v-model="inputFile" class="cus-v-input mr-2" dense filled single-line chips
+            <span class="jh-input-label">文件</span>
+            <v-file-input v-model="inputFile" class="jh-v-input mr-2" dense filled single-line chips
               label="请选择文件"></v-file-input>
           </v-col>
           <v-col cols="12" sm="12" md="4">
-            <span class="inputLabel">文件类型</span>
-            <v-select class="cus-v-input mr-2" v-model="editItem['contractFileType']"
+            <span class="jh-input-label">文件类型</span>
+            <v-select class="jh-v-input mr-2" v-model="updateItem['contractFileType']"
               :items="constantCollection.contractFileType" dense item-text="text" item-value="value" dense filled
               single-line></v-select>
           </v-col>
           <v-col cols="12" sm="12" md="4">
-            <span class="inputLabel">备注</span>
-            <v-text-field class="cus-v-input " dense filled single-line v-model="editItem['remarks']"></v-text-field>
+            <span class="jh-input-label">备注</span>
+            <v-text-field class="jh-v-input " dense filled single-line v-model="updateItem['remarks']"></v-text-field>
           </v-col>
         </v-row>
         <v-row class="justify-end mx-0 mt-8" :class="{'px-10': !isMobile, 'px-3': isMobile, 'mb-8': isMobile}">
           <v-btn color="success" @click="doUiAction(dialogSaveInfoAction)">保存</v-btn>
-          <v-btn class="elevation-0 mr-2 ml-2" @click="isEditDrawerShow = false">取消</v-btn>
+          <v-btn class="elevation-0 mr-2 ml-2" @click="isUpdateDrawerShown = false">取消</v-btn>
         </v-row>
       </v-form>
       <!-- 抽屉关闭按钮 -->
       <v-btn elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
-        @click="isEditDrawerShow = false">
+        @click="isUpdateDrawerShown = false">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-navigation-drawer>
@@ -133,7 +133,7 @@
           { "value": "附件", "text": "附件" }
         ],
       },
-      isEditDrawerShow: false,
+      isUpdateDrawerShown: false,
       searchInput: null,
       isTableLoading: true,
       tableDataFromBackend: [],
@@ -150,7 +150,7 @@
       ],
 
       currentClickButton: { title: '新增', action: 'add' },
-      editItem: {},
+      updateItem: {},
       inputFile: null,
       downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
       dialogSaveInfoAction: '',
@@ -249,13 +249,13 @@
 
       // startCreateItem
       async clearItemData() {
-        this.editItem = {};
+        this.updateItem = {};
         this.inputFile = null;
       },
 
       async openCreateItemDialog() {
         this.currentClickButton = { action: 'add', title: '新增' };
-        this.isEditDrawerShow = true;
+        this.isUpdateDrawerShown = true;
         this.dialogSaveInfoAction = 'createItem';
       },
 
@@ -277,7 +277,7 @@
        * 新增数据
        */
       async doCreateItem() {
-        const { contractFileType, remarks } = this.editItem;
+        const { contractFileType, remarks } = this.updateItem;
         const purchaseOrderId = this.purchaseOrderId;
         await window.vtoast.loading("保存中");
         const file = this.inputFile
@@ -313,12 +313,12 @@
 
       // startUpdateItem
       async prepareItemData({ item }) {
-        this.editItem = { ...item };
+        this.updateItem = { ...item };
       },
 
       async openUpdateItemDialog() {
         this.currentClickButton = { action: 'edit', title: '修改' };
-        this.isEditDrawerShow = true;
+        this.isUpdateDrawerShown = true;
         this.dialogSaveInfoAction = 'updateItem';
       },
 
@@ -334,7 +334,7 @@
        */
       async doUpdateItem() {
         await window.vtoast.loading("保存中");
-        const { id, ...data } = this.editItem;
+        const { id, ...data } = this.updateItem;
         await window.jianghuAxios({
           data: {
             appData: {
@@ -350,7 +350,7 @@
 
       // 关闭抽屉
       async closeDrawerShow() {
-        this.isEditDrawerShow = false;
+        this.isUpdateDrawerShown = false;
       },
 
       // deleteItem
@@ -365,7 +365,7 @@
        */
       // TODO::只是删除了 _file表中的数据，并没有删除文件
       async doDeleteItem() {
-        const { id } = this.editItem;
+        const { id } = this.updateItem;
         window.vtoast.loading('正在删除')
         await window.jianghuAxios({
           data: {

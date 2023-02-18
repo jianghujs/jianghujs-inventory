@@ -119,34 +119,34 @@
           <v-row class="mt-0 px-4">
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品名称</span>
-              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="addItem['goodName']"></v-text-field>
+              <v-text-field class="jh-v-input" dense filled single-line hide-details v-model="addItem['goodName']"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品建议价格</span>
-              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="addItem['goodSuggestPrice']"
+              <v-text-field class="jh-v-input" dense filled single-line hide-details v-model="addItem['goodSuggestPrice']"
                 type="number"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品描述</span>
-              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="addItem['goodDesc']"></v-text-field>
+              <v-text-field class="jh-v-input" dense filled single-line hide-details v-model="addItem['goodDesc']"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品类型</span>
-              <v-select class="cus-v-input mr-2" v-model="addItem['goodType']" :items="constantCollection.goodTypeList"
+              <v-select class="jh-v-input mr-2" v-model="addItem['goodType']" :items="constantCollection.goodTypeList"
                 dense item-text="text" item-value="value" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">单位</span>
-              <v-select class="cus-v-input mr-2" v-model="addItem['goodUnit']" :items="constantCollection.goodUnitList"
+              <v-select class="jh-v-input mr-2" v-model="addItem['goodUnit']" :items="constantCollection.goodUnitList"
                 dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品分类</span>
-              <v-select class="cus-v-input mr-2" v-model="addItem['goodCategory']" :items="constantCollection.goodCategory"
+              <v-select class="jh-v-input mr-2" v-model="addItem['goodCategory']" :items="constantCollection.goodCategory"
                 dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
           </v-row>
@@ -174,34 +174,34 @@
           <v-row class="mt-0 px-4">
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品名称</span>
-              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="editItem['goodName']"></v-text-field>
+              <v-text-field class="jh-v-input" dense filled single-line hide-details v-model="editItem['goodName']"></v-text-field>
             </v-col>
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品建议价格</span>
-              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="editItem['goodSuggestPrice']"
+              <v-text-field class="jh-v-input" dense filled single-line hide-details v-model="editItem['goodSuggestPrice']"
                 type="number"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品描述</span>
-              <v-text-field class="cus-v-input" dense filled single-line hide-details v-model="editItem['goodDesc']"></v-text-field>
+              <v-text-field class="jh-v-input" dense filled single-line hide-details v-model="editItem['goodDesc']"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品类型</span>
-              <v-select class="cus-v-input mr-2" v-model="editItem['goodType']" :items="constantCollection.goodTypeList"
+              <v-select class="jh-v-input mr-2" v-model="editItem['goodType']" :items="constantCollection.goodTypeList"
                 dense item-text="text" item-value="value" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">单位</span>
-              <v-select class="cus-v-input mr-2" v-model="editItem['goodUnit']" :items="constantCollection.goodUnitList"
+              <v-select class="jh-v-input mr-2" v-model="editItem['goodUnit']" :items="constantCollection.goodUnitList"
                 dense item-text="text" item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
 
             <v-col cols="12" sm="12" md="4">
               <span class="jh-input-label">商品分类</span>
-              <v-select class="cus-v-input mr-2" v-model="editItem['goodCategory']" :items="constantCollection.goodCategory"
+              <v-select class="jh-v-input mr-2" v-model="editItem['goodCategory']" :items="constantCollection.goodCategory"
                 dense item-text="text" disabled item-value="value" :rules="requireRules" dense filled single-line hide-details></v-select>
             </v-col>
           </v-row>

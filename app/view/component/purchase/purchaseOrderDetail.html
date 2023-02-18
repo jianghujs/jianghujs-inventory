@@ -1,12 +1,8 @@
 <template id="purchase-order-detail">
   <div>
-    <v-progress-linear
-      indeterminate
-      color="green"
-      v-if="isLoadingDetail"
-    ></v-progress-linear>
+    <v-progress-linear indeterminate color="green" v-if="isLoadingDetail"></v-progress-linear>
     <v-card v-else :class="{'px-2': isMobile}" class="pb-10 mb-10">
-    
+
       <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}">
         <v-col cols="12" class="base-info">
           <v-subheader>采购单信息</v-subheader>
@@ -24,19 +20,21 @@
           </v-card>
         </v-col>
       </v-row>
-      <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}" >
+      <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}">
         <v-col cols="12" class="base-info">
           <v-subheader>部门预算</v-subheader>
           <v-data-table :headers="deptBudgetHeaders" :items="purchaseOrderDetail.budgetDept" hide-default-footer
             class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
             <template v-slot:item.budget-price="{item}">
               {{item.usedBudgetPrice}}/{{item.budgetPrice}}
-              <font v-if="['审核失败', '采购完成'].indexOf(item.purchaseStatus) === -1 && item.usedBudgetPrice + purchaseOrderPrice > item.budgetPrice" color="red">超预算了</font>
+              <font
+                v-if="['审核失败', '采购完成'].indexOf(item.purchaseStatus) === -1 && item.usedBudgetPrice + purchaseOrderPrice > item.budgetPrice"
+                color="red">超预算了</font>
             </template>
           </v-data-table>
         </v-col>
       </v-row>
-    
+
       <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}">
         <v-col cols="12" class="base-info">
           <v-subheader>申购商品列表（总价：￥{{purchaseOrderPrice}}）</v-subheader>
@@ -45,7 +43,9 @@
             <template v-slot:item.used-budget-price="{item}">
               <span v-if="item.budgetPrice">
                 {{item.usedBudgetPrice || 0 }}/{{item.budgetPrice}}({{item.budgetStartDate}}--{{item.budgetEndDate}})
-                <font v-if="['审核失败', '采购完成'].indexOf(item.purchaseStatus) === -1 && item.usedBudgetPrice + item.goodCount*item.goodPrice > item.budgetPrice" color="red">超预算了</font>
+                <font
+                  v-if="['审核失败', '采购完成'].indexOf(item.purchaseStatus) === -1 && item.usedBudgetPrice + item.goodCount*item.goodPrice > item.budgetPrice"
+                  color="red">超预算了</font>
               </span>
               <span v-if="!item.budgetPrice">
                 未配置预算
@@ -58,9 +58,9 @@
         <v-col cols="12" class="base-info">
           <v-subheader>凭据列表</v-subheader>
           <v-data-table :headers="contractListHeaders" :items="purchaseOrderDetail.contractList" hide-default-footer
-            class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">  
+            class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
             <template v-slot:item.contract-file="{ item }">
-              <preview-file-group :file-list="item.contractFileList"/>
+              <preview-file-group :file-list="item.contractFileList" />
             </template>
           </v-data-table>
         </v-col>
@@ -84,87 +84,73 @@
         <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}">
           <v-col md="6" sm="12">
             <v-subheader>流程预览({{purchaseOrderDetail.workflowName}})</v-subheader>
-            <process-flow 
-              v-if="taskHistoryConfigList" 
-              :data="taskHistoryConfigList" 
-              :current-node-id="currentNode.id" 
-              readonly 
-              style="height: 450px;border: 1px solid rgb(240, 240, 240); border-radius: 6px;">
+            <process-flow v-if="taskHistoryConfigList" :data="taskHistoryConfigList" :current-node-id="currentNode.id"
+              readonly style="height: 450px;border: 1px solid rgb(240, 240, 240); border-radius: 6px;">
             </process-flow>
           </v-col>
           <v-col md="6" sm="12" v-if="isAccess">
             <v-subheader>表单信息</v-subheader>
             <v-row>
               <v-col cols="12" class=" pb-3" v-for="(formItem, index) in taskTpl.formList" :key="index"
-                    v-if="taskTpl.input && !(currentNode.formIdHidden || []).includes(formItem.id)">
-                <span class="inputLabel">{{formItem.component.outline}}</span>
+                v-if="taskTpl.input && !(currentNode.formIdHidden || []).includes(formItem.id)">
+                <span class="jh-input-label">{{formItem.component.outline}}</span>
                 <template v-if="formItem.component.type === 'singleSelect'">
                   <v-list-item-title class="formItem-title">{{ formTitlePrefix(formItem.component.outline, 'input') }}
                   </v-list-item-title>
                   <v-radio-group v-model="taskTpl.input[formItem.id]">
                     <v-radio hide-details v-for="(option, optionIndex) in formItem.component.property.selectOptionList"
-                            :disabled="!(currentNode.formId || []).includes(formItem.id)"
-                            :key="optionIndex"></v-radio>
+                      :disabled="!(currentNode.formId || []).includes(formItem.id)" :key="optionIndex"></v-radio>
                   </v-radio-group>
                 </template>
-    
+
                 <template v-if="formItem.component.type === 'multipleSelect'">
                   <v-list-item-title class="formItem-title">{{ formTitlePrefix(formItem.component.outline, 'input') }}
                   </v-list-item-title>
                   <div v-for="(option, optionIndex) in formItem.component.property.selectOptionList" :key="optionIndex">
-                    <v-checkbox style="margin-top: 0px;"
-                                :disabled="!(currentNode.formId || []).includes(formItem.id)"
-                                :value="option.value" 
-                                v-model="taskTpl.input[formItem.id]" hide-details
-                                color="red"></v-checkbox>
+                    <v-checkbox style="margin-top: 0px;" :disabled="!(currentNode.formId || []).includes(formItem.id)"
+                      :value="option.value" v-model="taskTpl.input[formItem.id]" hide-details color="red"></v-checkbox>
                   </div>
                 </template>
-    
+
                 <template v-if="formItem.component.type === 'textarea'">
                   <v-textarea hide-details dense filled single-line placeholder="请输入"
-                              :disabled="!(currentNode.formId || []).includes(formItem.id)"
-                              v-model="taskTpl.input[formItem.id]" :rows="4"/>
+                    :disabled="!(currentNode.formId || []).includes(formItem.id)" v-model="taskTpl.input[formItem.id]"
+                    :rows="4" />
                 </template>
-    
+
                 <template v-if="formItem.component.type === 'input'">
-                  <v-text-field class="cus-v-input" placeholder="请输入" dense filled single-line
-                                :disabled="!(currentNode.formId || []).includes(formItem.id)"
-                                v-model="taskTpl.input[formItem.id]"></v-text-field>
+                  <v-text-field class="jh-v-input" placeholder="请输入" dense filled single-line
+                    :disabled="!(currentNode.formId || []).includes(formItem.id)"
+                    v-model="taskTpl.input[formItem.id]"></v-text-field>
                 </template>
               </v-col>
               <v-col cols="12" v-if="isAccess">
-                <span class="inputLabel">备注信息</span>
-                <v-textarea dense filled single-line placeholder="请输入备注信息" hide-details v-model="editItem.taskComment" color="success"
-                            :disabled="currentNode && currentNode.id && currentNode.id.includes('end-')" :rows="4"/>
+                <span class="jh-input-label">备注信息</span>
+                <v-textarea dense filled single-line placeholder="请输入备注信息" hide-details v-model="updateItem.taskComment"
+                  color="success" :disabled="currentNode && currentNode.id && currentNode.id.includes('end-')"
+                  :rows="4" />
               </v-col>
               <v-col v-if="isAccess" cols="12" style="text-align: center;" class="mb-3">
-                <v-btn color="success" class="mx-4" v-for="item in lineTypeList" v-if="item.type" @click="doUiAction('submitNode', item.type)">
+                <v-btn color="success" class="mx-4" v-for="item in lineTypeList" v-if="item.type"
+                  @click="doUiAction('submitNode', item.type)">
                   {{ item.type }}
                 </v-btn>
               </v-col>
             </v-row>
           </v-col>
-          
+
         </v-row>
         <v-row class="pa-0 ma-0" :class="{'px-10': !isMobile, 'px-3': isMobile}">
-          
+
         </v-row>
-    
-    
+
+
         <v-card-text class="pl-10">
           流转历史
         </v-card-text>
-        <v-data-table fixed-header dense
-                      :headers="headers"
-                      :items="taskHistoryList"
-                      :items-per-page="100"
-                      mobile-breakpoint="0"
-                      :loading="isTableLoading"
-                      checkbox-color="success"
-                      :class="{'mx-2': isMobile}"
-                      color="success"
-                      hide-default-footer
-                      class="elevation-0 mx-10 flex-fill d-flex flex-column">
+        <v-data-table fixed-header dense :headers="headers" :items="taskHistoryList" :items-per-page="50"
+          mobile-breakpoint="0" :loading="isTableLoading" checkbox-color="success" :class="{'mx-2': isMobile}"
+          color="success" hide-default-footer class="elevation-0 mx-10 flex-fill d-flex flex-column">
           <template v-slot:item.taskCostDuration="{ item }">
             {{timeFormat(item.taskCostDuration)}}
           </template>
@@ -174,151 +160,148 @@
             </v-btn>
           </template> -->
           <template v-slot:item.operation-at="{ item }">
-            {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}  
+            {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
           </template>
 
         </v-data-table>
       </template>
-    
-      <v-dialog
-          v-model="dialog"
-          max-width="500px"
-        >
-          <v-card>
-            <v-card-title>
-              <span class="text-h5"></span>
-            </v-card-title>
-    
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12" sm="12" md="12" v-for="(item, index) in editItem.formList" >
-                    <span>{{item.component.outline}}：</span><span>{{editItem.input[item.id]}}</span>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
+
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span class="text-h5"></span>
+          </v-card-title>
+
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12" sm="12" md="12" v-for="(item, index) in updateItem.formList">
+                  <span>{{item.component.outline}}：</span><span>{{updateItem.input[item.id]}}</span>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-card>
   </div>
-  
+
 </template>
 
 
 
 
 <script type="module">
-Vue.component('purchase-order-detail',{
-  template: '#purchase-order-detail',
-  props: ['purchaseOrder'],
-  vuetify: new Vuetify(),
-  data: () => ({
-    isMobile: window.innerWidth < 600,
-    dialog: false,
-    isTableLoading: true,
-    headers: [
-      {text: "节点", value: "taskExplain", width: 120},
-      {text: "流转", value: "taskHandleDesc", width: 120},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "备注", value: "taskComment", width: 120},
-      // {text: "处理时长/秒", value: "taskCostDuration", width: 120},
-      {text: "处理时间", value: "operation-at", width: 120},
-      // {text: "表单明细", value: "action", width: 120},
-    ],
-    
-    editItem: {},
-    workflowTaskId: '',
-    purchaseOrderDetail: {
-      goodList: [],
-      contractList: []
-    },
-    baseInfo: [
-      { label: '采购单编号', key: 'purchaseOrderId' },
-      { label: '采购标题', key: 'purchaseTitle' },
-      { label: '申购人', key: 'purchaseRequirerName' },
-      { label: '申购部门', key: 'purchaseDeptName' },
-      { label: '申请时间', key: 'applyAt' },
-      { label: '完成时间', key: 'finishAt' },
-      { label: '状态', key: 'purchaseStatus' },  
-    ],
-    deptBudgetHeaders: [
-      { text: "预算", value: "budget-price", width: 200 },
-      { text: "开始时间", value: "budgetStartDate", width: 120 },
-      { text: "结束时间", value: "budgetEndDate", width: 120 },
-      { text: "备注", value: "remark", width: 120 },
-    ],
-    goodListHeaders: [
-      { text: "商品", value: "goodName", width: 200 },
-      { text: "数量", value: "goodCount", width: 120 },
-      { text: "单位", value: "goodUnit", width: 80 },
-      { text: "供应商", value: "supplierName", width: 120 },
-      { text: "供应商报价", value: "goodPrice", width: 120 },
-      { text: "报价填写人", value: "filledByUser", width: 120 },
-      { text: "商品预算", value: "used-budget-price", width: 260 },
-     
-      // { text: "最近采购价", value: "recentPrice", width: 120 },
-      // { text: "库存", value: "stock", width: 80 },
-      // { text: "备注", value: "remarks", width: 120 }
-    ],
-    contractListHeaders: [
-      { text: "凭据编号", value: "contractId", width: 200 },
-      { text: "凭据标题", value: "contractTitle", width: 200 },
-      { text: "凭据类型", value: "contractFileType", width: 200 },
-      { text: "备注", value: "remarks", width: 120 },
-      { text: "凭据文件", value: "contract-file", width: 200 }
-    ],
-    dialogSaveInfoAction: '',
-    id: '',
-    taskId: '',
-    isAccess: [],
-    lineTypeList: [],
-    nextLineList: [],
-    taskHistoryList: [],
-    taskTpl: [],
-    taskStepperList: [],
-    currentNode: {},
-    taskHistoryConfigList: null,
-    isLoadingDetail: false,
-  }),
-  watch: {
-    purchaseOrder: {
-      handler(newValue, oldValue) {
-        if (!newValue.id) return;
-        const { purchaseOrderId, workflowTaskId, workflowTaskRecordId } = newValue
-        this.purchaseOrderId = purchaseOrderId
-        this.workflowTaskId = workflowTaskId
-        this.id = workflowTaskRecordId
-        this.doUiAction('getDetail').then(res=> {})
+  Vue.component('purchase-order-detail', {
+    template: '#purchase-order-detail',
+    props: ['purchaseOrder'],
+    vuetify: new Vuetify(),
+    data: () => ({
+      isMobile: window.innerWidth < 600,
+      dialog: false,
+      isTableLoading: true,
+      headers: [
+        { text: "节点", value: "taskExplain", width: 120 },
+        { text: "流转", value: "taskHandleDesc", width: 120 },
+        { text: "操作人", value: "operationByUser", width: 120 },
+        { text: "备注", value: "taskComment", width: 120 },
+        // {text: "处理时长/秒", value: "taskCostDuration", width: 120},
+        { text: "处理时间", value: "operation-at", width: 120 },
+        // {text: "表单明细", value: "action", width: 120},
+      ],
+
+      updateItem: {},
+      workflowTaskId: '',
+      purchaseOrderDetail: {
+        goodList: [],
+        contractList: []
       },
-      deep:true
-    }
-  },
-  async created() {
-  },
-  computed: {
-    purchaseOrderPrice() {
-      const { purchaseOrderPrice, goodList } = this.purchaseOrderDetail
-      let totalPrice = purchaseOrderPrice
-      if (!purchaseOrderPrice) {
-        totalPrice = goodList.reduce((prev, next)=> prev+(next.goodPrice*next.goodCount), 0)
+      baseInfo: [
+        { label: '采购单编号', key: 'purchaseOrderId' },
+        { label: '采购标题', key: 'purchaseTitle' },
+        { label: '申购人', key: 'purchaseRequirerName' },
+        { label: '申购部门', key: 'purchaseDeptName' },
+        { label: '申请时间', key: 'applyAt' },
+        { label: '完成时间', key: 'finishAt' },
+        { label: '状态', key: 'purchaseStatus' },
+      ],
+      deptBudgetHeaders: [
+        { text: "预算", value: "budget-price", width: 200 },
+        { text: "开始时间", value: "budgetStartDate", width: 120 },
+        { text: "结束时间", value: "budgetEndDate", width: 120 },
+        { text: "备注", value: "remark", width: 120 },
+      ],
+      goodListHeaders: [
+        { text: "商品", value: "goodName", width: 200 },
+        { text: "数量", value: "goodCount", width: 120 },
+        { text: "单位", value: "goodUnit", width: 80 },
+        { text: "供应商", value: "supplierName", width: 120 },
+        { text: "供应商报价", value: "goodPrice", width: 120 },
+        { text: "报价填写人", value: "filledByUser", width: 120 },
+        { text: "商品预算", value: "used-budget-price", width: 260 },
+
+        // { text: "最近采购价", value: "recentPrice", width: 120 },
+        // { text: "库存", value: "stock", width: 80 },
+        // { text: "备注", value: "remarks", width: 120 }
+      ],
+      contractListHeaders: [
+        { text: "凭据编号", value: "contractId", width: 200 },
+        { text: "凭据标题", value: "contractTitle", width: 200 },
+        { text: "凭据类型", value: "contractFileType", width: 200 },
+        { text: "备注", value: "remarks", width: 120 },
+        { text: "凭据文件", value: "contract-file", width: 200 }
+      ],
+      dialogSaveInfoAction: '',
+      id: '',
+      taskId: '',
+      isAccess: [],
+      lineTypeList: [],
+      nextLineList: [],
+      taskHistoryList: [],
+      taskTpl: [],
+      taskStepperList: [],
+      currentNode: {},
+      taskHistoryConfigList: null,
+      isLoadingDetail: false,
+    }),
+    watch: {
+      purchaseOrder: {
+        handler(newValue, oldValue) {
+          if (!newValue.id) return;
+          const { purchaseOrderId, workflowTaskId, workflowTaskRecordId } = newValue
+          this.purchaseOrderId = purchaseOrderId
+          this.workflowTaskId = workflowTaskId
+          this.id = workflowTaskRecordId
+          this.doUiAction('getDetail').then(res => { })
+        },
+        deep: true
       }
-      return totalPrice
     },
-    budgetDeptDetail() {
-      const { budgetDept } = this.purchaseOrderDetail;
-      if (!budgetDept) reutrn;
-      let { used, total, budgetStartDate, budgetEndDate, remark} = budgetDept;
-      if (remark) {
-        remark = `【${remark}】`
+    async created() {
+    },
+    computed: {
+      purchaseOrderPrice() {
+        const { purchaseOrderPrice, goodList } = this.purchaseOrderDetail
+        let totalPrice = purchaseOrderPrice
+        if (!purchaseOrderPrice) {
+          totalPrice = goodList.reduce((prev, next) => prev + (next.goodPrice * next.goodCount), 0)
+        }
+        return totalPrice
+      },
+      budgetDeptDetail() {
+        const { budgetDept } = this.purchaseOrderDetail;
+        if (!budgetDept) reutrn;
+        let { used, total, budgetStartDate, budgetEndDate, remark } = budgetDept;
+        if (remark) {
+          remark = `【${remark}】`
+        }
+        return `${used}/${total}（${budgetStartDate}~${budgetEndDate}）${remark}`;
       }
-      return `${used}/${total}（${budgetStartDate}~${budgetEndDate}）${remark}`;
-    }
-  },
-  mounted() {
-  },
-  methods: {
-    async doUiAction(uiActionId, uiActionData) {
+    },
+    mounted() {
+    },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
         switch (uiActionId) {
           case 'getDetail':
             await this.getPurchaseOrderDetail();
@@ -332,154 +315,165 @@ Vue.component('purchase-order-detail',{
             console.error("[doUiAction] uiActionId not find", { uiActionId });
             break;
         }
-    },
-    async getPurchaseOrderDetail() {
-      this.isLoadingDetail = true
-      const { resultData } = (await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'purchaseOrderDetail',
-            actionId: 'getPurchaseOrderDetail',
-            actionData: {purchaseOrderId: this.purchaseOrderId, workflowTaskId: this.workflowTaskId},
-          }
-        }
-      })).data.appData;
-      this.isLoadingDetail = false
-      // 临时适配单凭据文件数据格式
-      resultData.contractList = resultData.contractList.map(contract => {
-        return {
-          contractId: contract.contractId,
-          contractTitle: contract.filename,
-          contractFileType: contract.contractFileType,
-          remarks: contract.remarks,
-          contractFileList: [contract]
-        }
-      })
-      resultData.applyAt = resultData.applyAt ? dayjs(resultData.applyAt).format('YYYY-MM-DD HH:mm:ss') : resultData.applyAt;
-      resultData.finishAt = resultData.finishAt ? dayjs(resultData.finishAt).format('YYYY-MM-DD HH:mm:ss') : resultData.finishAt;
-      this.purchaseOrderDetail = {
-        ...resultData,
-        operationAt: dayjs(resultData.operationAt).format()
-      };
-      if(resultData.taskInfo) {
-        this.id = this.id || resultData.taskInfo.id;
-        this.taskId = resultData.taskInfo.taskId;
-      }
-    },
-
-    /**
-     * 获取表格数据
-     */
-    async getTaskHistoryList() {
-      if(!this.id) {
-        return
-      }
-      this.isTableLoading = true;
-      const {
-        data: {
-          appData: {
-            resultData: {
-              taskHistoryList,
-              taskStepperList,
-              taskTpl,
-              isAccess,
-              lineTypeList,
-              nextLineList,
-              currentNode,
-              taskHistoryConfigList
+      },
+      async getPurchaseOrderDetail() {
+        this.isLoadingDetail = true
+        const { resultData } = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'purchaseOrderDetail',
+              actionId: 'getPurchaseOrderDetail',
+              actionData: { purchaseOrderId: this.purchaseOrderId, workflowTaskId: this.workflowTaskId },
             }
           }
-        }
-      } = await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'taskHistoryManagement',
-            actionId: 'getTaskHistoryInfo',
-            actionData: {id: this.id},
+        })).data.appData;
+        this.isLoadingDetail = false
+        // 临时适配单凭据文件数据格式
+        resultData.contractList = resultData.contractList.map(contract => {
+          return {
+            contractId: contract.contractId,
+            contractTitle: contract.filename,
+            contractFileType: contract.contractFileType,
+            remarks: contract.remarks,
+            contractFileList: [contract]
           }
+        })
+        resultData.applyAt = resultData.applyAt ? dayjs(resultData.applyAt).format('YYYY-MM-DD HH:mm:ss') : resultData.applyAt;
+        resultData.finishAt = resultData.finishAt ? dayjs(resultData.finishAt).format('YYYY-MM-DD HH:mm:ss') : resultData.finishAt;
+        this.purchaseOrderDetail = {
+          ...resultData,
+          operationAt: dayjs(resultData.operationAt).format()
+        };
+        if (resultData.taskInfo) {
+          this.id = this.id || resultData.taskInfo.id;
+          this.taskId = resultData.taskInfo.taskId;
         }
-      });
-      taskHistoryList.forEach(e => {
-        e.taskFormInput = JSON.parse(e.taskFormInput);
-        e.operationAt = dayjs(e.operationAt).format()
-      })
-      this.taskHistoryList = taskHistoryList;
-      this.taskTpl = taskTpl;
-      this.taskStepperList = taskStepperList;
-      this.currentNode = currentNode;
-      this.isAccess = isAccess;
-      this.nextLineList = _.uniqBy(nextLineList, 'type') ;
-      this.lineTypeList = _.uniqBy((lineTypeList||'').split(",").map(lineType => ({type: lineType, label: lineType})), 'type');
-      // 更新操作人到连线
-      taskHistoryConfigList.lineList.map(line => {
-        let currentHistoryList = taskHistoryList.filter(taskHistory => taskHistory.taskConfigId == line.from && taskHistory.taskLineTo == line.to) 
-        let operationByUser = currentHistoryList.filter(currentHistory => currentHistory.taskHandleDesc == line.type)
-                .map(currentHistory => currentHistory.operationByUser).join(",")
-        line.origin && (line.origin.text.value = `${operationByUser}-${line.label}`);
-      });
-      this.taskHistoryConfigList = taskHistoryConfigList;
-      this.isTableLoading = false;
-    },
+      },
 
-    /**
-     * 新增数据
-     */
-    async submitNode(type) {
-      await window.vtoast.loading("提交数据");
-      await window.jianghuAxios({
-        data: {
-          appData: {
-            pageId: 'taskHistoryManagement',
-            actionId: 'submitNode',
-            actionData: {type, id: this.id, taskId: this.taskId, taskComment: this.editItem.taskComment, taskTpl: this.taskTpl}
+      /**
+       * 获取表格数据
+       */
+      async getTaskHistoryList() {
+        if (!this.id) {
+          return
+        }
+        this.isTableLoading = true;
+        const {
+          data: {
+            appData: {
+              resultData: {
+                taskHistoryList,
+                taskStepperList,
+                taskTpl,
+                isAccess,
+                lineTypeList,
+                nextLineList,
+                currentNode,
+                taskHistoryConfigList
+              }
+            }
           }
-        }
-      })
-      await window.vtoast.success("提交数据成功");
-      setTimeout(()=> {
-        this.$emit('close-detail-drawer')
-        // if (document.referrer) {
-        //   location.href = document.referrer;
-        // } else {
-        //   history.back();
-        // }
-      }, 1000);
-    },
+        } = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'taskHistoryManagement',
+              actionId: 'getTaskHistoryInfo',
+              actionData: { id: this.id },
+            }
+          }
+        });
+        taskHistoryList.forEach(e => {
+          e.taskFormInput = JSON.parse(e.taskFormInput);
+          e.operationAt = dayjs(e.operationAt).format()
+        })
+        this.taskHistoryList = taskHistoryList;
+        this.taskTpl = taskTpl;
+        this.taskStepperList = taskStepperList;
+        this.currentNode = currentNode;
+        this.isAccess = isAccess;
+        this.nextLineList = _.uniqBy(nextLineList, 'type');
+        this.lineTypeList = _.uniqBy((lineTypeList || '').split(",").map(lineType => ({ type: lineType, label: lineType })), 'type');
+        // 更新操作人到连线
+        taskHistoryConfigList.lineList.map(line => {
+          let currentHistoryList = taskHistoryList.filter(taskHistory => taskHistory.taskConfigId == line.from && taskHistory.taskLineTo == line.to)
+          let operationByUser = currentHistoryList.filter(currentHistory => currentHistory.taskHandleDesc == line.type)
+            .map(currentHistory => currentHistory.operationByUser).join(",")
+          line.origin && (line.origin.text.value = `${operationByUser}-${line.label}`);
+        });
+        this.taskHistoryConfigList = taskHistoryConfigList;
+        this.isTableLoading = false;
+      },
 
-    formTitlePrefix(title, type) {
-      if (type === 'prev') {
-        return '历史-' + title;
-      }
-      return title;
-    },
-    viewInput({item}) {
-      this.editItem = item.taskFormInput;
-      this.dialog = true;
-    },
-    timeFormat(time) {
-      if (time == 0) {
-        return ''
-      } else if (time < 60) {
-        return time + ' 秒';
-      } else if (time < 3600) {
-        const s = time % 60;
-        return parseInt(time / 60) + ' 分' + s + ' 秒';
-      } else if (time < 86400) {
-        const m = time % 3600;
-        return parseInt(time / 3600) + ' 小时' + parseInt(m / 60) + ' 分';
-      } else {
-        const m = time % 86400;
-        return parseInt(time / 86400) + ' 天' + parseInt(m / 3600) + ' 小时';
+      /**
+       * 新增数据
+       */
+      async submitNode(type) {
+        await window.vtoast.loading("提交数据");
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'taskHistoryManagement',
+              actionId: 'submitNode',
+              actionData: { type, id: this.id, taskId: this.taskId, taskComment: this.updateItem.taskComment, taskTpl: this.taskTpl }
+            }
+          }
+        })
+        await window.vtoast.success("提交数据成功");
+        setTimeout(() => {
+          this.$emit('close-detail-drawer')
+          // if (document.referrer) {
+          //   location.href = document.referrer;
+          // } else {
+          //   history.back();
+          // }
+        }, 1000);
+      },
+
+      formTitlePrefix(title, type) {
+        if (type === 'prev') {
+          return '历史-' + title;
+        }
+        return title;
+      },
+      viewInput({ item }) {
+        this.updateItem = item.taskFormInput;
+        this.dialog = true;
+      },
+      timeFormat(time) {
+        if (time == 0) {
+          return ''
+        } else if (time < 60) {
+          return time + ' 秒';
+        } else if (time < 3600) {
+          const s = time % 60;
+          return parseInt(time / 60) + ' 分' + s + ' 秒';
+        } else if (time < 86400) {
+          const m = time % 3600;
+          return parseInt(time / 3600) + ' 小时' + parseInt(m / 60) + ' 分';
+        } else {
+          const m = time % 86400;
+          return parseInt(time / 86400) + ' 天' + parseInt(m / 3600) + ' 小时';
+        }
       }
     }
-  }
-})
+  })
 </script>
 
 <style scoped>
-  .v-data-table--dense>.v-data-table__wrapper>table>tbody>tr>td, .v-data-table--dense>.v-data-table__wrapper>table>tbody>tr>th, .v-data-table--dense>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table--dense>.v-data-table__wrapper>table>tfoot>tr>th, .v-data-table--dense>.v-data-table__wrapper>table>thead>tr>td, .v-data-table--dense>.v-data-table__wrapper>table>thead>tr>th {
-      height: 32px;
+  .v-data-table--dense>.v-data-table__wrapper>table>tbody>tr>td,
+  .v-data-table--dense>.v-data-table__wrapper>table>tbody>tr>th,
+  .v-data-table--dense>.v-data-table__wrapper>table>tfoot>tr>td,
+  .v-data-table--dense>.v-data-table__wrapper>table>tfoot>tr>th,
+  .v-data-table--dense>.v-data-table__wrapper>table>thead>tr>td,
+  .v-data-table--dense>.v-data-table__wrapper>table>thead>tr>th {
+    height: 32px;
   }
-  .base-info { font-size: 14px; }
-  .base-info .value { color: #666; }
+
+  .base-info {
+    font-size: 14px;
+  }
+
+  .base-info .value {
+    color: #666;
+  }
 </style>
