@@ -1,4 +1,4 @@
-<template id="purchase-order-management-supplier-select">
+<template id="supplier-list">
   <v-container class="pa-0">
     <v-card elevation="0" outlined>
       <v-data-table :headers="headers" :items="value" hide-default-footer
@@ -75,8 +75,8 @@
 </template>
 
 <script type="module">
-  Vue.component("purchase-order-management-supplier-select", {
-    template: '#purchase-order-management-supplier-select',
+  Vue.component("supplier-list", {
+    template: '#supplier-list',
     props: {
       value: {
         type: Array,

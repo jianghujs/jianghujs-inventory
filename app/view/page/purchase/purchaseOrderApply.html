@@ -155,7 +155,7 @@
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">申购商品</span>
-                <purchase-order-apply-good-select :good-list="goodList" v-model="addItem['goodList']" :rules="goodListRules"/>
+                <goods-select :good-list="goodList" v-model="addItem['goodList']" :rules="goodListRules"/>
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
@@ -237,7 +237,7 @@
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">申购商品</span>
-                <purchase-order-apply-good-select :loading="purchaseOrderGoodTableLoading" :good-list="goodList" v-model="updateItem['goodList']"/>
+                <goods-select :loading="purchaseOrderGoodTableLoading" :good-list="goodList" v-model="updateItem['goodList']"/>
               </v-col>
               <v-col cols="12">
                 <span class="jh-input-label">审批流程</span>
@@ -335,7 +335,7 @@
 {% include 'component/purchase/previewFileGroup.html' %}
 {% include 'component/purchase/purchaseOrderDetail.html' %}
 
-{% include 'component/purchase/purchaseOrderApply-goodSelect.html' %}
+{% include 'component/purchase/goodsSelect.html' %}
 {% include 'component/purchase/purchaseOrder-status-select.html' %}
 <!-- <<<<<<<<<<<<< 加载页面组件 -->
 

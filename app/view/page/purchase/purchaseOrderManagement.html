@@ -130,7 +130,7 @@
                   indeterminate
                   v-if="isInputGoodPriceDrawerLoading"
                 ></v-progress-linear>
-                <purchase-order-management-supplier-select ref="purchaseOrderSupplier" :supplier-list="supplierList" :good-list="goodList" :value="inputGoodPriceItem.goodList"/>
+                <supplier-list ref="purchaseOrderSupplier" :supplier-list="supplierList" :good-list="goodList" :value="inputGoodPriceItem.goodList"/>
         
                 <v-row class="justify-end mx-0 mt-8 px-6">
                   <v-btn class="mr-2" @click="doUiAction('doSavePurchaseOrderApproval')">保存全部报价</v-btn>
@@ -154,7 +154,7 @@
           <!-- 抽屉表单 -->
           <v-row class="mt-0 px-6">
             <v-col cols="12">
-              <purchaseOrderManagement-contractUpload :purchase-order-id="uploadPurchaseContractItem['purchaseOrderId']"></purchaseOrderManagement-contractUpload>
+              <contract-material :purchase-order-id="uploadPurchaseContractItem['purchaseOrderId']"></contract-material>
             </v-col>
           </v-row>
           <!-- 抽屉关闭按钮 -->
@@ -215,9 +215,9 @@
 {% include 'component/basic/rowStatus/row-status-switch-button.html' %}
 {% include 'component/purchase/purchaseOrderDetail.html' %}
 
-{% include 'component/purchase/purchaseOrderManagement-supplierSelect.html' %}
+{% include 'component/purchase/supplierList.html' %}
 {% include 'component/purchase/purchaseOrder-status-select.html' %}
-{% include 'component/purchase/purchaseOrderManagement-contractUpload.html' %}
+{% include 'component/purchase/contractMaterial.html' %}
 <!-- <<<<<<<<<<<<< 加载页面组件 -->
 
 <script type="module">

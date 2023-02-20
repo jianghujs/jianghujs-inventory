@@ -1,4 +1,4 @@
-<template id="purchase-order-apply-good-select">
+<template id="goods-select">
   <v-container class="pa-0">
     <v-card elevation="0" outlined>
       <v-data-table :loading="loading" :headers="headers" :items="value" hide-default-footer
@@ -37,8 +37,8 @@
 </template>
 
 <script type="module">
-  Vue.component("purchase-order-apply-good-select", {
-    template: '#purchase-order-apply-good-select',
+  Vue.component("goods-select", {
+    template: '#goods-select',
     props: {
       value: {
         type: Array,
