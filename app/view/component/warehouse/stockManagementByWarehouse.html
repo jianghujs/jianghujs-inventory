@@ -232,8 +232,8 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouseManagement',
-              actionId: 'stock-selectItemList',
+              pageId: 'stockManagement',
+              actionId: 'selectItemList',
               actionData: {},
               where: {
                 warehouseId: this.warehouseId
@@ -278,8 +278,8 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouseManagement',
-              actionId: 'stock-insertItem',
+              pageId: 'stockManagement',
+              actionId: 'insertItem',
               actionData: data,
               idGenerate: {
                 type: 'idSequence',
@@ -322,8 +322,8 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouseManagement',
-              actionId: 'stock-updateItem',
+              pageId: 'stockManagement',
+              actionId: 'updateItem',
               actionData: data,
               where: { id }
             }
@@ -347,8 +347,8 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouseManagement',
-              actionId: 'stock-deleteItem',
+              pageId: 'stockManagement',
+              actionId: 'deleteItem',
               actionData: {},
               where: { id: id }
             }
@@ -364,8 +364,8 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouseManagement',
-              actionId: 'stock-updateItem',
+              pageId: 'stockManagement',
+              actionId: 'updateItem',
               actionData: { rowStatus },
               where: { id: item.id }
             }

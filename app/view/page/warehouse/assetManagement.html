@@ -1,0 +1,474 @@
+{% extends 'template/jhTemplateV4.html'%}
+
+{% block vueTemplate %}
+
+<script type="text/html" id="app-template">
+<div>
+<v-app mobile-breakpoint="sm">
+  <jh-menu />
+  <v-main class="mt-15">
+    <!-- 头部内容 >>>>>>>>>>>>> -->
+    <div class="jh-page-second-bar px-8">
+      <v-row>
+        <v-col cols="12" xs="12" sm="12" md="4" xl="3">
+          <div class="pt-3 text-h7 font-weight-bold">资产管理
+            <!-- 帮助页按钮 -->
+            <v-icon @click="isHelpPageDrawerShown = true" color="success" small>mdi-help-circle-outline
+            </v-icon>
+          </div>
+          <v-breadcrumbs class="pb-3 pt-0 pl-0" :items="breadcrumbs" divider="-"></v-breadcrumbs>
+        </v-col>
+        <!-- pc端的搜索条件表单 >>>>>>>> -->
+        <v-col cols="12" xs="12" sm="12" md="8" xl="9" class="d-flex align-center">
+          <v-row class="jh-backend-form-container justify-end ma-0 py-1 pb-xs-2">
+            <v-col cols="12" xs="6" sm="6" md="3" xl="3" class="pa-xs-0 pb-2 px-1 pl-xs-1">
+              <v-select v-model="tableGroupBy" class="jh-v-input bg-white" :items="constantObj.tableGroupBy" prefix="展示类型"
+                 hide-details dense filled single-line hide-no-data />
+            </v-col>
+            <v-col cols="12" xs="6" sm="6" md="4" xl="3" class="pa-xs-0 pb-2 px-1 pl-xs-1">
+              <v-autocomplete prefix="商品" class="jh-v-input bg-white" dense filled single-line clearable
+                v-model="serverSearchInput.goodId" :items="constantObj.good" item-text="goodName" item-value="goodId"
+                :no-data-text="'没有数据'">
+              </v-autocomplete>
+            </v-col>
+            <v-col cols="12" xs="6" sm="6" md="3" xl="3" class="pa-xs-0 pb-2 px-1 pl-xs-1">
+              <v-autocomplete prefix="仓库" class="jh-v-input bg-white" dense filled single-line clearable
+                v-model="serverSearchInput.warehouseId" :items="constantObj.warehouse" item-text="warehouseName"
+                item-value="warehouseId" :no-data-text="'没有数据'">
+            </v-col>
+            <v-btn class="jh-backend-search-btn elevation-0 ml-0 mt-3" color="success" small @click="doUiAction('refreshTableData')">
+              查询
+            </v-btn>
+          </v-row>
+        </v-col>
+        <!-- <<<<<<<< pc端的搜索条件表单 -->
+      </v-row>
+    </div>
+    <!-- <<<<<<<<<<<<< 头部内容 -->
+
+    <div class="jh-page-body-container px-8">
+      <!-- 页面内容 >>>>>>>>>>>>> -->
+      <v-card class="rounded-lg">
+        <v-row class="ma-0 pa-4">
+          <v-spacer></v-spacer>
+          <!-- 搜索过滤 -->
+          <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
+            <v-text-field color="success" v-model="searchInput" prefix="搜索：" class="jh-v-input" dense filled single-line></v-text-field>
+          </v-col>
+        </v-row>
+        <!-- 表格 -->
+        <v-data-table
+          :headers="headers"
+          :items="tableData"
+          :search="searchInput"
+          :group-by="tableGroupBy"
+          :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
+          :items-per-page="-1"
+          mobile-breakpoint="0"
+          :loading="isTableLoading"
+          checkbox-color="success"
+          fixed-header
+          class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
+          <!-- 处理列显示 -->
+          <template v-slot:group.header="{items, isOpen, toggle, remove}">
+            <th colspan="2">
+              <v-icon @click="toggle">{{ isOpen ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
+              <span v-if="tableGroupBy === 'warehouseId'">
+                仓库: {{ items[0].warehouseName }}
+                <span
+                  role="button" class="success--text font-weight-medium font-size-2 mr-2"
+                  @click="doUiAction('openAssetHistoryDialog', {item: items[0], assetHistoryViewType: 'warehouseId'})">
+                  <v-icon size="16" class="success--text">mdi-home-switch-outline</v-icon>资产状态记录
+                </span>
+              </span>
+              <span v-if="tableGroupBy === 'goodId'">
+                商品: {{ items[0].goodName }}
+                <span
+                  role="button" class="success--text font-weight-medium font-size-2 mr-2"
+                  @click="doUiAction('openAssetHistoryDialog', {item: items[0], assetHistoryViewType: 'goodId'})">
+                  <v-icon size="16" class="success--text">mdi-home-switch-outline</v-icon>出库入库记录
+                </span>
+              </span>
+            </th>
+            <th colspan="1">
+              库存: {{ items.length }}
+            </th>
+          </template>
+          <template v-slot:item.action="{ item }">
+            <span
+              role="button" class="success--text font-weight-medium font-size-2 mr-2"
+              @click="doUiAction('openAssetHistoryDialog', {item, assetHistoryViewType: 'assetId'})">
+              <v-icon size="16" class="success--text">mdi-home-switch-outline</v-icon>资产状态记录
+            </span>
+            <span
+              role="button" class="success--text font-weight-medium font-size-2 mr-2"
+              @click="doUiAction('startUpdateItem', {item})">
+              <v-icon size="16" class="success--text">mdi-note-edit-outline</v-icon>修改
+            </span>
+          </template>
+
+          <!-- 没有数据 -->
+          <template v-slot:loading>
+            <div class="jh-no-data">数据加载中</div>
+          </template>
+          <template v-slot:no-data>
+            <div class="jh-no-data">暂无数据</div>
+          </template>
+          <template v-slot:no-results>
+            <div class="jh-no-data">暂无数据</div>
+          </template>
+          <!-- 表格分页 -->
+          <template v-slot:footer.page-text="pagination">
+            <span>{{pagination.pageStart}}-{{pagination.pageStop}}</span>
+            <span class="ml-1">共{{pagination.itemsLength}}条</span>
+          </template>
+        </v-data-table>
+      </v-card>
+      <!-- <<<<<<<<<<<<< 页面内容 -->
+
+      <!-- 出入库记录抽屉 -->
+      <v-navigation-drawer v-model="isAssetHistoryDrawerShow" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+        <!-- 抽屉标题 -->
+        <v-row>
+          <span v-if="assetHistoryViewType === 'assetId'" class="title pa-6">
+            【资产维度: {{updateItem.assetId}}】资产状态记录
+          </span>
+          <span v-if="assetHistoryViewType === 'goodId'" class="title pa-6">
+            【商品维度: {{updateItem.goodName}}({{updateItem.goodId}})】资产状态记录
+          </span>
+          <span v-if="assetHistoryViewType === 'warehouseId'" class="title pa-6">
+            【仓库维度: {{updateItem.warehouseName}}({{updateItem.warehouseId}})】资产状态记录
+          </span>
+        </v-row>
+        <!-- 抽屉表单主体 -->
+        <v-row class="mt-0 px-4">
+          <asset-history :asset="updateItem" :view-type="assetHistoryViewType"
+            v-if="isAssetHistoryDrawerShow"></asset-history>
+        </v-row>
+        <!-- 抽屉关闭按钮 -->
+        <v-btn
+          elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+          @click="isAssetHistoryDrawerShow = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-navigation-drawer>
+      <!-- 编辑抽屉 -->
+      <v-navigation-drawer v-model="isUpdateDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+        <v-form ref="updateForm" lazy-validation>
+          <!-- 抽屉标题 -->
+          <v-row>
+            <span class="text-subtitle-1 font-weight-medium pa-6 pl-7">【{{ updateItem.goodName }}】修改</span>
+          </v-row>
+          <!-- 抽屉表单 -->
+          <v-row class="mt-0 px-4">
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">仓库</span>
+              <v-autocomplete class="jh-v-input mr-2" dense filled single-line clearable hide-details v-model="updateItem.warehouseId"
+                :items="constantObj.warehouse" item-text="warehouseName" item-value="warehouseId"
+                :rules="validationRules.requireRules" @change="storeOfWarehouseSelectChange">
+              </v-autocomplete>
+            </v-col>
+            <v-col cols="12" sm="12" md="4">
+              <span class="jh-input-label">货架</span>
+              <v-select v-model="updateItem.stockId" :items="constantObj.stock" 
+                hide-details dense filled single-line hide-no-data item-text="stockName" item-value="stockId"
+                :no-data-text="'没有数据'" />
+            </v-col>
+          </v-row>
+          <!-- 抽屉操作按钮 -->
+          <v-row class="justify-end mx-0 mt-8 px-6">
+            <v-btn color="success" small @click="doUiAction('updateItem')">保存</v-btn>
+            <v-btn class="ml-2" small @click="isUpdateDrawerShown = false">取消
+            </v-btn>
+          </v-row>
+        </v-form>
+
+        <!-- 抽屉关闭按钮 -->
+        <v-btn
+          elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+          @click="isUpdateDrawerShown = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-navigation-drawer>
+    </div>
+
+    <!-- 帮助页抽屉 >>>>>>>>>>>>> -->
+    <v-navigation-drawer v-model="isHelpPageDrawerShown" v-click-outside="drawerClickOutside" fixed temporary right width="80%" class="elevation-24">
+      <iframe
+        style="border: 0" :src="`/${appInfo.appId}/pageDoc#3.doUiAction.md`" width="100%"
+        height="100%"></iframe>
+
+      <v-btn
+        elevation="0" color="success" fab absolute top left small tile class="drawer-close-float-btn"
+        @click="isHelpPageDrawerShown = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-navigation-drawer>
+    <!-- <<<<<<<<<<<<< 帮助页抽屉 -->
+
+  </v-main>
+</v-app>
+
+<jh-toast />
+<jh-mask />
+<jh-confirm-dialog />
+
+</div>
+</script>
+
+<div id="app">
+</div>
+
+{% endblock %}
+
+{% block vueScript %}
+
+<!-- 加载页面组件 >>>>>>>>>>>>> -->
+{% include 'common/jianghuJs/fixedTableHeightV4.html' %}
+{% include 'component/warehouse/assetHistoryByGoods.html' %}
+<!-- <<<<<<<<<<<<< 加载页面组件 -->
+
+<script type="module">
+  new Vue({
+    el: '#app',
+    template: '#app-template',
+    vueComponent: 'page',
+    vuetify: new Vuetify(),
+    data: {
+      // 面包屑
+      breadcrumbs: [
+        {
+          text: '首页',
+          disabled: true,
+        },
+        {
+          text: '资产管理',
+          disabled: true,
+        }
+      ],
+      isHelpPageDrawerShown: false,
+      // 表格相关数据
+      isTableZebraLineShown: true,
+      validationRules: {
+        requireRules: [
+          v => !!v || 'This is required',
+        ],
+      },
+      constantObj: {
+        tableGroupBy: [
+          { text: '按仓库', value: 'warehouseId' },
+          { text: '按商品', value: 'goodId' },
+        ]
+      },
+
+      serverSearchInput: {
+        goodCategory: ['固定资产', '一般资产'],
+        warehouseId: null,
+        goodId: null,
+      },
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        { text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed' },
+        { text: "资产编号", value: "assetId", width: 150, class: 'fixed', cellClass: 'fixed' },
+        { text: "商品名称", value: "goodName", width: 150, class: 'fixed', cellClass: 'fixed' },
+        { text: "仓库", value: "warehouseName", width: 150 },
+        { text: "货架", value: "stockName", width: 120 },
+
+        { text: "资产状态", value: "assetOperation", width: 120 },
+        { text: "资产操作人", value: "assetOperationUser", width: 120 },
+
+        { text: "商品类型", value: "goodType", width: 120 },
+        { text: "商品分类", value: "goodCategory", width: 120 },
+        { text: "保质期", value: "expirationAt", width: 120 },
+        { text: "入库时间", value: "storeAt", width: 260 },
+        { text: "采购单", value: "purchaseOrderId", width: 150 },
+        { text: "备注", value: "remark", width: 120 },
+      ],
+      updateItem: {},
+      isUpdateDrawerShown: false,
+      isAssetHistoryDrawerShow: false,
+
+      tableGroupBy: 'warehouseId',
+      assetHistoryViewType: null,
+    },
+    computed: {
+      tableData() {
+        return this.tableDataFromBackend;
+      }
+    },
+    watch: {},
+    async created() {
+      await this.doUiAction('initConstantCollection');
+      await this.doUiAction('refreshTableData');
+    },
+    methods: {
+      async doUiAction(uiActionId, uiActionData) {
+        switch (uiActionId) {
+          case 'initConstantCollection':
+            await this.selectGoodList();
+            await this.selectWarehouseList();
+            break;
+          case 'refreshTableData':
+            await this.refreshTableData();
+            break;
+          case 'openAssetHistoryDialog':
+            await this.openAssetHistoryDialog(uiActionData);
+            break;
+          case 'startUpdateItem':
+            await this.prepareUpdateItemData(uiActionData);
+            await this.openUpdateItemDialog();
+            break;
+          case 'updateItem':
+            await this.prepareValidate();
+            await this.confirmUpdateItemDialog();
+            await this.doUpdateItem();
+            await this.closeUpdateItemDialog();
+            await this.refreshTableData();
+            break;
+          default:
+            console.error("[doUiAction] uiActionId not find", { uiActionId });
+            break;
+        }
+      },
+      
+      // ---------- 公共方法 uiAction >>>>>>>>>>>> --------
+      async prepareValidate() {
+        if (this.$refs.form.validate() === false) {
+          window.vtoast.fail({ message: "输入有误, 请检查!" });
+          throw new Error("[prepareValidate] false");
+        }
+      },
+
+      async refreshTableData() {
+        this.isTableLoading = true;
+        const where = {};
+        if (this.serverSearchInput.goodId) {
+          where.goodId = this.serverSearchInput.goodId;
+        }
+        if (this.serverSearchInput.warehouseId) {
+          where.warehouseId = this.serverSearchInput.warehouseId;
+        }
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouse/assetManagement',
+              actionId: 'selectItemList',
+              actionData: {},
+              where,
+              whereIn: {
+                goodCategory: this.serverSearchInput.goodCategory,
+              },
+              // whereOptions: [
+              //   ['storeCountOfConsume', '>', 0],
+              // ],
+              orderBy: [{ column: 'operationAt', order: 'desc' }]
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+
+        this.tableDataFromBackend = rows;
+        this.isTableLoading = false;
+      },
+      async selectGoodList() {
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouse/assetManagement',
+              actionId: 'selectGoodList',
+              actionData: {},
+              whereIn: { goodCategory: this.serverSearchInput.goodCategory },
+              where: { rowStatus: '正常' },
+              orderBy: [{ column: 'goodName', order: 'desc' }]
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+        this.constantObj.good = rows;
+      },
+      async selectWarehouseList() {
+        const warehouseList = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouse/assetManagement',
+              actionId: 'selectWarehouseList',
+              actionData: {},
+              where: { rowStatus: '正常' },
+              orderBy: [{ column: 'warehouseName', order: 'desc' }]
+            }
+          }
+        })).data.appData.resultData.rows;
+        const allStockList = (await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouse/assetManagement',
+              actionId: 'selectStockList',
+              actionData: {},
+              where: { rowStatus: '正常' },
+            }
+          }
+        })).data.appData.resultData.rows;
+        warehouseList.forEach(wh => {
+          wh.stockList = allStockList.filter(stock => wh.warehouseId === stock.warehouseId);
+        });
+        this.constantObj.warehouse = warehouseList;
+      },
+      // ---------- <<<<<<<<<<< 公共方法 uiAction ---------
+
+      // ---------- 资产记录 uiAction >>>>>>>>>>>> --------
+      async openAssetHistoryDialog({ item, assetHistoryViewType }) {
+        this.updateItem = item;
+        this.isAssetHistoryDrawerShow = true;
+        this.assetHistoryViewType = assetHistoryViewType;
+      },
+      // ---------- <<<<<<<<<<< 资产记录 uiAction ---------
+
+      // ---------- 修改 uiAction >>>>>>>>>>>> --------
+      async storeOfWarehouseSelectChange(warehouseId) {
+        this.updateItem.stockId = null;
+        const wh = this.constantObj.warehouse.find(wh => wh.warehouseId === warehouseId);
+        this.constantObj.stock = wh.stockList;
+      },
+      async prepareUpdateItemData({ item }) {
+        this.storeOfWarehouseSelectChange(item.warehouseId);
+        this.updateItem = { ...item };
+      },
+      async openUpdateItemDialog() {
+        this.isUpdateDrawerShown = true;
+      },
+      async closeUpdateItemDialog() {
+        this.isUpdateDrawerShown = false;
+      },
+      async confirmUpdateItemDialog() {
+        if (await window.confirmDialog({ title: "修改", content: "确定修改吗？" }) === false) {
+          throw new Error("取消");
+        }
+      },
+      async doUpdateItem() {
+        await window.vtoast.loading("保存修改");
+        const result = await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'warehouse/assetManagement',
+              actionId: 'updateItem',
+              actionData: {
+                warehouseId: this.updateItem.warehouseId,
+                stockId: this.updateItem.stockId,
+              },
+              where: { id: this.updateItem.id }
+            }
+          }
+        });
+        const { rows } = result.data.appData.resultData;
+        window.vtoast.success({ message: "更新成功!" });
+      }
+      // ---------- <<<<<<<<<<< 修改 uiAction ---------
+    }
+  })
+</script>
+
+<style scoped>
+</style>
+{% endblock %}
