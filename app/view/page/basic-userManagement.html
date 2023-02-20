@@ -92,6 +92,7 @@
           <template v-slot:item.userStatus="{ item }">
             {{ getDisplayText({displayObj: constantObj.userStatus, displayValue: item.userStatus}) }}
           </template>
+          
           <!--没有数据-->
           <template v-slot:loading>
             <div class="jh-no-data">数据加载中</div>
