@@ -99,8 +99,8 @@
         </v-data-table>
       </v-card>
 
-      <warehouseManagement-stock class="mt-4" dense v-if="selectedRows.length > 0" :warehouse-id="selectwarehouseId"
-      :warehouse-name="selectwarehouseName"></warehouseManagement-stock>
+      <stock-management class="mt-4" dense v-if="selectedRows.length > 0" :warehouse-id="selectwarehouseId"
+      :warehouse-name="selectwarehouseName"></stock-management>
       <!-- <<<<<<<<<<<<< 页面内容 -->
 
       <!-- 新增抽屉 -->
@@ -225,7 +225,7 @@
 {% include 'common/jianghuJs/fixedTableHeightV4.html' %}
 {% include 'component/basic/rowStatus/row-status-select.html' %}
 {% include 'component/basic/rowStatus/row-status-switch-button.html' %}
-{% include 'component/warehouse/warehouseManagement-stock.html' %}
+{% include 'component/warehouse/stockManagementByWarehouse.html' %}
 <!-- <<<<<<<<<<<<< 加载页面组件 -->
 
 <script type="module">

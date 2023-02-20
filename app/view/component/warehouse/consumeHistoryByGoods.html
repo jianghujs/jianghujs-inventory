@@ -1,4 +1,4 @@
-<template id="consumeManagement-consumeHistory">
+<template id="consume-history">
   <v-card>
     <v-row class="ma-0 pa-4">
       <span class="body-2">共{{ tableData.length }}条记录</span>
@@ -53,8 +53,8 @@
 </template>
 
 <script>
-  Vue.component("consumeManagement-consumeHistory", {
-    template: '#consumeManagement-consumeHistory',
+  Vue.component("consume-history", {
+    template: '#consume-history',
     props: {
       consume: {
         type: Object,
@@ -97,9 +97,6 @@
       ],
     }),
     computed: {
-      isMobile() {
-        return window.innerWidth < 600;
-      },
       tableData() {
         return this.tableDataFromBackend;
       }

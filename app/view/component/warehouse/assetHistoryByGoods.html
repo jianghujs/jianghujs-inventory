@@ -1,10 +1,11 @@
-<template id="assetOutWarehouse-assetHistory">
+<template id="asset-history">
   <v-card>
     <v-row class="ma-0 pa-4">
       <span class="body-2">共{{ tableData.length }}条记录</span>
       <v-spacer></v-spacer>
+      <!-- 搜索过滤 -->
       <v-col cols="12" xs="8" sm="4" md="3" xl="2" class="pa-0">
-        <v-text-field v-model="searchInput" label="表格过滤" class="jh-v-input" dense filled single-line></v-text-field>
+        <v-text-field color="success" v-model="searchInput" prefix="搜索：" class="jh-v-input" dense filled single-line></v-text-field>
       </v-col>
     </v-row>
     <v-data-table 
@@ -13,7 +14,8 @@
       :items="tableData" 
       :search="searchInput"
       :footer-props="{ itemsPerPageOptions: [20, 50, -1], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}" 
-      :items-per-page="50" mobile-breakpoint="0"
+      :items-per-page="50" 
+      mobile-breakpoint="0"
       :loading="isTableLoading" 
       checkbox-color="success" 
       class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
@@ -46,8 +48,8 @@
 </template>
 
 <script>
-  Vue.component("assetOutWarehouse-assetHistory", {
-    template: '#assetOutWarehouse-assetHistory',
+  Vue.component("asset-history", {
+    template: '#asset-history',
     props: {
       asset: {
         type: Object,
@@ -79,21 +81,18 @@
       tableDataFromBackend: [],
       headers: [
         { text: "资产编号", value: "assetId", width: 120, class: 'fixed', cellClass: 'fixed' },
-        { text: "仓库", value: "warehouseName", width: 120, class: 'fixed', cellClass: 'fixed' },
-        { text: "货架", value: "stockName", width: 120 },
+        { text: "仓库", value: "warehouseName", width: 100, class: 'fixed', cellClass: 'fixed' },
+        { text: "货架", value: "stockName", width: 100 },
         { text: "商品名称", value: "goodName", width: 120 },
 
         { text: "操作类型", value: "assetOperation", width: 120 },
         { text: "操作人", value: "assetOperationUser", width: 120 },
         { text: "操作人部门", value: "deptName", width: 120 },
         { text: "备注", value: "remark-01", width: 120 },
-        { text: "操作时间", value: "consumeOperationAt", width: 260, class: 'fixed', cellClass: 'fixed' },
+        { text: "操作时间", value: "consumeOperationAt", width: 260 },
       ],
     }),
     computed: {
-      isMobile() {
-        return window.innerWidth < 600;
-      },
       tableData() {
         return this.tableDataFromBackend;
       }
@@ -139,8 +138,8 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'assetOutWarehouse',
-              actionId: 'assetHistory-selectItemList',
+              pageId: 'assetHistory',
+              actionId: 'selectItemList',
               actionData: {},
               where,
               orderBy: [{ column: 'assetOperationAt', order: 'desc' }]

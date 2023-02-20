@@ -1,4 +1,4 @@
-<template id="warehouseManagement-stock">
+<template id="stock-management">
   <div>
     <!-- 组件内容 -->
     <v-card class="rounded-lg">
@@ -117,8 +117,8 @@
 </template>
 
 <script type="module">
-  Vue.component("warehouseManagement-stock", {
-    template: '#warehouseManagement-stock',
+  Vue.component("stock-management", {
+    template: '#stock-management',
     props: ['warehouseId', 'warehouseName', 'dense'],
     vuetify: new Vuetify(),
     data: () => ({
@@ -153,9 +153,6 @@
       addItem: {}
     }),
     computed: {
-      isMobile() {
-        return window.innerWidth < 600;
-      },
       tableData() {
         return this.tableDataFromBackend.filter(item => {
           return this.serverSearchInput.rowStatus.includes(item.rowStatus);

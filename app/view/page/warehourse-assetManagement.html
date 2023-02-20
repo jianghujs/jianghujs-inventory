@@ -142,8 +142,8 @@
         </v-row>
         <!-- 抽屉表单主体 -->
         <v-row class="mt-0 px-4">
-          <assetManagement-assetHistory :asset="updateItem" :view-type="assetHistoryViewType"
-            v-if="isAssetHistoryDrawerShow"></assetManagement-assetHistory>
+          <asset-history :asset="updateItem" :view-type="assetHistoryViewType"
+            v-if="isAssetHistoryDrawerShow"></asset-history>
         </v-row>
         <!-- 抽屉关闭按钮 -->
         <v-btn
@@ -225,7 +225,7 @@
 
 <!-- 加载页面组件 >>>>>>>>>>>>> -->
 {% include 'common/jianghuJs/fixedTableHeightV4.html' %}
-{% include 'component/warehouse/assetManagement-assetHistory.html' %}
+{% include 'component/warehouse/assetHistoryByGoods.html' %}
 <!-- <<<<<<<<<<<<< 加载页面组件 -->
 
 <script type="module">

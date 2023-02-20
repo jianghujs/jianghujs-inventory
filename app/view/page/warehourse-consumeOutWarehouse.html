@@ -147,8 +147,8 @@
           </v-row>
           <!-- 抽屉表单主体 -->
           <v-row class="mt-0 px-4">
-            <consumeOutWarehouse-consumeHistory :consume="updateItem" :view-type="consumeHistoryViewType"
-            v-if="isConsumeHistoryDrawerShow"></consumeOutWarehouse-consumeHistory>
+            <consume-history :consume="updateItem" :view-type="consumeHistoryViewType"
+            v-if="isConsumeHistoryDrawerShow"></consume-history>
           </v-row>
         </v-form>
         <!-- 抽屉关闭按钮 -->
@@ -254,7 +254,7 @@
 
 <!-- 加载页面组件 >>>>>>>>>>>>> -->
 {% include 'common/jianghuJs/fixedTableHeightV4.html' %}
-{% include 'component/warehouse/consumeOutWarehouse-consumeHistory.html' %}
+{% include 'component/warehouse/consumeHistoryByGoods.html' %}
 <!-- <<<<<<<<<<<<< 加载页面组件 -->
 
 <script type="module">
