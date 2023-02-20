@@ -353,7 +353,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetManagement',
+              pageId: 'assetManagement',
               actionId: 'selectItemList',
               actionData: {},
               where,
@@ -376,7 +376,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetManagement',
+              pageId: 'assetManagement',
               actionId: 'selectGoodList',
               actionData: {},
               whereIn: { goodCategory: this.serverSearchInput.goodCategory },
@@ -392,7 +392,7 @@
         const warehouseList = (await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetManagement',
+              pageId: 'assetManagement',
               actionId: 'selectWarehouseList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -403,7 +403,7 @@
         const allStockList = (await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetManagement',
+              pageId: 'assetManagement',
               actionId: 'selectStockList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -451,7 +451,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetManagement',
+              pageId: 'assetManagement',
               actionId: 'updateItem',
               actionData: {
                 warehouseId: this.updateItem.warehouseId,

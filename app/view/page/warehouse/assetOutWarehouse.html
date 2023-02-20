@@ -465,7 +465,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'selectItemList',
               actionData: {},
               where,
@@ -488,7 +488,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'selectGoodList',
               actionData: {},
               whereIn: { goodCategory: this.serverSearchInput.goodCategory },
@@ -504,7 +504,7 @@
         const warehouseList = (await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'selectWarehouseList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -514,7 +514,7 @@
         const allStockList = (await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'selectStockList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -530,7 +530,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'selectDeptList',
               actionData: {},
               orderBy: [{ column: 'deptName', order: 'desc' }]
@@ -570,7 +570,7 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'assetOperation',
               actionData: {
                 assetId,
@@ -590,7 +590,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'selectItemList',
               actionData: {},
               where: {
@@ -621,7 +621,7 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/assetOutWarehouse',
+              pageId: 'assetOutWarehouse',
               actionId: 'assetOperation',
               actionData: {
                 assetId, warehouseId, stockId, assetOperation, assetOperationUser, assetOperationDeptId, remark

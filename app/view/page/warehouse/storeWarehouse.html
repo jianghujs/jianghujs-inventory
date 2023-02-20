@@ -314,7 +314,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/storeWarehouse',
+              pageId: 'storeWarehouse',
               actionId: 'selectItemList',
               actionData: {},
               where: {
@@ -338,7 +338,7 @@
         const warehouseList = (await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/storeWarehouse',
+              pageId: 'storeWarehouse',
               actionId: 'selectWarehouseList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -348,7 +348,7 @@
         const allStockList = (await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/storeWarehouse',
+              pageId: 'storeWarehouse',
               actionId: 'selectStockList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -390,7 +390,7 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/storeWarehouse',
+              pageId: 'storeWarehouse',
               actionId: 'storeGoodByPurchaseOrderGood',
               actionData: {
                 purchaseOrderGoodId, warehouseId, stockId, prepareStoreCount,
@@ -412,7 +412,7 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/storeWarehouse',
+              pageId: 'storeWarehouse',
               actionId: 'computeIsAllStoreForPurchaseOrder',
               actionData: {
                 purchaseOrderId

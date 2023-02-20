@@ -387,7 +387,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/consumeOutWarehouse',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectItemList',
               actionData: {},
               where,
@@ -410,7 +410,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/consumeOutWarehouse',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectGoodList',
               actionData: {},
               whereIn: { goodCategory: this.serverSearchInput.goodCategory },
@@ -425,7 +425,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/consumeOutWarehouse',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectWarehouseList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -440,7 +440,7 @@
         const result = await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/consumeOutWarehouse',
+              pageId: 'consumeOutWarehouse',
               actionId: 'selectDeptList',
               actionData: {},
               where: { rowStatus: '正常' },
@@ -479,7 +479,7 @@
         await window.jianghuAxios({
           data: {
             appData: {
-              pageId: 'warehouse/consumeOutWarehouse',
+              pageId: 'consumeOutWarehouse',
               actionId: 'consumeOutWarehouse',
               actionData: { consumeId, consumeOperationCount, consumeOperationUser, consumeOperationDeptId, remark },
             }
