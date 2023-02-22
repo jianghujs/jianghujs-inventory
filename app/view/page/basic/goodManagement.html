@@ -59,6 +59,7 @@
           :headers="headers"
           :items="tableData"
           :search="searchInput"
+          height="350"
           :footer-props="{ itemsPerPageOptions: [20, 50], itemsPerPageText: '每页行数', itemsPerPageAllText: '所有'}"
           :items-per-page="50"
           mobile-breakpoint="0"
@@ -73,7 +74,7 @@
           @click:row="(item, row) => {
                         row.select(true);
                       }" 
-          class="jh-fixed-table-height elevation-0 mt-0 mb-xs-4">
+          class="elevation-0 mt-0 mb-xs-4">
           <!-- 自定义列 -->
           <template v-slot:item.action="{ item }">
             <span role="button" class="success--text font-weight-medium font-size-2 mr-2" @click="doUiAction('startUpdateItem', item)">
@@ -105,7 +106,7 @@
       </v-card>
       <!-- <<<<<<<<<<<<< 页面内容 -->
 
-      <goodManagement-supplierGood ref="supplierGood" v-if="selectedRows.length" :good-id="selectGoodId"
+      <goodManagement-supplierGood class="mt-4" ref="supplierGood" v-if="selectedRows.length" :good-id="selectGoodId"
       :good-name="selectGoodName"></goodManagement-supplierGood>
       
       <!-- 新增抽屉 -->
